@@ -1,0 +1,6 @@
+Oct 28 14:17:06 lima-openshell-kata-enforcement systemd[1]: Started okata-w-e1c636f26b3a8b704186.service - /opt/openshell-kata/kata-runtime watchdog /var/lib/openshell-kata/jobs/expiry-proof/watch.json.
+Oct 28 14:18:15 lima-openshell-kata-enforcement systemd[1]: okata-w-e1c636f26b3a8b704186.service: Deactivated successfully.
+Oct 28 14:18:44 lima-openshell-kata-enforcement systemd[1]: Started okata-w-05aeddc0b3f25d8104fb.service - /opt/openshell-kata/kata-runtime watchdog /var/lib/openshell-kata/jobs/dd8edad2-12ae-4a52-8018-3b870221f73f/watch.json.
+Oct 28 14:19:06 lima-openshell-kata-enforcement systemd[1]: Stopping okata-w-05aeddc0b3f25d8104fb.service - /opt/openshell-kata/kata-runtime watchdog /var/lib/openshell-kata/jobs/dd8edad2-12ae-4a52-8018-3b870221f73f/watch.json...
+Oct 28 14:19:06 lima-openshell-kata-enforcement systemd[1]: okata-w-05aeddc0b3f25d8104fb.service: Deactivated successfully.
+Oct 28 14:19:06 lima-openshell-kata-enforcement systemd[1]: Stopped okata-w-05aeddc0b3f25d8104fb.service - /opt/openshell-kata/kata-runtime watchdog /var/lib/openshell-kata/jobs/dd8edad2-12ae-4a52-8018-3b870221f73f/watch.json.

@@ -1,0 +1,26 @@
+# Exact public destinations used by the Docker Hub qualification fixture.
+# The operator VM profile must authorize the same destinations. Newly observed
+# registry redirects remain denied until explicitly reviewed and added to both.
+version: 1
+network_policies:
+  docker_hub:
+    name: docker-hub-qualification
+    binaries:
+      - path: "/**"
+    endpoints:
+      - host: auth.docker.io
+        port: 443
+        protocol: tcp
+        tls: skip
+      - host: registry-1.docker.io
+        port: 443
+        protocol: tcp
+        tls: skip
+      - host: production.cloudflare.docker.com
+        port: 443
+        protocol: tcp
+        tls: skip
+      - host: production.cloudfront.docker.com
+        port: 443
+        protocol: tcp
+        tls: skip

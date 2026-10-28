@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "scope": "Local docker-vm profile; not production, hosted, cross-cloud, or all-OS qualification",
+  "source": {
+    "sha256": "85417cf764264a4efc6cd89304ae397573a8b20584950d4bc2114a38c8784c96",
+    "algorithm": "SHA256 of sorted UTF-8 path + NUL + file SHA256 + newline entries",
+    "manifest": "enforcement-source-manifest.json"
+  },
+  "platform": {
+    "host": "macOS Apple Silicon aarch64; nested virtualization",
+    "launcher": "Lima 2.2.0 VZ, dedicated task-owned node",
+    "runtime": "Kata 4.3.1 runtime-rs / Dragonball; no Go Kata fallback",
+    "guest_kernel": "6.18.56",
+    "docker": "29.9.2",
+    "openshell": "0.1.6 unmodified official CLI and gateway"
+  },
+  "checks": {
+    "tests_passed": 139,
+    "tests_failed": 0,
+    "implementation_line_coverage_percent": 84.85,
+    "coverage_scope": "All own implementation modules; generated/build/test-source files excluded; host execution instrumentation, Linux node-only branches are not instrumented",
+    "format": "pass",
+    "clippy": "pass, all targets/features, warnings denied",
+    "documentation": "pass",
+    "dependency_audit": {
+      "vulnerabilities_found": false,
+      "count": 0
+    },
+    "vendored_protocol": "pass",
+    "official_binary_fetch_and_checksum": "pass",
+    "fresh_official_cli": "pass: four 16 MiB uploads, five matching downloads, executable mode, concurrent commands, Dockerfile RUN, two Compose services, preview HTTP 200, stop/start, fresh random marker persistence, deletion",
+    "guest_root_network": "21 checks passed including direct IPv4/IPv6/UDP/DNS/metadata/sibling denial, spoofing, guest firewall replacement, broker allow/deny, private DNS and active stream revocation",
+    "storage_resources": "private 2 GiB block root; no shared filesystem or host bind mounts; agent device read-only; block zeroing and disk end enforced; host CPU/memory/swap/oom controls observed",
+    "independent_lifetime": "90-second lease, creator exited, watchdog terminated VM at original deadline, restart rejected",
+    "security_review": "Independent read-only review: no critical/high findings in final cleanup, restart, lifecycle and boundary delta"
+  },
+  "evidence": {
+    "cli": "enforcement-cli/",
+    "network": "enforcement-kata-root-v1.log",
+    "network_rules": [
+      "enforcement-fence-inet.json",
+      "enforcement-fence-netdev.json"
+    ],
+    "runtime": "runtime-rust-summary.md",
+    "lifetime": "enforcement-lifetime.json",
+    "tests": "enforcement-tests.log",
+    "coverage": "enforcement-coverage.txt",
+    "audit": "enforcement-audit.json"
+  },
+  "unsupported": [
+    "Selective native guest filesystem/process/executable identity enforcement against guest root",
+    "Native credential injection, L7/middleware policies not implemented by this profile",
+    "Production crash recovery, multi-tenant load/exhaustion and launcher-replacement matrix",
+    "Windows, native Linux launcher, x86, hosted and cross-cloud qualification",
+    "Production PTY/JWT-refresh/reconnect and durable backup support"
+  ],
+  "delivery": {
+    "git_remote": null,
+    "publication": "blocked: no repository remote or release target configured",
+    "cleanup": "Task-owned services, guest resources, VM and instrumented cache removed after reports; private local credentials preserved"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "openshell",
+    "policy",
+    "set",
+    "--global",
+    "--yes",
+    "--policy",
+    "/Users/andrew/code/openshell-kata/scripts/e2e-native-policy.yaml"
+  ],
+  "duration_seconds": 0.029809542,
+  "exit_code": 0,
+  "stderr": "✓ Global policy configured (hash: 6ea0eeccb662, settings revision: 3)\n",
+  "stdout": "",
+  "timed_out": false
+}

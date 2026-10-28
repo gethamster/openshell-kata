@@ -1,0 +1,11 @@
+{
+  "sandbox_id": "expiry-proof",
+  "runtime": "kata-runtime-rs",
+  "lifetime_secs": 90,
+  "expires_at_utc": "2026-10-28T14:18:15+00:00",
+  "creator_exited_before_expiry": true,
+  "watchdog_pid": 18152,
+  "expired_restart_rejected": "Error: sandbox lease expired",
+  "journal": "enforcement-lifetime-journal.txt",
+  "observation": "After the deadline, ctr tasks list contained only the separate CLI integration VM; the expiry VM was absent before explicit cleanup."
+}

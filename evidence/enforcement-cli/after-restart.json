@@ -1,0 +1,18 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "exec",
+    "rust-upload-check",
+    "--no-tty",
+    "--",
+    "sh",
+    "-ec",
+    "test \"$(cat /sandbox/restart-marker)\" = 'e8e25c91-22fa-42bd-91da-d99ffcd04430'; sha256sum /sandbox/project/upload/large.bin; docker info >/dev/null"
+  ],
+  "duration_seconds": 29.836498167,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "01c65c8d6d336a8f1e9acf8bbfe807f7c1d0ec666ff41bc2db9f679849f03c03  /sandbox/project/upload/large.bin\n",
+  "timed_out": false
+}

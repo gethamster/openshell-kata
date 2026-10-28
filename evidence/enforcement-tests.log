@@ -1,0 +1,268 @@
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling openshell-kata v0.1.0 (/Users/andrew/code/openshell-kata)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
+     Running unittests src/lib.rs (.local/policy-build/llvm-cov-target/debug/deps/openshell_kata-4fbe8c3e44eeacab)
+
+running 25 tests
+test network::proxy::tests::rejects_smuggling_and_nonabsolute_requests ... ok
+test network::proxy::tests::rewrites_absolute_target_and_removes_proxy_credentials ... ok
+test runtime::command::tests::node_names_reject_options_paths_and_non_ascii ... ok
+test network::proxy::tests::header_limit_rejects_unterminated_input ... ok
+test network::proxy::tests::malformed_or_ambiguous_body_framing_fails_closed ... ok
+test network::proxy::tests::chunked_body_stops_before_pipelined_bytes ... ok
+test runtime::transport::tests::invalid_ssh_routes_fail_before_starting_a_process ... ok
+test runtime::transport::tests::guest_commands_keep_pinning_and_one_remote_argument ... ok
+test runtime::watchdog::tests::initial_remaining_respects_expiry_and_clock_rollback ... ok
+test network::broker::tests::policy_revocation_cancels_pending_dns_before_any_connection ... ok
+test network::broker::tests::mixed_or_rebound_private_dns_answers_are_rejected_before_connect ... ok
+test runtime::watchdog::tests::monotonic_expiry_cannot_be_extended_by_wall_clock_changes ... ok
+test network::broker::tests::dropping_broker_closes_active_tunnels ... ok
+test runtime::watchdog::tests::managed_path_validation_rejects_traversal_and_outside_roots ... ok
+test runtime::watchdog::tests::held_kill_handle_does_not_retarget_a_replaced_path ... ok
+test runtime::command::tests::checked_commands_preserve_argument_boundaries ... ok
+test network::broker::tests::connect_streams_bytes_and_policy_update_revokes_existing_connections ... ok
+test runtime::transport::tests::missing_tunnel_is_idempotent_but_regular_files_are_rejected ... ok
+test runtime::watchdog::tests::managed_paths_and_kill_files_do_not_follow_symlinks ... ok
+test runtime::command::tests::untrusted_environment_and_diagnostics_are_bounded ... ok
+test runtime::command::tests::oversized_control_output_fails_without_unbounded_capture ... ok
+test runtime::command::tests::raw_commands_preserve_status_and_checked_commands_reject_it ... ok
+test runtime::transport::tests::key_generation_is_private_and_refuses_replacement ... ok
+test runtime::command::tests::commands_have_a_finite_deadline ... ok
+test network::broker::tests::forwards_normal_http_post_with_single_request_framing ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running unittests src/bin/kata-dev.rs (.local/policy-build/llvm-cov-target/debug/deps/kata_dev-825a8ae0f72496a2)
+
+running 12 tests
+test devtools::tools::tests::rejects_missing_duplicate_and_link_members ... ok
+test devtools::tools::tests::extracts_only_exact_regular_member ... ok
+test devtools::tests::checksum_manifest_cannot_escape_protocol_directory ... ok
+test devtools::tools::tests::empty_and_duplicate_manifests_are_rejected ... ok
+test devtools::services::tests::stale_socket_removal_preserves_live_listeners_and_unexpected_files ... ok
+test devtools::tools::tests::verifies_pinned_content_and_rejects_changes ... ok
+test devtools::tests::credential_environment_is_not_inherited ... ok
+test devtools::services::tests::reused_process_identity_is_never_signalled ... ok
+test devtools::services::tests::records_are_atomic_private_and_round_trip ... ok
+test devtools::tests::timeout_closes_descendant_output_pipes ... ok
+test devtools::tests::failure_is_recorded_before_returning ... ok
+test devtools::gateway::tests::existing_pki_is_preserved_and_only_local_state_is_registered ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running unittests src/bin/kata-network.rs (.local/policy-build/llvm-cov-target/debug/deps/kata_network-d3d61ce61ded5536)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/kata-runtime.rs (.local/policy-build/llvm-cov-target/debug/deps/kata_runtime-d59a123a0a3878f5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (.local/policy-build/llvm-cov-target/debug/deps/openshell_kata-e71fe47fea99dc60)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/adapter_admission.rs (.local/policy-build/llvm-cov-target/debug/deps/adapter_admission-a87839bf37257722)
+
+running 4 tests
+test gateway_snapshot_must_be_admitted_before_activation ... ok
+test unqualified_policy_mode_fails_closed_before_provisioning ... ok
+test strict_mode_validates_intent_but_never_admits_without_runtime_fences ... ok
+test unsupported_image_environment_resources_and_network_are_rejected ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/adapter_boundaries.rs (.local/policy-build/llvm-cov-target/debug/deps/adapter_boundaries-9c784f0cd2fb3eec)
+
+running 5 tests
+test sandbox_identifiers_cannot_change_runner_targets ... ok
+test guest_metadata_requires_loopback_and_safe_identity ... ok
+test uploads_confine_destination_to_workspace ... ok
+test local_prototype_mode_cannot_be_redirected_by_url_userinfo ... ok
+test upload_plan_rejects_unknown_fields_control_characters_and_unknown_kinds ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/adapter_driver.rs (.local/policy-build/llvm-cov-target/debug/deps/adapter_driver-fb91ae25f5f2f8b1)
+
+running 7 tests
+test unsupported_contract_major_is_rejected ... ok
+test invalid_launch_authentication_never_calls_lifecycle ... ok
+test stopping_an_unknown_registry_entry_fails_without_claiming_backend_success ... ok
+test cancelled_create_rpc_still_finishes_owned_cleanup ... ok
+test refused_create_with_noop_abort_does_not_publish_a_false_deletion ... ok
+test malformed_launch_metadata_uses_owned_abort_and_retains_failed_cleanup ... ok
+test deletion_failure_keeps_record_for_retry ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.41s
+
+     Running tests/adapter_ssh.rs (.local/policy-build/llvm-cov-target/debug/deps/adapter_ssh-7813e7262c21afb3)
+
+running 16 tests
+test hardened_runtime_rejects_exec_until_ready ... ok
+test simultaneous_uploads_are_limited_before_spooling ... ok
+test cancellation_closes_an_upload_with_an_incomplete_plan ... ok
+test hardened_runtime_rejects_sftp_without_starting_guest_process ... ok
+test invalid_upload_plan_closes_channel_without_waiting_for_eof ... ok
+test cancellation_reclaims_an_unfinished_archive_transfer ... ok
+test invalid_archive_is_rejected_before_guest_extractor_can_start ... ok
+test forwards_stdout_stderr_and_exit_status ... ok
+test gateway_relayed_system_ssh_username_does_not_select_guest_identity ... ok
+test ssh_upload_reports_final_total_for_multi_megabyte_input ... ok
+test output_drain_deadline_reclaims_upload_after_extractor_exits ... ok
+test cancellation_after_exec_stdin_eof_reclaims_operation_and_child ... ok
+test ssh_download_validates_and_normalizes_before_publishing ... ok
+test failed_extractor_reports_failure_after_archive_validation ... ok
+test ssh_download_rejects_hostile_or_failed_exports_without_publishing_bytes ... ok
+test cancellation_reclaims_upload_after_extractor_exits_with_inherited_output ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+
+     Running tests/adapter_upload.rs (.local/policy-build/llvm-cov-target/debug/deps/adapter_upload-d471dfd9a2258b53)
+
+running 2 tests
+test closed_extractor_fails_promptly_instead_of_waiting_for_upload_eof ... ok
+test streams_large_upload_through_small_buffers_without_losing_credit ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s
+
+     Running tests/boundary_filesystem.rs (.local/policy-build/llvm-cov-target/debug/deps/boundary_filesystem-5823d1ef67c8ae32)
+
+running 9 tests
+test directory_content_and_excess_padding_are_rejected ... ok
+test rejects_appended_payload_and_oversized_or_ambiguous_paths ... ok
+test canonical_id_round_trip_removal_and_zero_limits ... ok
+test quotas_and_truncation_publish_nothing ... ok
+test rejects_opaque_id_path_injection_and_tampered_artifacts ... ok
+test imports_and_exports_normalized_archive_atomically ... ok
+test refuses_world_writable_root_and_symlink_or_hardlinked_archives ... ok
+test io_errors_cleanup_staging_and_preserve_existing_archive ... ok
+test rejects_traversal_links_devices_duplicate_and_conflicting_paths ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/boundary_process.rs (.local/policy-build/llvm-cov-target/debug/deps/boundary_process-782746f69200ad80)
+
+running 3 tests
+test deadline_is_checked_and_expiration_includes_boundary ... ok
+test detects_byte_count_overflow_and_invalid_persisted_deadline ... ok
+test validates_each_limit_and_rejects_unknown_fields ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/network_cli.rs (.local/policy-build/llvm-cov-target/debug/deps/network_cli-e4e5e75f08a7f764)
+
+running 3 tests
+test cli_plan_validates_before_emitting_rules ... ok
+test cli_refuses_public_bind_and_unprotected_control_directories ... ok
+test cli_control_binds_nonces_revokes_connections_and_cleans_socket ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+
+     Running tests/network_fence.rs (.local/policy-build/llvm-cov-target/debug/deps/network_fence-2b68d1ac56ab12ce)
+
+running 2 tests
+test untrusted_identity_cannot_inject_nft_expressions ... ok
+test fence_is_bound_to_host_interface_and_denies_unbrokered_traffic ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/network_policy.rs (.local/policy-build/llvm-cov-target/debug/deps/network_policy-6816a49d88cad8ce)
+
+running 2 tests
+test non_global_and_transition_addresses_cannot_reach_metadata_or_siblings ... ok
+test exact_endpoints_are_normalized_and_wildcards_rejected ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/policy.rs (.local/policy-build/llvm-cov-target/debug/deps/policy-23b7b081ea0fc715)
+
+running 13 tests
+test absent_version_and_future_versions_are_rejected ... ok
+test all_executables_does_not_enable_unimplemented_network_enforcement ... ok
+test does_not_treat_guest_binary_identity_as_authoritative ... ok
+test include_workdir_is_an_unsupported_filesystem_promise ... ok
+test rejects_even_empty_network_rules_instead_of_silently_dropping_them ... ok
+test does_not_report_guest_landlock_as_honored ... ok
+test rejects_middleware_without_claiming_to_execute_it ... ok
+test credential_and_l7_fields_never_get_silently_accepted_or_logged ... ok
+test rejects_guest_filesystem_promises_that_rootful_docker_can_bypass ... ok
+test rejects_path_ambiguity_without_returning_the_supplied_path ... ok
+test validates_intent_without_claiming_runtime_enforcement ... ok
+test validates_every_path_before_reporting_unsupported_filesystem_semantics ... ok
+test rejects_unimplemented_identity_selectors_and_invalid_identities ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/profile.rs (.local/policy-build/llvm-cov-target/debug/deps/profile-5af8848bb9daba1e)
+
+running 10 tests
+test empty_native_policy_never_grants_operator_network_ceiling ... ok
+test digest_canonicalizes_duplicate_and_reordered_destinations ... ok
+test gateway_owner_metadata_never_enables_provider_credentials ... ok
+test unknown_fields_and_unsupported_profiles_are_rejected ... ok
+test native_network_is_intersected_with_operator_ceiling ... ok
+test unimplemented_native_endpoint_fields_fail_closed ... ok
+test rejects_each_native_feature_that_cannot_be_enforced_outside_guest ... ok
+test policy_digest_is_stable_and_sensitive_to_limits ... ok
+test evidence_is_bound_to_request_policy_resources_and_live_lease ... ok
+test profile_loading_is_bounded_and_validates_resource_limits ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/runtime_model.rs (.local/policy-build/llvm-cov-target/debug/deps/runtime_model-939edda7edf585fb)
+
+running 4 tests
+test absence_requires_the_exact_object_and_no_transport_error ... ok
+test nonce_is_bounded_ascii_and_not_a_path ... ok
+test a_single_real_network_address_is_selected_in_presence_of_kata_tap ... ok
+test actions_remain_compatible_and_reject_unknown_values ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/runtime_security.rs (.local/policy-build/llvm-cov-target/debug/deps/runtime_security-df2d50fb640b019f)
+
+running 10 tests
+test shim_reaping_requires_exact_id_and_containerd_namespace_tokens ... ok
+test interface_names_are_bound_to_the_creation_generation ... ok
+test restart_removes_only_known_kata_taps_and_refuses_unknown_links ... ok
+test unsupported_hardware_sizes_are_rejected_not_silently_clamped ... ok
+test shim_socket_uses_pinned_kata_address_hash_and_rejects_paths ... ok
+test minimal_guest_spec_exposes_no_host_files_or_devices ... ok
+test abort_missing_state_is_a_noop_without_node_access ... ok
+test invalid_nonce_refuses_create_before_policy_or_node_access ... ok
+test preexisting_state_refuses_create_before_contacting_the_node ... ok
+test mismatched_abort_never_deletes_an_existing_generation ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/runtime_state.rs (.local/policy-build/llvm-cov-target/debug/deps/runtime_state-62f86beae6c8cc6a)
+
+running 9 tests
+test rejects_path_and_shell_identifiers ... ok
+test rejects_parent_components_before_creating_any_directory ... ok
+test rejects_symlink_root_and_ancestors ... ok
+test creates_private_root_and_refuses_relative_roots ... ok
+test rejects_unknown_state_and_state_symlinks ... ok
+test refuses_metadata_symlink_without_touching_target ... ok
+test socket_paths_are_short_and_bound_to_complete_identifiers ... ok
+test removal_is_scoped_and_does_not_follow_child_symlinks ... ok
+test creates_once_and_round_trips_private_metadata ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/upload_policy.rs (.local/policy-build/llvm-cov-target/debug/deps/upload_policy-f03b3ff32f39fc34)
+
+running 3 tests
+test idle_upload_fails_without_waiting_for_peer_eof ... ok
+test malformed_and_oversize_input_never_becomes_replayable ... ok
+test validates_before_extraction_and_preserves_large_upload_acks ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+

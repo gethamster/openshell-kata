@@ -2,21 +2,29 @@
 
 ## Status and execution gate
 
-This document is an implementation plan, not a claim that the adapter enforces
-OpenShell policy. The local upload, execution, Docker/Compose, preview, and
-lifecycle gate in [DELIVERY_PLAN.md](DELIVERY_PLAN.md) comes first. No hosted
-deployment is authorized by a passing parser or an acknowledged configuration.
+The local `docker-vm` profile has passed the upload, execution, Docker/Compose,
+preview, lifecycle, and external-boundary checks recorded in
+[enforcement-qualification.json](../evidence/enforcement-qualification.json).
+This document also tracks the larger production matrix. No hosted deployment
+is qualified by a passing parser or an acknowledged configuration.
 
 The current explicit prototype mode is for local qualification. It must remain
 disabled by default and must not report native filesystem, process, or network
-policy as enforced. Hardened admission remains closed until the required runtime
-controls and negative tests pass.
+policy as enforced. Hardened admission requires host-observed evidence of its
+supported VM controls before Ready.
 
-The first policy implementation now validates and rejects unsupported requests
-in `src/policy.rs`, with request-admission integration and negative tests. It
-does not make the prototype a hardened runtime by accepting configuration.
-The local upload regression passed before this implementation started; hosted
-deployment and the runtime enforcement milestones below remain gated.
+The policy implementation includes native-policy validation in `src/policy.rs`,
+operator-profile compilation in `src/profile.rs`, external network filtering and
+brokering, validated transfers, and host-side runtime/resource controls. These
+passed the local Rust Kata qualification. The earlier upload-only milestone is
+retained separately; neither result qualifies an untested platform or hosted
+deployment.
+
+The implementation follows [ENFORCEMENT_CONTRACT.md](ENFORCEMENT_CONTRACT.md):
+an explicit operator `docker-vm` policy protects host storage, bounds the whole
+VM, and denies direct networking. Native guest filesystem/process restrictions
+remain rejected. The contract identifies which controls require host-observed
+evidence before hardened Ready and which guest-level guarantees are unsupported.
 
 ## Security contract
 
@@ -43,7 +51,7 @@ control plane or a hypervisor escape.
 | Provider credentials | Native supervisors keep provider material outside workloads | Keep real credentials outside the guest; implement and test any supported injection path before accepting that provider configuration. |
 | Preview ingress | Gateway routes authorized services | Expose only explicit gateway previews; never create direct application ingress to workload Pods. |
 
-## Policy representation is an unresolved admission constraint
+## Native and VM policy representation
 
 The unmodified OpenShell 0.1.6 gateway rejects an unrestricted guest
 `read_write: ["/"]` policy as unsafe. Its accepted selective paths, such as
@@ -51,18 +59,24 @@ The unmodified OpenShell 0.1.6 gateway rejects an unrestricted guest
 guest. The prototype previously accepted those paths without enforcing them;
 that is not a hardened compatibility result.
 
-The adapter must reject a native filesystem policy that it cannot honor. A
-useful VM-scoped policy needs an explicit, validated representation that the
-gateway and adapter agree on. Establish that representation before admitting a
-hardened full-Docker sandbox. Do not manufacture a policy principal, silently
-discard native fields, or claim that a VM boundary implements guest-path rules.
-This can block hardened full-Docker admission while implementation proceeds.
+The adapter must reject a native filesystem policy that it cannot honor.
+Use an explicitly supplied native policy containing `version: 1`, optionally
+with the supported L4 network subset, together with a separately validated
+operator VM policy. Source inspection of the pinned parser and gateway resolver
+shows that omitted filesystem/process/Landlock sections remain absent for an
+explicit policy without provider/global layers. The final integration must
+confirm this through the official CLI and effective snapshot; it must fail if
+an additional layer introduces unsupported claims.
 
-For network rules, the upstream policy supports executable globs. An explicitly
-all-executables rule may be a candidate for sandbox-wide authorization, but it
-must be verified against the pinned gateway and effective policy. A rule for a
-specific guest executable must be rejected. Do not submit invented binary
-identity evidence to make the stock supervisor accept it.
+The VM policy does not reinterpret native fields. It declares host filesystem
+and VM resource boundaries and whole-sandbox network access. Native network
+rules must select all executables with `/**`, use only L4 TCP with explicit
+`tls: skip`, and request destinations within the operator `tcp_allow` ceiling.
+Empty native network rules compile to deny-all even when that ceiling is
+nonempty. Narrow executable rules, audit mode, L7, credential fields, and other
+unsupported endpoint options are rejected. No invented binary identity is sent
+to the stock supervisor. This keeps the unmodified OpenShell gateway while
+making the coarser VM policy explicit to its operator.
 
 ## Admission and capability checks
 
@@ -71,27 +85,31 @@ as a pure validation step over the vendored OpenShell type. `ValidatedPolicy`
 means that the adapter understands the requested intent; it does not mean the
 runtime has installed or proved enforcement.
 
-The implemented first slice recognizes a version-1 policy with no requested
-guest filesystem, process, Landlock, middleware, or network-access features.
-Even that result remains blocked by strict admission because the required
-runtime fences are unqualified. The validator rejects valid selective guest
-paths as unsupported and rejects ambiguous paths before reporting capability
-limitations. It never substitutes a broader policy or returns an enforcement
-flag. Its typed errors omit supplied paths, identities, and secret values.
+The general validator recognizes a version-1 policy with no requested guest
+filesystem, process, Landlock, middleware, or network-access features. The
+profile compiler validates native network intent separately and intersects it
+with the operator ceiling. It rejects valid selective guest paths as unsupported
+and rejects ambiguous paths before reporting capability limitations. Validation
+never substitutes a broader policy or returns an enforcement flag. Typed errors
+omit supplied paths, identities, and secret values.
 
 Call validation before resource creation and again for the effective
 `GetSandboxConfig` snapshot. Require gateway admission, pinned protocol support,
 and an exact sandbox/generation match. Reject missing policy, unsupported
 versions, selective guest filesystem guarantees, unimplemented process
-selectors, guest-binary rules, middleware, credential mechanisms, and endpoint
+selectors, narrow guest-binary rules, middleware, credential mechanisms, and endpoint
 features. Diagnostics should identify the unsupported field without echoing
 secrets. Keep the prototype bypass explicit and separate from hardened mode.
 
-Before a hardened sandbox becomes Ready, verify independently that the runtime
-has installed its outer fences and that its effective policy revision matches
-the admitted snapshot. A missing fence, expired identity, failed policy update,
-or unsupported feature must prevent launch or stop external access. Never treat
-the gateway's configuration-admitted bit as runtime enforcement evidence.
+Before a hardened sandbox becomes Ready, independently verify the installed
+outer fences and the effective profile. The supervisor polls the gateway every
+five seconds, obtains fresh nonce-bound host-runtime evidence, and reports
+Accepted/Loaded only after applying and verifying the result. Failed polling,
+verification, or unsupported updates fail supervision and stop the hardened VM.
+Changed broker policies revoke existing streams before acknowledgment; equal
+policies preserve them. This has a polling propagation interval, not immediate
+gateway-to-firewall revocation. Never treat the gateway's configuration-admitted
+bit as runtime enforcement evidence.
 
 ## Filesystem and credentials outside the guest
 
@@ -102,14 +120,15 @@ permissions. Prefer bounded block-backed guest storage where practical. Do not
 claim that a shared host directory is safe merely because it is mounted through
 a VM. Host filesystem paths and arbitrary host sockets are not caller inputs.
 
-Provide explicit import/export operations for host files. Pin the permitted
-directory with a directory descriptor, resolve paths beneath it without
-following symlinks or magic links, and defend against concurrent rename/symlink
-races. Reject traversal, device files, FIFOs, unexpected hard links, excessive
-expansion, and unauthorized permission bits. Apply byte/count/time quotas and
-stage imports before atomic publication. Preserve executable files only within
-the allowed mode policy. On platforms without equivalent safe path-resolution
-primitives, fail the operation instead of falling back to a string-prefix check.
+The import/export store retains validated, sealed USTAR archives under a private
+directory capability and never extracts entries on the host. It accepts files
+and directories only, bounds bytes and entries, and rejects traversal, links,
+devices, sparse files, PAX/GNU extension records, and nonportable paths. It
+normalizes ownership/timestamps and special mode bits, then atomically publishes
+the archive. Uploads and downloads share two transfer slots; SFTP is rejected in
+the hardened profile. See the contract for path limits and transfer deadlines.
+Arbitrary exec stdout is not subject to archive quotas and must not be described
+as a validated file export.
 
 Keep gateway tokens, SSH private keys, provider material, and cloud credentials
 out of guest mounts, environment, logs, images, and upload archives. Any
@@ -133,11 +152,12 @@ require explicit operator-authorized destinations. Prevent DNS rebinding and
 cross-sandbox relay reuse. DNS itself is an egress channel and must not offer
 unrestricted external recursion from the guest.
 
-Start with no provider credentials, no middleware, no wildcard destinations,
-and no external UDP except supported DNS mediation. Add an exact-host/port TCP
-allowlist only when its semantics are fully implemented. TLS inspection, HTTP
-method/path restrictions, credential rewriting, and generic UDP are separate
-features; reject requests for them until they have real enforcement.
+The supported profile has no provider credentials, middleware, wildcard
+destinations, or guest UDP/DNS. The external broker resolves exact hostname/port
+selectors to public IPs and rejects non-global and mixed DNS results. Direct
+traffic remains blocked. The TCP proxy does not enforce TLS SNI or virtual-host
+identity on a shared public address. TLS inspection, HTTP method/path
+restrictions, credential rewriting, and generic UDP remain unsupported.
 
 Apply policy revisions atomically. Revoke or terminate existing connections
 when a new policy removes their authorization. Losing policy/control service
@@ -146,10 +166,14 @@ authenticated gateway, with per-sandbox authorization and explicit port grants.
 
 ## Process and resource enforcement
 
-Apply CPU, memory, storage, and lifetime limits at the host VM boundary. Validate
-requested resources against operator ceilings before allocating them. Host
-process limits constrain the VMM and relay, not the number of guest processes.
-Test fork bombs and memory/CPU/disk exhaustion at the guest boundary.
+The local profile uses Kata 4.3.1 runtime-rs/Dragonball with one vCPU, 2048 MiB
+RAM, and a private 2048 MiB devmapper block-backed root image. Boot with this
+configuration passed the local combined CLI and boundary qualification. Other
+sizes and platforms must be rejected until implemented and
+verified. A node-side watchdog enforces the configured VM lifetime independently
+of the guest. Host process limits constrain the VMM and relay, not the number of
+guest processes. Test fork bombs and memory/CPU/disk exhaustion at the guest
+boundary. The hardened profile has no Go Kata fallback.
 
 Implement stop/delete as authoritative destruction or termination of the VM
 and its external relay. Guest cooperation can improve shutdown but cannot be
@@ -162,25 +186,27 @@ Do not expose arbitrary host devices, KVM handles, or runtime sockets to callers
 1. **Pass the local upload gate.** Check repeated and concurrent binary transfers,
    hashes, executable permissions, failure cleanup, and command progress with the
    official unmodified CLI. Preserve reproducible evidence.
-2. **Implement fail-closed policy validation.** The first slice and its request
-   admission hook are implemented. Complete effective-snapshot integration as
-   runtime capabilities are added. Keep hardened Ready blocked while VM-scope
-   representation or runtime controls are unavailable.
-3. **Prove isolation of secrets and host storage.** Remove guest-visible control
-   secrets and arbitrary host mounts; test cross-sandbox and path attacks.
-4. **Install and prove the external deny-all fence.** Test it from the agent,
+2. **Implement fail-closed policy validation.** The validator, operator-profile
+   compiler, and effective-snapshot integration are implemented and passed the
+   local CLI proof path. Extend qualification for each additional platform.
+3. **Prove isolation of secrets and host storage.** Test the private block-backed
+   storage and validated archive store against cross-sandbox and path attacks.
+4. **Qualify the external deny-all fence.** Test it from the agent,
    rootful Docker daemon, build step, and Compose service, including after guest
    firewall changes and control-service failure.
-5. **Add bounded external TCP/DNS authorization.** Implement exact destinations,
-   sandbox binding, policy revisions, revocation, and explicit previews. Validate
-   every accepted effective-policy field before enabling hardened admission.
+5. **Qualify bounded external TCP authorization.** Test exact destinations,
+   external DNS resolution, sandbox binding, policy revisions, revocation, and
+   explicit previews together. The profile blocks guest UDP/DNS; clients use the
+   broker for hostname-bearing requests. Validate every accepted effective-policy
+   and operator-profile field before claiming hardened support.
 6. **Add optional features independently.** Credential injection, L7 controls,
    middleware, resource extensions, and platform launchers each need positive and
    adversarial tests. Unimplemented features remain rejected.
 
-The smallest first implementation after upload passes is step 2. Its security
-effect is rejecting misleading requests before execution. The first added
-runtime network guarantee is deny-all in step 4, not a configuration flag.
+The supported local profile is implemented and qualified as recorded in the
+evidence. The broader adversarial matrix below remains a production gate:
+multi-tenant load/exhaustion, crash recovery, launcher replacement, and every
+deployment platform need separate qualification. A configuration flag is not proof.
 
 ## Required adversarial tests
 

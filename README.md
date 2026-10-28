@@ -1,43 +1,78 @@
 # OpenShell Kata adapter
 
-A Rust external compute driver and control adapter for running Docker-capable
-Kata sandboxes with an unmodified OpenShell gateway.
+A Rust external compute driver for Docker-capable Kata VMs, using the unmodified
+OpenShell 0.1.6 gateway and CLI. The adapter, lifecycle helper, network broker,
+file-transfer validation, and local development tools are Rust. Docker,
+containerd, and Lima are upstream dependencies implemented in Go; the Kata
+runtime used here is the official Rust runtime.
 
-The adapter owns the gateway protocol, sandbox lifecycle, SSH relay, file
-transfer, and preview forwarding. A small Python launcher provisions the local
-Lima/Kata environment; it is not part of the adapter's protocol implementation.
+Each sandbox is an untrusted VM, including its kernel, root user, Docker daemon,
+and nested containers. Enforcement belongs outside that VM:
 
-Development is gated on local upload, execution, Docker/Compose, preview, and
-lifecycle tests before any hosted rollout. See [the delivery plan](docs/DELIVERY_PLAN.md),
-[the policy plan](docs/POLICY_PLAN.md), and [porting notes](docs/PORTING.md).
+- Filesystem: no host directory mounts; a capped private block device; validated,
+  bounded archive transfers that never unpack guest data on the adapter host.
+- Processes: host-enforced CPU and memory limits and an independent VM lifetime
+  watchdog. These are VM limits, not per-executable restrictions inside Docker.
+- Network: a host interface fence permits only the sandbox's TCP proxy and SSH
+  response traffic. The proxy checks exact destinations, resolves DNS outside the
+  guest, blocks private and node-local addresses, and revokes existing connections
+  when policy changes.
+
+A launch is not admitted from policy intent alone. The adapter requires fresh
+host-runtime evidence before execution, before reporting readiness, and during
+operation. A failed check closes access and attempts to stop the VM.
+
+## Policy contract
+
+The operator chooses an immutable JSON profile with `--vm-policy`. The native
+OpenShell policy may narrow its TCP destination ceiling; it cannot expand it.
+An empty native network policy denies all egress even if the operator profile
+permits destinations. The compiler rejects unsupported native filesystem,
+Landlock, process-identity, binary-identity, L7, and credential requirements.
+
+The local resource profile is one vCPU, 2048 MiB RAM and 2048 MiB writable disk.
+Unsupported capacities fail before launch. The VM lifetime is configurable and
+continues across stop/start. See [the enforcement contract](docs/ENFORCEMENT_CONTRACT.md)
+for the exact semantics and qualification matrix.
+
+OpenShell upload/download uses validated regular-file and directory archives.
+Links, special files, extension headers, ambiguous paths and quota violations
+are rejected. Two transfers can run per VM; idle and total-stage deadlines are
+bounded. Raw SFTP is rejected in enforced mode. Ordinary command output is not a
+file-transfer API and is not subject to archive quotas.
 
 ## Local development
 
-The local launcher requires an Apple Silicon Mac with nested virtualization,
-Lima 2.2 or newer, OpenSSH, Python 3, and GitHub CLI for pinned release downloads.
-The Rust build uses Rust 1.98. The tested hardware is an Apple M5 Max. This
-launcher has not been qualified on Windows or other cloud node types.
+The current local setup targets an Apple Silicon Mac with nested virtualization,
+Lima 2.2+, OpenSSH, GitHub CLI, and Rust 1.98. It creates a dedicated Linux VM
+without host mounts. The runtime uses containerd devmapper and the official
+Kata 4.3.1 Rust Dragonball runtime. Other host platforms and cloud node types
+require their own qualification; no cloud-specific API is in the adapter.
 
 ```sh
-python3 scripts/fetch_openshell.py
+cargo build --locked --bins
+target/debug/kata-dev fetch-openshell
 runtime/setup-local.sh
-cargo build --locked
-python3 scripts/setup_gateway.py
-python3 scripts/services.py start --prototype-policy-mode
-python3 scripts/e2e.py
+target/debug/kata-dev setup-gateway
+target/debug/kata-dev services start --vm-policy "$(pwd)/examples/docker-vm.json"
+target/debug/kata-dev e2e --policy "$(pwd)/scripts/e2e-native-policy.yaml"
 ```
 
-`scripts/cli.py` runs the official CLI with this checkout's configuration.
-Credentials and generated state stay under the ignored `.local/` directory;
-the user's existing OpenShell and Docker configuration is not changed.
+The example operator profile permits the exact public Docker Hub destinations
+used by the qualification fixture. Review any additional registry redirect or
+build dependency before adding it to both the operator and native policies.
+Use `scripts/protocol-fixture.yaml` for a minimal native deny-all policy.
 
-The local test gateway listens on `127.0.0.1:29670` with TLS and client
-authentication. The adapter connects to each guest over a private, pinned SSH
-route. Uploaded files and command input do not use containerd exec streams.
+Run ordinary OpenShell commands through the isolated local configuration:
 
-The explicit `--prototype-policy-mode` flag is only for local qualification.
-It does not make the fixture's filesystem, process, or egress policy enforced.
-The default mode rejects launches whose required guarantees cannot be proved.
+```sh
+target/debug/kata-dev cli -- sandbox list
+```
+
+Generated credentials and runtime state stay under `.local/`. The gateway binds
+`127.0.0.1:29670` with TLS and client authentication. Per-run evidence goes under
+`evidence/local-runs/`; `--evidence-dir /absolute/path` selects another directory.
+Existing user OpenShell and Docker configurations are not changed.
 
 ## Validation
 
@@ -47,64 +82,38 @@ cargo clippy --locked --all-targets --all-features -- -D warnings
 cargo test --locked --all-targets --all-features
 cargo doc --locked --no-deps
 cargo audit
-python3 -m unittest discover -s runtime -p 'test_*.py'
-python3 scripts/verify_upstream.py
+target/debug/kata-dev verify-upstream
 ```
 
-The end-to-end suite uses the official CLI to create a sandbox, upload/download
-a 16 MiB binary fixture, compare hashes, run concurrent commands and transfers,
-build an image, run Docker Compose, fetch a gateway preview, restart the
-sandbox, verify retained files, and delete it. Evidence is written to `evidence/`.
+The CLI integration suite covers repeated 16 MiB uploads/downloads with hash
+checks, concurrent commands, Dockerfile `RUN`, Compose, a gateway HTTP preview,
+stop/start, retained files and deletion. Network/resource qualification also
+requires negative tests from guest root; passing parser tests is insufficient.
 
-### Verified locally
+The [original qualification record](evidence/qualification.json) is the earlier
+upload-repair milestone, using the former compatibility runtime. It does not
+certify the new enforcement profile. The [enforcement qualification record](evidence/enforcement-qualification.json)
+records the current Rust Kata run: 139 tests, 84.85% implementation line coverage,
+the complete CLI flow, guest-root network attacks, storage/resource bounds, and
+independent deadline termination. This qualifies the tested Apple Silicon/Lima
+profile; the broader production and platform matrix remains in
+[the policy plan](docs/POLICY_PLAN.md).
 
-The final run passed against unmodified OpenShell 0.1.6 and a Kata 4.3.1 guest:
+## Cleanup and delivery scope
 
-| Check | Result |
-| --- | --- |
-| Four 16 MiB uploads and five downloads, including after restart | Matching SHA-256 hashes |
-| Concurrent commands during repeated uploads after preview | Passed |
-| Docker image build and two Compose services | Passed |
-| Gateway preview | HTTP 200 |
-| Automatic stop/start and retained workspace | Passed |
-| Runtime deletion and gateway deletion event | Passed |
-| Strict policy rejection before allocation | Passed |
-
-There are 33 passing Rust tests, 27 passing runtime tests, and three passing
-local harness tests. Rust line coverage is 85.7% from unit and live integration
-tests, excluding generated protocol code. Formatting, Clippy, documentation,
-dependency audit, and vendored protocol checksum checks pass.
-
-See [the qualification record](evidence/qualification.json) and
-[coverage summary](evidence/coverage-summary.txt). The local runtime uses the
-documented Go compatibility profile; a supported hosted runtime and actual
-filesystem/process/network policy enforcement remain separate qualification
-gates. No hosted deployment was performed.
-
-## Cleanup
-
-Delete active sandboxes through `scripts/cli.py`, then stop the local services:
+Delete sandboxes through the official CLI, then stop the local services:
 
 ```sh
-python3 scripts/services.py stop
-limactl stop openshell-kata-rust
-limactl delete --force openshell-kata-rust
+target/debug/kata-dev cli -- sandbox delete rust-upload-check
+target/debug/kata-dev services stop
+limactl stop openshell-kata-enforcement
+limactl delete --force openshell-kata-enforcement
 ```
 
-Do not remove `.local/runtime` while its guests or SSH tunnels are running.
-The local VM is dedicated to this checkout. Its Docker data is temporary;
-production workspace storage and backup are not implemented by this launcher.
+Keep `.local/runtime` until guests and tunnels have been removed. The private
+block storage persists through stop/start but is not a production backup system.
+No hosted infrastructure deployment is part of this local implementation.
 
-OpenShell's external compute-driver interface is versioned. Its supervisor
-control protocol is internal, so this adapter pins OpenShell 0.1.6 and must be
-qualified again when that dependency changes.
-
-The policy implementation and supported guarantees are under development.
-Configuration acknowledgement alone must never be presented as proof of
-filesystem, process, or network enforcement.
-
-The first policy slice is implemented in `src/policy.rs`: typed validation and
-explicit rejection of unsupported filesystem, process, executable, network,
-and middleware requirements. Strict creation checks it before provisioning and
-then refuses execution until the required runtime fences are qualified. Passing
-this validator never grants permission to run a sandbox.
+The external compute interface is versioned, while the supervisor protocol is
+internal. Upgrading OpenShell requires requalification. See [porting notes](docs/PORTING.md)
+and [the delivery plan](docs/DELIVERY_PLAN.md) for remaining production work.

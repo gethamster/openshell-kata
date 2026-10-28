@@ -19,7 +19,10 @@ pub async fn listen(
     runtime: Arc<Runtime>,
     host_key: &str,
 ) -> Result<(tempfile::TempDir, JoinHandle<()>)> {
-    let directory = tempfile::Builder::new().prefix("osk-").tempdir_in("/tmp")?;
+    let directory = tempfile::Builder::new()
+        .prefix("osk-")
+        .permissions(std::fs::Permissions::from_mode(0o700))
+        .tempdir_in("/tmp")?;
     let path = directory.path().join("ssh.sock");
     let listener = UnixListener::bind(&path)?;
     std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600))?;
@@ -32,14 +35,16 @@ pub async fn listen(
     });
     let task = tokio::spawn(async move {
         let mut sessions = JoinSet::new();
+        let connection_slots = Arc::new(tokio::sync::Semaphore::new(16));
         loop {
             tokio::select! {
                 () = runtime.cancel.cancelled() => break,
                 accepted = listener.accept() => match accepted {
                     Ok((stream, _)) => {
+                        let Ok(permit)=connection_slots.clone().try_acquire_owned() else {continue;};
                         let handler = Handler { runtime: runtime.clone(), channels: HashMap::new() };
                         let config = config.clone();
-                        sessions.spawn(async move { if let Ok(session) = server::run_stream(config, stream, handler).await { let _ = session.await; } });
+                        sessions.spawn(async move { let _permit=permit; if let Ok(session) = server::run_stream(config, stream, handler).await { let _ = session.await; } });
                     }
                     Err(error) => { tracing::warn!(%error,"private SSH accept failed"); break; }
                 },
@@ -63,6 +68,16 @@ impl Handler {
         operation: Operation,
         session: &mut Session,
     ) -> Result<()> {
+        if self.runtime.vm_policy.is_some()
+            && *self.runtime.phase.borrow() != crate::supervisor::Phase::Ready
+        {
+            session.channel_failure(id)?;
+            return Ok(());
+        }
+        let Ok(permit) = self.runtime.operation_slots.clone().try_acquire_owned() else {
+            session.channel_failure(id)?;
+            return Ok(());
+        };
         let Some(channel) = self.channels.remove(&id) else {
             bail!("SSH channel was not opened");
         };
@@ -70,11 +85,18 @@ impl Handler {
         let handle = session.handle();
         let runtime = self.runtime.clone();
         tokio::spawn(async move {
+            let _permit = permit;
             let result = match operation {
+                Operation::Exec(command) if crate::download::is_archive_command(&command) => {
+                    crate::download::serve(channel, runtime, &command).await
+                }
                 Operation::Exec(command) => match runtime.guest.exec(&runtime.config, &command) {
                     Ok(child) => bridge(channel, child, runtime).await,
                     Err(error) => Err(error),
                 },
+                Operation::Sftp if runtime.vm_policy.is_some() => Err(anyhow::anyhow!(
+                    "SFTP is unsupported by the enforced transfer profile; use OpenShell upload/download"
+                )),
                 Operation::Sftp => match runtime.guest.sftp(&runtime.config) {
                     Ok(child) => bridge(channel, child, runtime).await,
                     Err(error) => Err(error),
@@ -179,9 +201,11 @@ async fn bridge(channel: Channel<Msg>, mut child: Child, runtime: Arc<Runtime>) 
     let mut stdin = child.stdin.take().context("guest stdin unavailable")?;
     let mut stdout = child.stdout.take().context("guest stdout unavailable")?;
     let mut stderr = child.stderr.take().context("guest stderr unavailable")?;
-    let input = async {
+    let input = async move {
         tokio::io::copy(&mut read.make_reader(), &mut stdin).await?;
-        stdin.shutdown().await
+        stdin.shutdown().await?;
+        drop(stdin);
+        Ok::<_, std::io::Error>(())
     };
     let mut normal = write.make_writer();
     let mut errors = write.make_writer_ext(Some(1));
@@ -198,7 +222,13 @@ async fn bridge(channel: Channel<Msg>, mut child: Child, runtime: Arc<Runtime>) 
     let result = tokio::select! {
         () = runtime.cancel.cancelled() => return Ok(()),
         result = &mut completion => result?,
-        result = &mut input => { result?; completion.await? }
+        result = &mut input => {
+            result?;
+            tokio::select! {
+                ()=runtime.cancel.cancelled()=>return Ok(()),
+                result=&mut completion=>result?,
+            }
+        }
     };
     write
         .exit_status(u32::try_from(result.1.code().unwrap_or(1)).unwrap_or(1))

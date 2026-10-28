@@ -20,22 +20,45 @@ pub struct Driver {
     config: Arc<Config>,
     registry: Arc<RwLock<Registry>>,
     lifecycle: Arc<Mutex<()>>,
+    operator_policy: Option<crate::profile::VmPolicy>,
 }
 
 #[derive(Default)]
 struct Registry {
     active: BTreeMap<String, Arc<Runtime>>,
+    failed_cleanup: BTreeMap<String, PendingCleanup>,
     // Retained until this adapter exits so reconnecting watchers cannot miss
     // successful deletion. A new generation of the same ID replaces its tombstone.
     deleted: BTreeSet<String>,
 }
+#[derive(Clone)]
+struct PendingCleanup {
+    sandbox: c::DriverSandbox,
+    nonce: String,
+}
 impl Driver {
-    pub fn new(config: Arc<Config>) -> Self {
-        Self {
+    pub fn new(config: Arc<Config>) -> anyhow::Result<Self> {
+        let operator_policy = config
+            .vm_policy
+            .as_deref()
+            .map(crate::profile::VmPolicy::load)
+            .transpose()?;
+        Ok(Self {
             config,
             registry: Arc::default(),
             lifecycle: Arc::default(),
+            operator_policy,
+        })
+    }
+    fn policy_for(
+        &self,
+        sandbox: &c::DriverSandbox,
+    ) -> anyhow::Result<Option<crate::profile::VmPolicy>> {
+        if let Some(policy) = &self.operator_policy {
+            return admission::compile_request(sandbox, policy).map(Some);
         }
+        admission::validate_request(sandbox, self.config.prototype_policy_mode)?;
+        Ok(None)
     }
     pub async fn close(&self) {
         let records: Vec<_> = self
@@ -62,11 +85,13 @@ impl Driver {
     async fn register(&self, id: String, runtime: Arc<Runtime>) {
         let mut registry = self.registry.write().await;
         registry.deleted.remove(&id);
+        registry.failed_cleanup.remove(&id);
         registry.active.insert(id, runtime);
     }
     async fn deleted(&self, id: String) {
         let mut registry = self.registry.write().await;
         registry.active.remove(&id);
+        registry.failed_cleanup.remove(&id);
         registry.deleted.insert(id);
     }
     async fn observations(&self) -> Vec<c::WatchSandboxesEvent> {
@@ -88,7 +113,55 @@ impl Driver {
                     },
                 )),
             }))
+            .chain(
+                registry
+                    .failed_cleanup
+                    .values()
+                    .map(|sandbox| c::WatchSandboxesEvent {
+                        payload: Some(c::watch_sandboxes_event::Payload::Sandbox(
+                            c::WatchSandboxesSandboxEvent {
+                                sandbox: Some(sandbox.sandbox.clone()),
+                            },
+                        )),
+                    }),
+            )
             .collect()
+    }
+    async fn compensate_create(&self, mut sandbox: c::DriverSandbox, id: &SandboxId, nonce: &str) {
+        match guest::lifecycle_with_policy(&self.config, "abort", id, None, nonce).await {
+            // An abort may leave a pre-existing, differently owned VM intact.
+            // Only an explicit, verified delete may publish an absence event.
+            Ok(_) => {
+                self.registry
+                    .write()
+                    .await
+                    .failed_cleanup
+                    .remove(id.as_str());
+            }
+            Err(error) => {
+                tracing::error!(sandbox=%id,%error,"unverified VM cleanup failed; retained for retry");
+                if let Some(spec) = sandbox.spec.as_mut() {
+                    spec.launch_authentication.clear();
+                }
+                sandbox.status = Some(c::DriverSandboxStatus {
+                    conditions: vec![c::DriverCondition {
+                        r#type: "Ready".into(),
+                        status: "False".into(),
+                        reason: "CleanupRequired".into(),
+                        message: "Runtime cleanup must succeed before retry".into(),
+                        ..Default::default()
+                    }],
+                    ..Default::default()
+                });
+                self.registry.write().await.failed_cleanup.insert(
+                    id.to_string(),
+                    PendingCleanup {
+                        sandbox,
+                        nonce: nonce.to_owned(),
+                    },
+                );
+            }
+        }
     }
     fn observation(runtime: &Runtime) -> c::DriverSandbox {
         let mut sandbox = runtime.spec.clone();
@@ -102,12 +175,20 @@ impl Driver {
             }
             .into(),
             reason: match phase {
+                Phase::Ready if runtime.vm_policy.is_some() => "EnforcedVmReady",
                 Phase::Ready => "PrototypeControlReady",
                 Phase::Failed => "RuntimeError",
+                Phase::Stopping => "DependenciesNotReady",
+                Phase::Deleting => "Deleting",
                 _ => "Starting",
             }
             .into(),
-            message: "Kata guest control; policy qualification is separate".into(),
+            message: if runtime.vm_policy.is_some() {
+                "Host-enforced Docker VM profile"
+            } else {
+                "Kata guest control; policy qualification is separate"
+            }
+            .into(),
             ..Default::default()
         }];
         if phase == Phase::Starting {
@@ -126,7 +207,17 @@ impl Driver {
                 ..Default::default()
             });
         }
+        if phase == Phase::Stopping {
+            conditions.push(c::DriverCondition {
+                r#type: "Suspended".into(),
+                status: "False".into(),
+                reason: "PodTerminating".into(),
+                message: "Runtime stop in progress".into(),
+                ..Default::default()
+            });
+        }
         sandbox.status = Some(c::DriverSandboxStatus {
+            deleting: phase == Phase::Deleting,
             name: sandbox.name.clone(),
             instance_id: runtime.instance.clone(),
             conditions,
@@ -181,7 +272,7 @@ impl c::compute_driver_server::ComputeDriver for Driver {
             .as_ref()
             .ok_or_else(|| Status::invalid_argument("sandbox required"))?;
         SandboxId::parse(&sandbox.id).map_err(|e| Status::invalid_argument(e.to_string()))?;
-        admission::validate_request(sandbox, self.config.prototype_policy_mode)
+        self.policy_for(sandbox)
             .map_err(|e| Status::failed_precondition(e.to_string()))?;
         Ok(Response::new(c::ValidateSandboxCreateResponse {}))
     }
@@ -189,51 +280,26 @@ impl c::compute_driver_server::ComputeDriver for Driver {
         &self,
         request: Request<c::CreateSandboxRequest>,
     ) -> Result<Response<c::CreateSandboxResponse>, Status> {
-        let _guard = self.lifecycle.lock().await;
-        let sandbox = request
-            .into_inner()
-            .sandbox
-            .ok_or_else(|| Status::invalid_argument("sandbox required"))?;
-        admission::validate_request(&sandbox, self.config.prototype_policy_mode)
-            .map_err(|e| Status::failed_precondition(e.to_string()))?;
-        let id =
-            SandboxId::parse(&sandbox.id).map_err(|e| Status::invalid_argument(e.to_string()))?;
-        if self.registry.read().await.active.contains_key(id.as_str()) {
-            return Ok(Response::new(c::CreateSandboxResponse {
-                runtime_identity: id.to_string(),
-            }));
-        }
-        let authentication = sandbox
-            .spec
-            .as_ref()
-            .ok_or_else(|| Status::invalid_argument("spec required"))?
-            .launch_authentication
-            .clone();
-        crate::supervisor::validate_authentication(&authentication)
-            .map_err(|e| Status::invalid_argument(e.to_string()))?;
-        let guest = guest::lifecycle(&self.config, "create", &id)
+        let driver = self.clone();
+        tokio::spawn(async move { driver.create_sandbox_owned(request).await })
             .await
             .map_err(internal)?
-            .ok_or_else(|| Status::internal("missing guest route"))?;
-        let runtime =
-            Runtime::new(sandbox, self.config.clone(), guest, authentication).map_err(internal)?;
-        self.register(id.to_string(), runtime.clone()).await;
-        if let Err(error) = runtime.start().await {
-            runtime.phase.send_replace(Phase::Failed);
-            runtime.close().await;
-            if guest::lifecycle(&self.config, "delete", &id).await.is_ok() {
-                self.deleted(id.to_string()).await;
-            }
-            return Err(internal(error));
-        }
-        Ok(Response::new(c::CreateSandboxResponse {
-            runtime_identity: id.to_string(),
-        }))
     }
     async fn get_sandbox(
         &self,
         request: Request<c::GetSandboxRequest>,
     ) -> Result<Response<c::GetSandboxResponse>, Status> {
+        if let Some(sandbox) = self
+            .registry
+            .read()
+            .await
+            .failed_cleanup
+            .get(&request.get_ref().sandbox_id)
+        {
+            return Ok(Response::new(c::GetSandboxResponse {
+                sandbox: Some(sandbox.sandbox.clone()),
+            }));
+        }
         let runtime = self.record(&request.get_ref().sandbox_id).await?;
         Ok(Response::new(c::GetSandboxResponse {
             sandbox: Some(Self::observation(&runtime)),
@@ -244,56 +310,39 @@ impl c::compute_driver_server::ComputeDriver for Driver {
         _: Request<c::ListSandboxesRequest>,
     ) -> Result<Response<c::ListSandboxesResponse>, Status> {
         Ok(Response::new(c::ListSandboxesResponse {
-            sandboxes: self
-                .registry
-                .read()
-                .await
-                .active
-                .values()
-                .map(|r| Self::observation(r))
-                .collect(),
+            sandboxes: {
+                let registry = self.registry.read().await;
+                registry
+                    .active
+                    .values()
+                    .map(|r| Self::observation(r))
+                    .chain(
+                        registry
+                            .failed_cleanup
+                            .values()
+                            .map(|pending| pending.sandbox.clone()),
+                    )
+                    .collect()
+            },
         }))
     }
     async fn stop_sandbox(
         &self,
         request: Request<c::StopSandboxRequest>,
     ) -> Result<Response<c::StopSandboxResponse>, Status> {
-        let _guard = self.lifecycle.lock().await;
-        let runtime = self.record(&request.get_ref().sandbox_id).await?;
-        runtime.close().await;
-        guest::lifecycle(&self.config, "stop", &runtime.id)
+        let driver = self.clone();
+        tokio::spawn(async move { driver.stop_sandbox_owned(request).await })
             .await
-            .map_err(internal)?;
-        runtime.phase.send_replace(Phase::Stopped);
-        Ok(Response::new(c::StopSandboxResponse {}))
+            .map_err(internal)?
     }
     async fn start_sandbox(
         &self,
         request: Request<c::StartSandboxRequest>,
     ) -> Result<Response<c::StartSandboxResponse>, Status> {
-        let _guard = self.lifecycle.lock().await;
-        let request = request.into_inner();
-        crate::supervisor::validate_authentication(&request.launch_authentication)
-            .map_err(|e| Status::invalid_argument(e.to_string()))?;
-        let old = self.record(&request.sandbox_id).await?;
-        old.phase.send_replace(Phase::Starting);
-        old.close().await;
-        let guest = guest::lifecycle(&self.config, "start", &old.id)
+        let driver = self.clone();
+        tokio::spawn(async move { driver.start_sandbox_owned(request).await })
             .await
             .map_err(internal)?
-            .ok_or_else(|| Status::internal("missing guest route"))?;
-        let runtime = Runtime::new(
-            old.spec.clone(),
-            self.config.clone(),
-            guest,
-            request.launch_authentication,
-        )
-        .map_err(internal)?;
-        self.register(old.id.to_string(), runtime.clone()).await;
-        runtime.start().await.map_err(internal)?;
-        Ok(Response::new(c::StartSandboxResponse {
-            runtime_identity: old.id.to_string(),
-        }))
     }
     async fn suspend_sandbox(
         &self,
@@ -307,23 +356,10 @@ impl c::compute_driver_server::ComputeDriver for Driver {
         &self,
         request: Request<c::DeleteSandboxRequest>,
     ) -> Result<Response<c::DeleteSandboxResponse>, Status> {
-        let _guard = self.lifecycle.lock().await;
-        let id = request.into_inner().sandbox_id;
-        let validated_id =
-            SandboxId::parse(&id).map_err(|error| Status::invalid_argument(error.to_string()))?;
-        let record = self.registry.read().await.active.get(&id).cloned();
-        if let Some(runtime) = &record {
-            runtime.close().await;
-        }
-        // The runtime helper can recover retained state after adapter restart.
-        // Its idempotent deletion must confirm absence before we publish it.
-        guest::lifecycle(&self.config, "delete", &validated_id)
+        let driver = self.clone();
+        tokio::spawn(async move { driver.delete_sandbox_owned(request).await })
             .await
-            .map_err(internal)?;
-        self.deleted(id).await;
-        Ok(Response::new(c::DeleteSandboxResponse {
-            deleted: record.is_some(),
-        }))
+            .map_err(internal)?
     }
     type WatchSandboxesStream = ReceiverStream<Result<c::WatchSandboxesEvent, Status>>;
     async fn watch_sandboxes(
@@ -373,5 +409,198 @@ impl c::compute_driver_server::ComputeDriver for Driver {
         _: Request<c::DeleteWorkspaceRequest>,
     ) -> Result<Response<c::DeleteWorkspaceResponse>, Status> {
         Ok(Response::new(c::DeleteWorkspaceResponse {}))
+    }
+}
+
+// Owned tasks finish cleanup even when the initiating RPC is cancelled.
+impl Driver {
+    async fn create_sandbox_owned(
+        &self,
+        request: Request<c::CreateSandboxRequest>,
+    ) -> Result<Response<c::CreateSandboxResponse>, Status> {
+        let _guard = self.lifecycle.lock().await;
+        let sandbox = request
+            .into_inner()
+            .sandbox
+            .ok_or_else(|| Status::invalid_argument("sandbox required"))?;
+        let policy = self
+            .policy_for(&sandbox)
+            .map_err(|e| Status::failed_precondition(e.to_string()))?;
+        let id =
+            SandboxId::parse(&sandbox.id).map_err(|e| Status::invalid_argument(e.to_string()))?;
+        if self.registry.read().await.active.contains_key(id.as_str()) {
+            return Ok(Response::new(c::CreateSandboxResponse {
+                runtime_identity: id.to_string(),
+            }));
+        }
+        let previous = self
+            .registry
+            .read()
+            .await
+            .failed_cleanup
+            .get(id.as_str())
+            .cloned();
+        if let Some(previous) = previous {
+            guest::lifecycle_with_policy(&self.config, "abort", &id, None, &previous.nonce)
+                .await
+                .map_err(internal)?;
+            self.registry
+                .write()
+                .await
+                .failed_cleanup
+                .remove(id.as_str());
+        }
+        let authentication = sandbox
+            .spec
+            .as_ref()
+            .ok_or_else(|| Status::invalid_argument("spec required"))?
+            .launch_authentication
+            .clone();
+        crate::supervisor::validate_authentication(&authentication)
+            .map_err(|e| Status::invalid_argument(e.to_string()))?;
+        let nonce = uuid::Uuid::new_v4().to_string();
+        let guest_result =
+            guest::lifecycle_with_policy(&self.config, "create", &id, policy.as_ref(), &nonce)
+                .await;
+        let guest = match guest_result {
+            Ok(Some(guest)) => guest,
+            result => {
+                self.compensate_create(sandbox, &id, &nonce).await;
+                return Err(internal(
+                    result
+                        .err()
+                        .unwrap_or_else(|| anyhow::anyhow!("missing guest route")),
+                ));
+            }
+        };
+        let runtime = match Runtime::new_with_policy(
+            sandbox.clone(),
+            self.config.clone(),
+            guest,
+            authentication,
+            self.operator_policy.clone(),
+            policy,
+        ) {
+            Ok(runtime) => runtime,
+            Err(error) => {
+                self.compensate_create(sandbox, &id, &nonce).await;
+                return Err(internal(error));
+            }
+        };
+        self.register(id.to_string(), runtime.clone()).await;
+        if let Err(error) = runtime.start().await {
+            runtime.phase.send_replace(Phase::Failed);
+            runtime.close().await;
+            if guest::lifecycle(&self.config, "delete", &id).await.is_ok() {
+                self.deleted(id.to_string()).await;
+            }
+            return Err(internal(error));
+        }
+        Ok(Response::new(c::CreateSandboxResponse {
+            runtime_identity: id.to_string(),
+        }))
+    }
+    async fn start_sandbox_owned(
+        &self,
+        request: Request<c::StartSandboxRequest>,
+    ) -> Result<Response<c::StartSandboxResponse>, Status> {
+        let _guard = self.lifecycle.lock().await;
+        let request = request.into_inner();
+        crate::supervisor::validate_authentication(&request.launch_authentication)
+            .map_err(|e| Status::invalid_argument(e.to_string()))?;
+        let old = self.record(&request.sandbox_id).await?;
+        old.phase.send_replace(Phase::Starting);
+        old.close().await;
+        let policy =
+            self.policy_for(&old.spec)
+                .map_err(internal)?
+                .map(|policy| crate::profile::VmPolicy {
+                    // Persisted guest startup code is untrusted. Fetch and apply the
+                    // current gateway policy only after booting behind deny-all egress.
+                    network: crate::network::NetworkPolicy::default(),
+                    ..policy
+                });
+        let nonce = uuid::Uuid::new_v4().to_string();
+        let guest = match guest::lifecycle_with_policy(
+            &self.config,
+            "start",
+            &old.id,
+            policy.as_ref(),
+            &nonce,
+        )
+        .await
+        {
+            Ok(Some(guest)) => guest,
+            result => {
+                old.phase.send_replace(Phase::Failed);
+                if let Err(error) = guest::lifecycle(&self.config, "stop", &old.id).await {
+                    tracing::error!(%error,"failed start cleanup requires retry");
+                }
+                return Err(internal(
+                    result
+                        .err()
+                        .unwrap_or_else(|| anyhow::anyhow!("missing guest route")),
+                ));
+            }
+        };
+        let runtime = Runtime::new_with_policy(
+            old.spec.clone(),
+            self.config.clone(),
+            guest,
+            request.launch_authentication,
+            self.operator_policy.clone(),
+            policy,
+        )
+        .map_err(internal)?;
+        self.register(old.id.to_string(), runtime.clone()).await;
+        if let Err(error) = runtime.start().await {
+            runtime.phase.send_replace(Phase::Failed);
+            runtime.close().await;
+            if let Err(error) = guest::lifecycle(&self.config, "stop", &old.id).await {
+                tracing::error!(%error,"failed start cleanup requires retry");
+            }
+            return Err(internal(error));
+        }
+        Ok(Response::new(c::StartSandboxResponse {
+            runtime_identity: old.id.to_string(),
+        }))
+    }
+    async fn stop_sandbox_owned(
+        &self,
+        request: Request<c::StopSandboxRequest>,
+    ) -> Result<Response<c::StopSandboxResponse>, Status> {
+        let _guard = self.lifecycle.lock().await;
+        let runtime = self.record(&request.get_ref().sandbox_id).await?;
+        runtime.phase.send_replace(Phase::Stopping);
+        runtime.close().await;
+        if let Err(error) = guest::lifecycle(&self.config, "stop", &runtime.id).await {
+            runtime.phase.send_replace(Phase::Failed);
+            return Err(internal(error));
+        }
+        runtime.phase.send_replace(Phase::Stopped);
+        Ok(Response::new(c::StopSandboxResponse {}))
+    }
+    async fn delete_sandbox_owned(
+        &self,
+        request: Request<c::DeleteSandboxRequest>,
+    ) -> Result<Response<c::DeleteSandboxResponse>, Status> {
+        let _guard = self.lifecycle.lock().await;
+        let id = request.into_inner().sandbox_id;
+        let validated_id =
+            SandboxId::parse(&id).map_err(|error| Status::invalid_argument(error.to_string()))?;
+        let record = self.registry.read().await.active.get(&id).cloned();
+        if let Some(runtime) = &record {
+            runtime.phase.send_replace(Phase::Deleting);
+            runtime.close().await;
+        }
+        // The runtime helper can recover retained state after adapter restart.
+        // Its idempotent deletion must confirm absence before we publish it.
+        guest::lifecycle(&self.config, "delete", &validated_id)
+            .await
+            .map_err(internal)?;
+        self.deleted(id).await;
+        Ok(Response::new(c::DeleteSandboxResponse {
+            deleted: record.is_some(),
+        }))
     }
 }

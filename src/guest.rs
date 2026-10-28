@@ -14,6 +14,8 @@ pub struct Guest {
     pub username: String,
     pub private_key_path: PathBuf,
     pub known_hosts_path: PathBuf,
+    #[serde(default)]
+    pub enforcement: Option<crate::profile::EnforcementEvidence>,
 }
 impl Guest {
     pub fn validate(&self, id: &SandboxId) -> Result<()> {
@@ -108,16 +110,51 @@ impl Guest {
 }
 
 pub async fn lifecycle(config: &Config, action: &str, id: &SandboxId) -> Result<Option<Guest>> {
-    let output = Command::new(&config.lifecycle)
+    lifecycle_with_policy(config, action, id, None, "").await
+}
+
+pub async fn lifecycle_with_policy(
+    config: &Config,
+    action: &str,
+    id: &SandboxId,
+    policy: Option<&crate::profile::VmPolicy>,
+    nonce: &str,
+) -> Result<Option<Guest>> {
+    let policy_file = policy
+        .map(|policy| -> Result<_> {
+            let mut file = tempfile::NamedTempFile::new()?;
+            serde_json::to_writer(&mut file, policy)?;
+            file.as_file().sync_all()?;
+            Ok(file)
+        })
+        .transpose()?;
+    let mut command = Command::new(&config.lifecycle);
+    command
         .args(&config.lifecycle_arg)
         .arg(action)
-        .arg(id.as_str())
-        .env_remove("SSH_AUTH_SOCK")
-        .stdin(Stdio::null())
-        .kill_on_drop(true)
-        .output()
-        .await
-        .context("running guest lifecycle")?;
+        .arg(id.as_str());
+    if let Some(file) = &policy_file {
+        command.arg("--policy-file").arg(file.path());
+    }
+    if !nonce.is_empty() {
+        command.arg("--proof-nonce").arg(nonce);
+    }
+    let timeout = std::time::Duration::from_secs(if matches!(action, "create" | "start") {
+        600
+    } else {
+        30
+    });
+    let output = tokio::time::timeout(
+        timeout,
+        command
+            .env_remove("SSH_AUTH_SOCK")
+            .stdin(Stdio::null())
+            .kill_on_drop(true)
+            .output(),
+    )
+    .await
+    .context("guest lifecycle timed out")?
+    .context("running guest lifecycle")?;
     if !output.status.success() {
         let diagnostic: String = String::from_utf8_lossy(&output.stderr)
             .chars()
@@ -129,10 +166,17 @@ pub async fn lifecycle(config: &Config, action: &str, id: &SandboxId) -> Result<
             output.status
         );
     }
-    if action == "create" || action == "start" {
+    if matches!(action, "create" | "start" | "verify" | "update") {
         let guest: Guest =
             serde_json::from_slice(&output.stdout).context("decoding guest lifecycle metadata")?;
         guest.validate(id)?;
+        if let Some(policy) = policy {
+            guest
+                .enforcement
+                .as_ref()
+                .context("runtime enforcement evidence missing")?
+                .validate(id.as_str(), nonce, policy)?;
+        }
         Ok(Some(guest))
     } else {
         Ok(None)

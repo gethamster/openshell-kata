@@ -1,0 +1,160 @@
+//! Host observations of hypervisor identity, resource limits, and capped storage.
+use super::command::Node;
+use crate::profile::VmPolicy;
+use anyhow::{Context, Result, bail};
+use serde_json::Value;
+use std::ffi::OsString;
+fn args(values: &[&str]) -> Vec<OsString> {
+    values.iter().map(OsString::from).collect()
+}
+pub(super) async fn host_process(node: &Node, id: &str, native: &Value) -> Result<(u32, String)> {
+    let internal = native["ID"].as_str().context("missing container ID")?;
+    let output = node
+        .node(&args(&["pgrep", "-f", "containerd-shim-kata-v2"]))
+        .await?;
+    for line in String::from_utf8(output.stdout)?.lines() {
+        let pid: u32 = line.parse()?;
+        let command = node
+            .raw_node(&args(&["cat", &format!("/proc/{pid}/cmdline")]))
+            .await?;
+        let arguments = command.stdout.split(|b| *b == 0).collect::<Vec<_>>();
+        if arguments
+            .windows(2)
+            .any(|pair| pair[0] == b"-id" && pair[1] == internal.as_bytes())
+        {
+            let output = node
+                .node(&args(&["cat", &format!("/proc/{pid}/cgroup")]))
+                .await?;
+            let output = String::from_utf8(output.stdout)?;
+            let path = output
+                .lines()
+                .find_map(|line| line.strip_prefix("0::"))
+                .context("missing unified cgroup")?;
+            if path != format!("/openshell-kata/{id}")
+                && !path.starts_with(&format!("/openshell-kata/{id}/"))
+            {
+                bail!("hypervisor is outside its bounded cgroup");
+            }
+            let executable = node
+                .node(&args(&["readlink", "-f", &format!("/proc/{pid}/exe")]))
+                .await?;
+            if String::from_utf8(executable.stdout)?.trim()
+                != "/opt/kata/runtime-rs/bin/containerd-shim-kata-v2"
+            {
+                bail!("hypervisor executable is not the official Rust runtime");
+            }
+            let cgroup = format!("/sys/fs/cgroup/openshell-kata/{id}");
+            let memory = node
+                .node(&args(&["cat", &format!("{cgroup}/memory.max")]))
+                .await?;
+            let cpu = node
+                .node(&args(&["cat", &format!("{cgroup}/cpu.max")]))
+                .await?;
+            if String::from_utf8(memory.stdout)?.trim() != "2147483648"
+                || String::from_utf8(cpu.stdout)?.trim() != "100000 100000"
+            {
+                bail!("host resource limits differ from admitted profile");
+            }
+            let threads = node
+                .node(&args(&[
+                    "sh",
+                    "-c",
+                    "cat /proc/$1/task/*/comm",
+                    "sh",
+                    &pid.to_string(),
+                ]))
+                .await?;
+            if String::from_utf8(threads.stdout)?
+                .lines()
+                .filter(|name| name.starts_with("db_vcpu"))
+                .count()
+                != 1
+            {
+                bail!("unexpected virtual CPU count");
+            }
+            return Ok((pid, cgroup));
+        }
+    }
+    bail!("running official Rust Kata hypervisor was not found")
+}
+
+pub(super) async fn verify_storage(node: &Node, native: &Value, policy: &VmPolicy) -> Result<()> {
+    if native["Snapshotter"] != "devmapper" {
+        bail!("sandbox root is not on capped block storage");
+    }
+    let mounts = native
+        .pointer("/Spec/mounts")
+        .and_then(Value::as_array)
+        .context("missing OCI mounts")?;
+    for mount in mounts {
+        let kind = mount["type"].as_str().context("missing mount type")?;
+        let source = mount["source"].as_str().unwrap_or("");
+        if ![
+            "proc", "tmpfs", "devpts", "sysfs", "mqueue", "cgroup", "cgroup2",
+        ]
+        .contains(&kind)
+            || source.starts_with('/')
+        {
+            bail!("host filesystem mounts are forbidden");
+        }
+    }
+    if native
+        .pointer("/Spec/linux/devices")
+        .and_then(Value::as_array)
+        .is_some_and(|devices| !devices.is_empty())
+    {
+        bail!("host device passthrough is forbidden");
+    }
+    let configuration = node
+        .node(&args(&[
+            "cat",
+            "/opt/kata/share/defaults/kata-containers/runtime-rs/configuration.toml",
+        ]))
+        .await?;
+    let configuration = String::from_utf8(configuration.stdout)?;
+    if !configuration
+        .lines()
+        .any(|line| line.trim() == "shared_fs = \"none\"")
+    {
+        bail!("host shared filesystem export is not disabled");
+    }
+    let pool = node
+        .node(&args(&["dmsetup", "table", "openshell-kata-pool"]))
+        .await?;
+    let pool = String::from_utf8(pool.stdout)?;
+    if pool.contains("skip_block_zeroing") || !pool.contains("error_if_no_space") {
+        bail!("thin pool does not enforce safe zeroing and exhaustion behavior");
+    }
+    let source = storage_device(node, native).await?;
+    let output = node
+        .node(&args(&["blockdev", "--getsize64", &source]))
+        .await?;
+    let bytes: String = String::from_utf8(output.stdout)?;
+    if bytes.trim().parse::<u64>()? != policy.resources.disk_mib * 1024 * 1024 {
+        bail!("private block device capacity differs from admitted disk limit");
+    }
+    Ok(())
+}
+
+pub(super) async fn storage_device(node: &Node, native: &Value) -> Result<String> {
+    let key = native["SnapshotKey"]
+        .as_str()
+        .context("missing snapshot identity")?;
+    let output = node
+        .node(&args(&[
+            "ctr",
+            "snapshots",
+            "--snapshotter",
+            "devmapper",
+            "mounts",
+            "/run/openshell-kata-probe",
+            key,
+        ]))
+        .await?;
+    let mounts = String::from_utf8(output.stdout)?;
+    mounts
+        .split_whitespace()
+        .find(|part| part.starts_with("/dev/mapper/openshell-kata-pool-"))
+        .map(str::to_owned)
+        .context("snapshot has no owned block device")
+}

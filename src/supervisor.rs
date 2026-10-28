@@ -26,6 +26,8 @@ pub enum Phase {
     Starting,
     Ready,
     Stopped,
+    Stopping,
+    Deleting,
     Failed,
 }
 #[derive(Clone, Debug)]
@@ -62,6 +64,10 @@ pub struct Runtime {
     pub instance: String,
     pub config: Arc<Config>,
     pub guest: Guest,
+    pub vm_policy: Option<crate::profile::VmPolicy>,
+    pub transfer_slots: Arc<tokio::sync::Semaphore>,
+    pub operation_slots: Arc<tokio::sync::Semaphore>,
+    operator_policy: Option<crate::profile::VmPolicy>,
     pub cancel: CancellationToken,
     pub phase: watch::Sender<Phase>,
     pub output: broadcast::Sender<Output>,
@@ -73,17 +79,30 @@ pub struct Runtime {
 }
 impl Runtime {
     pub fn new(
-        mut spec: c::DriverSandbox,
+        spec: c::DriverSandbox,
         config: Arc<Config>,
         guest: Guest,
         authentication: Vec<u8>,
     ) -> Result<Arc<Self>> {
+        Self::new_with_policy(spec, config, guest, authentication, None, None)
+    }
+    pub fn new_with_policy(
+        mut spec: c::DriverSandbox,
+        config: Arc<Config>,
+        guest: Guest,
+        authentication: Vec<u8>,
+        operator_policy: Option<crate::profile::VmPolicy>,
+        vm_policy: Option<crate::profile::VmPolicy>,
+    ) -> Result<Arc<Self>> {
         let auth: Authentication = serde_json::from_slice(&authentication)
             .context("invalid gateway launch authentication")?;
+        // Keep bootstrap credentials only in the private supervisor state;
+        // observations and restarted specifications must never echo them.
         spec.spec
             .as_mut()
             .context("missing sandbox spec")?
-            .launch_authentication = authentication;
+            .launch_authentication
+            .clear();
         let id = SandboxId::parse(&spec.id)?;
         let (phase, _) = watch::channel(Phase::Starting);
         let (output, _) = broadcast::channel(128);
@@ -94,6 +113,10 @@ impl Runtime {
             instance: Uuid::new_v4().to_string(),
             config,
             guest,
+            vm_policy,
+            operator_policy,
+            transfer_slots: Arc::new(tokio::sync::Semaphore::new(2)),
+            operation_slots: Arc::new(tokio::sync::Semaphore::new(32)),
             cancel: CancellationToken::new(),
             phase,
             output,
@@ -118,6 +141,13 @@ impl Runtime {
             if let Err(error) = runtime.supervise(path).await {
                 tracing::error!(sandbox = %runtime.id, error = %error, "supervisor stopped");
                 runtime.phase.send_replace(Phase::Failed);
+                runtime.cancel.cancel();
+                if runtime.vm_policy.is_some()
+                    && let Err(stop_error) =
+                        crate::guest::lifecycle(&runtime.config, "stop", &runtime.id).await
+                {
+                    tracing::error!(sandbox=%runtime.id,error=%stop_error,"failed to stop rejected VM");
+                }
             }
         });
         self.tasks.lock().await.push(task);
@@ -170,26 +200,12 @@ impl Runtime {
                 Err(error) => return Err(error.into()),
             }
         };
-        admission::validate_snapshot(&snapshot)?;
-        let providers = client
-            .get_sandbox_provider_environment(self.request(
-                o::GetSandboxProviderEnvironmentRequest {
-                    sandbox_id: self.id.to_string(),
-                    ..Default::default()
-                },
-            )?)
-            .await?
-            .into_inner();
-        if !providers.environment.is_empty()
-            || !providers.dynamic_credentials.is_empty()
-            || providers.readiness_reason != 0
-            || !providers.files.is_empty()
-        {
-            bail!("prototype cannot install provider credentials or files");
-        }
+        let mut applied = self.vm_policy.clone();
+        self.enforce_snapshot(&snapshot, &mut applied).await?;
+        self.check_providers(&mut client, &snapshot).await?;
         let pending = o::ReportSandboxConfigurationRequest {
             sandbox_id: self.id.to_string(),
-            expected_instance_id: snapshot.configuration_instance_id,
+            expected_instance_id: snapshot.configuration_instance_id.clone(),
             admission: Some(o::SandboxConfigurationAdmission {
                 instance_id: self.instance.clone(),
                 state: 1,
@@ -200,22 +216,8 @@ impl Runtime {
             .report_sandbox_configuration(self.request(pending)?)
             .await?;
         self.start_main().await?;
-        let accepted = o::ReportSandboxConfigurationRequest {
-            sandbox_id: self.id.to_string(),
-            admission: Some(o::SandboxConfigurationAdmission {
-                instance_id: self.instance.clone(),
-                state: 2,
-                policy_version: snapshot.version,
-                policy_hash: snapshot.policy_hash,
-                config_revision: snapshot.config_revision,
-                provider_env_revision: snapshot.provider_env_revision,
-                ..Default::default()
-            }),
-            ..Default::default()
-        };
-        client
-            .report_sandbox_configuration(self.request(accepted)?)
-            .await?;
+        self.report_accepted(&mut client, &snapshot).await?;
+        let mut last_snapshot = snapshot;
         let (sender, receiver) = mpsc::channel(32);
         sender
             .send(o::SupervisorMessage {
@@ -235,9 +237,23 @@ impl Runtime {
         loop {
             tokio::select! {
                 () = self.cancel.cancelled() => return Ok(()),
-                _ = heartbeat.tick() => sender.send(o::SupervisorMessage { payload: Some(o::supervisor_message::Payload::Heartbeat(o::SupervisorHeartbeat {})) }).await?,
+                _ = heartbeat.tick() => {
+                    if self.vm_policy.is_some() {
+                        let snapshot=client.get_sandbox_config(self.request(s::GetSandboxConfigRequest {name:self.spec.name.clone(),..Default::default()})?).await?.into_inner();
+                        self.enforce_snapshot(&snapshot,&mut applied).await?;
+                        if snapshot!=last_snapshot {
+                            self.check_providers(&mut client,&snapshot).await?;
+                            self.report_accepted(&mut client,&snapshot).await?;
+                            last_snapshot=snapshot;
+                        }
+                    }
+                    sender.send(o::SupervisorMessage { payload: Some(o::supervisor_message::Payload::Heartbeat(o::SupervisorHeartbeat {})) }).await?;
+                },
                 message = stream.message() => match message?.and_then(|m|m.payload) {
-                    Some(o::gateway_message::Payload::SessionAccepted(_)) => { self.phase.send_replace(Phase::Ready); tracing::info!(sandbox=%self.id,"supervisor connected"); },
+                    Some(o::gateway_message::Payload::SessionAccepted(_)) => {
+                        if self.vm_policy.is_some() { self.enforce_snapshot(&last_snapshot,&mut applied).await?; }
+                        self.phase.send_replace(Phase::Ready); tracing::info!(sandbox=%self.id,"supervisor connected");
+                    },
                     Some(o::gateway_message::Payload::RelayOpen(open)) => {
                         let runtime = self.clone(); let sender = sender.clone(); let path = ssh_path.clone();
                         self.tasks.lock().await.push(tokio::spawn(async move { if let Err(error) = runtime.relay(open, path, sender).await { tracing::warn!(sandbox=%runtime.id,error=%error,"relay failed"); } }));
@@ -248,6 +264,107 @@ impl Runtime {
                 }
             }
         }
+    }
+    async fn enforce_snapshot(
+        &self,
+        snapshot: &s::GetSandboxConfigResponse,
+        applied: &mut Option<crate::profile::VmPolicy>,
+    ) -> Result<()> {
+        let Some(operator) = &self.operator_policy else {
+            return admission::validate_snapshot(snapshot);
+        };
+        if !snapshot.configuration_admitted || !snapshot.supervisor_middleware_services.is_empty() {
+            bail!("effective configuration is not supported or admitted");
+        }
+        let native = snapshot
+            .policy
+            .as_ref()
+            .context("effective native policy missing")?;
+        let next = operator.compile(native)?;
+        let nonce = Uuid::new_v4().to_string();
+        let action = if applied.as_ref() == Some(&next) {
+            "verify"
+        } else {
+            "update"
+        };
+        let verified = crate::guest::lifecycle_with_policy(
+            &self.config,
+            action,
+            &self.id,
+            Some(&next),
+            &nonce,
+        )
+        .await?
+        .context("missing fresh runtime evidence")?;
+        if verified.host != self.guest.host
+            || verified.port != self.guest.port
+            || verified.username != self.guest.username
+            || verified.private_key_path != self.guest.private_key_path
+            || verified.known_hosts_path != self.guest.known_hosts_path
+        {
+            bail!("runtime route changed during verification");
+        }
+        *applied = Some(next);
+        Ok(())
+    }
+    async fn check_providers(
+        &self,
+        client: &mut o::open_shell_client::OpenShellClient<Channel>,
+        snapshot: &s::GetSandboxConfigResponse,
+    ) -> Result<()> {
+        let providers = client
+            .get_sandbox_provider_environment(self.request(
+                o::GetSandboxProviderEnvironmentRequest {
+                    sandbox_id: self.id.to_string(),
+                    ..Default::default()
+                },
+            )?)
+            .await?
+            .into_inner();
+        if !providers.environment.is_empty()
+            || !providers.dynamic_credentials.is_empty()
+            || !providers.static_credential_bindings.is_empty()
+            || !providers.files.is_empty()
+            || providers.readiness_reason != 0
+            || providers.provider_env_revision != snapshot.provider_env_revision
+            || providers.provider_attachment_epoch != snapshot.provider_attachment_epoch
+            || providers.policy_hash != snapshot.policy_hash
+        {
+            bail!("provider snapshot is unsupported or does not match effective configuration");
+        }
+        Ok(())
+    }
+    async fn report_accepted(
+        &self,
+        client: &mut o::open_shell_client::OpenShellClient<Channel>,
+        snapshot: &s::GetSandboxConfigResponse,
+    ) -> Result<()> {
+        client
+            .report_sandbox_configuration(self.request(o::ReportSandboxConfigurationRequest {
+                sandbox_id: self.id.to_string(),
+                admission: Some(o::SandboxConfigurationAdmission {
+                    instance_id: self.instance.clone(),
+                    state: 2,
+                    policy_version: snapshot.version,
+                    policy_hash: snapshot.policy_hash.clone(),
+                    config_revision: snapshot.config_revision,
+                    provider_env_revision: snapshot.provider_env_revision,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            })?)
+            .await?;
+        if snapshot.policy_source == s::PolicySource::Sandbox as i32 {
+            client
+                .report_policy_status(self.request(o::ReportPolicyStatusRequest {
+                    sandbox_id: self.id.to_string(),
+                    version: snapshot.version,
+                    status: 2,
+                    load_error: String::new(),
+                })?)
+                .await?;
+        }
+        Ok(())
     }
     async fn start_main(self: &Arc<Self>) -> Result<()> {
         let command = self

@@ -1,0 +1,11 @@
+CapabilityBoundingSet=
+AmbientCapabilities=
+User=okata-broker-fixture
+NoNewPrivileges=yes
+Uid:	61623	61623	61623	61623
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	0000000000000000
+CapAmb:	0000000000000000
+NoNewPrivs:	1

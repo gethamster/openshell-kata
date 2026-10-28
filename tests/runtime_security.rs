@@ -1,0 +1,203 @@
+use openshell_kata::{
+    boundary::process::{OperatorCeilings, VmLimits},
+    profile::VmPolicy,
+    runtime::{
+        lifecycle::{self, Settings},
+        model::{Action, Record, Route, validate_supported_profile},
+        network::Attachment,
+        spec::guest_spec,
+        state::StateDirectory,
+    },
+};
+use serde_json::json;
+use std::path::PathBuf;
+
+fn policy() -> VmPolicy {
+    serde_json::from_value(json!({"version":1,"profile":"docker-vm","resources":{"vcpus":1,"memory_mib":2048,"disk_mib":2048,"lifetime_secs":3600},"filesystem":{"host_mounts":"deny","transfer_max_bytes":268435456,"transfer_max_entries":4096},"network":{"tcp_allow":[]}})).expect("policy fixture")
+}
+#[test]
+fn minimal_guest_spec_exposes_no_host_files_or_devices() {
+    let spec = guest_spec("sample", "/run/netns/example", "http://10.205.0.1:38080");
+    assert_eq!(spec["linux"]["devices"], json!([]));
+    for mount in spec["mounts"].as_array().expect("mounts") {
+        assert_ne!(mount["type"], "bind");
+        assert!(!mount["source"].as_str().expect("source").starts_with('/'));
+    }
+    assert_eq!(spec["linux"]["cgroupsPath"], "/openshell-kata/sample/guest");
+    assert!(
+        spec["linux"]["namespaces"]
+            .as_array()
+            .expect("namespaces")
+            .iter()
+            .any(|n| n["path"] == "/run/netns/example")
+    );
+}
+#[test]
+fn interface_names_are_bound_to_the_creation_generation() {
+    let one = Attachment::for_id("same", "nonce-one-0123456789", 24);
+    let two = Attachment::for_id("same", "nonce-two-0123456789", 24);
+    assert_ne!(one.netns, two.netns);
+    assert_ne!(one.host_veth, two.host_veth);
+    assert_eq!(one.owner, "nonce-one-0123456789");
+    assert!(one.host_veth.len() <= 15);
+    assert!(one.guest_ip.is_private());
+    assert_ne!(one.guest_ip, one.gateway_ip);
+}
+#[test]
+fn unsupported_hardware_sizes_are_rejected_not_silently_clamped() {
+    let mut p = policy();
+    p.resources.vcpus = 2;
+    assert!(validate_supported_profile(&p).is_err());
+    p.resources.vcpus = 1;
+    p.resources.disk_mib = 4096;
+    assert!(validate_supported_profile(&p).is_err());
+}
+fn setup() -> (tempfile::TempDir, StateDirectory, Settings) {
+    let temp = tempfile::tempdir().expect("tempdir");
+    let root = std::fs::canonicalize(temp.path()).expect("canonical");
+    let state = StateDirectory::new(root.join("state")).expect("state");
+    let settings = Settings {
+        vm: "nonexistent-test-node".into(),
+        state_dir: state.root().into(),
+        node_binary: PathBuf::from("/does/not/exist"),
+    };
+    (temp, state, settings)
+}
+fn record(id: &str, nonce: &str, root: &std::path::Path) -> Record {
+    let p = policy();
+    let deadline = VmLimits {
+        vcpus: 1,
+        memory_mib: 2048,
+        disk_mib: 2048,
+        lifetime_secs: 3600,
+    }
+    .validate(&OperatorCeilings::default())
+    .expect("limits")
+    .deadline_from(1)
+    .expect("deadline");
+    Record {
+        creation_nonce: nonce.into(),
+        route: Route {
+            sandbox_id: id.into(),
+            host: "127.0.0.1".into(),
+            port: 2222,
+            username: "sandbox".into(),
+            private_key_path: root.join("client"),
+            known_hosts_path: root.join("known"),
+        },
+        policy: p,
+        deadline,
+        network: None,
+        attachment: Attachment::for_id(id, nonce, 0),
+        storage_id: String::new(),
+        hypervisor_pid: 0,
+        watchdog_pid: 0,
+        cgroup_path: String::new(),
+    }
+}
+#[tokio::test]
+async fn mismatched_abort_never_deletes_an_existing_generation() {
+    let (_temp, state, settings) = setup();
+    let id = "existing";
+    state.create(id).expect("create");
+    state
+        .write(id, &record(id, "original-0123456789", state.root()))
+        .expect("write");
+    let output = lifecycle::execute(
+        &settings,
+        Action::Abort,
+        id,
+        None,
+        Some("different-0123456789"),
+    )
+    .await
+    .expect("no-op");
+    assert_eq!(output, json!({}));
+    assert!(state.path(id).expect("path").exists());
+    let kept: Record = state.read(id).expect("original remains");
+    assert_eq!(kept.creation_nonce, "original-0123456789");
+}
+#[tokio::test]
+async fn abort_missing_state_is_a_noop_without_node_access() {
+    let (_temp, _state, settings) = setup();
+    assert_eq!(
+        lifecycle::execute(
+            &settings,
+            Action::Abort,
+            "missing",
+            None,
+            Some("nonce-0123456789abcdef")
+        )
+        .await
+        .expect("no-op"),
+        json!({})
+    );
+}
+#[tokio::test]
+async fn preexisting_state_refuses_create_before_contacting_the_node() {
+    let (temp, state, settings) = setup();
+    state.create("existing").expect("create");
+    let path = temp.path().join("policy.json");
+    std::fs::write(&path, serde_json::to_vec(&policy()).expect("policy bytes")).expect("write");
+    let error = lifecycle::execute(
+        &settings,
+        Action::Create,
+        "existing",
+        Some(&path),
+        Some("nonce-0123456789abcdef"),
+    )
+    .await
+    .expect_err("reject");
+    assert!(error.to_string().contains("already exists"), "{error}");
+    assert!(state.path("existing").expect("path").exists());
+}
+#[tokio::test]
+async fn invalid_nonce_refuses_create_before_policy_or_node_access() {
+    let (_temp, _state, settings) = setup();
+    let error = lifecycle::execute(&settings, Action::Create, "new", None, Some("bad"))
+        .await
+        .expect_err("reject");
+    assert!(error.to_string().contains("nonce"));
+}
+
+#[test]
+fn restart_removes_only_known_kata_taps_and_refuses_unknown_links() {
+    use openshell_kata::runtime::network::stale_taps;
+    let links = json!([{"ifname":"lo"},{"ifname":"eth0"},{"ifname":"tap0_kata","linkinfo":{"info_kind":"tun","info_data":{"type":"tap"}}}]);
+    assert_eq!(stale_taps(&links).expect("known tap"), vec!["tap0_kata"]);
+    assert!(stale_taps(&json!([{"ifname":"foreign"}])).is_err());
+    assert!(stale_taps(&json!([{"ifname":"tap0_kata","linkinfo":{"info_kind":"veth"}}])).is_err());
+}
+
+#[test]
+fn shim_reaping_requires_exact_id_and_containerd_namespace_tokens() {
+    use openshell_kata::runtime::containerd::owned_shim_arguments;
+    assert!(owned_shim_arguments(
+        b"shim\0-namespace\0default\0-id\0one\0",
+        "one"
+    ));
+    assert!(!owned_shim_arguments(
+        b"shim\0-namespace\0default\0-id\0one-extra\0",
+        "one"
+    ));
+    assert!(!owned_shim_arguments(
+        b"shim\0-namespace\0other\0-id\0one\0",
+        "one"
+    ));
+    assert!(!owned_shim_arguments(
+        b"shim -namespace default -id one",
+        "one"
+    ));
+}
+
+#[test]
+fn shim_socket_uses_pinned_kata_address_hash_and_rejects_paths() {
+    use openshell_kata::runtime::containerd::shim_socket;
+    assert_eq!(
+        shim_socket("9f5dc553-9559-4ef7-b6b0-eac7a4e63200")
+            .expect("known ID")
+            .to_str(),
+        Some("/run/containerd/s/4619A0CC99A2AB91E212F74127CC7AE9AF3D08D00864B44DFFF1AB5FCCD5F059")
+    );
+    assert!(shim_socket("../other").is_err());
+}

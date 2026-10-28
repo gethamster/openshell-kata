@@ -1,0 +1,10 @@
+Oct 28 06:47:19 lima-openshell-kata-enforcement kernel: Memory cgroup out of memory: Killed process 11543 (containerd-shim) total-vm:2149180kB, anon-rss:1408kB, file-rss:17920kB, shmem-rss:2050688kB, UID:0 pgtables:4172kB oom_score_adj:-999
+Oct 28 06:47:19 lima-openshell-kata-enforcement kernel: Tasks in /openshell-kata/proof are going to be killed due to memory.oom.group set
+Oct 28 06:47:19 lima-openshell-kata-enforcement kernel: Memory cgroup out of memory: Killed process 11543 (containerd-shim) total-vm:2149180kB, anon-rss:1408kB, file-rss:17920kB, shmem-rss:2050688kB, UID:0 pgtables:4172kB oom_score_adj:-999
+Oct 28 06:47:19 lima-openshell-kata-enforcement kernel: oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=/,mems_allowed=0,oom_memcg=/openshell-kata/proof,task_memcg=/openshell-kata/proof,task=containerd-shim,pid=11543,uid=0
+Oct 28 06:47:19 lima-openshell-kata-enforcement kernel: [  pid  ]   uid  tgid total_vm      rss rss_anon rss_file rss_shmem pgtables_bytes swapents oom_score_adj name
+Oct 28 06:47:19 lima-openshell-kata-enforcement kernel: Memory cgroup stats for /openshell-kata/proof:
+Oct 28 06:47:19 lima-openshell-kata-enforcement kernel:  __mem_cgroup_charge+0x60/0xe8
+Oct 28 06:47:19 lima-openshell-kata-enforcement kernel:  mem_cgroup_out_of_memory+0x15c/0x1b8
+Oct 28 06:47:19 lima-openshell-kata-enforcement kernel:  oom_kill_process+0x1f8/0x3e0
+Oct 28 06:47:19 lima-openshell-kata-enforcement kernel: kworker/u8:5 invoked oom-killer: gfp_mask=0x101c0a(GFP_NOIO|__GFP_HIGHMEM|__GFP_HARDWALL|__GFP_MOVABLE|__GFP_WRITE), order=0, oom_score_adj=0

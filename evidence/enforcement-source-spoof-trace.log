@@ -1,0 +1,12 @@
+nc: connect to 10.203.0.1 port 38080 (tcp) timed out: Operation now in progress
+PROBE_EXIT=1
+trace id 20b69639 netdev osk_trace ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.99 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 23218 ip protocol tcp ip length 60 tcp sport 44711 tcp dport 38080 tcp flags == syn tcp window 64240 
+trace id 20b69639 netdev osk_trace ingress rule ip saddr 10.203.0.99 meta nftrace set 1 (verdict continue)
+trace id 20b69639 netdev osk_trace ingress policy accept 
+trace id 20b69639 netdev osk_net_6 ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.99 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 23218 ip protocol tcp ip length 60 tcp sport 44711 tcp dport 38080 tcp flags == syn tcp window 64240 
+trace id 20b69639 netdev osk_net_6 ingress policy drop 
+trace id 1031eb30 netdev osk_trace ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.99 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 23219 ip protocol tcp ip length 60 tcp sport 44711 tcp dport 38080 tcp flags == syn tcp window 64240 
+trace id 1031eb30 netdev osk_trace ingress rule ip saddr 10.203.0.99 meta nftrace set 1 (verdict continue)
+trace id 1031eb30 netdev osk_trace ingress policy accept 
+trace id 1031eb30 netdev osk_net_6 ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.99 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 23219 ip protocol tcp ip length 60 tcp sport 44711 tcp dport 38080 tcp flags == syn tcp window 64240 
+trace id 1031eb30 netdev osk_net_6 ingress policy drop 

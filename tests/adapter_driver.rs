@@ -16,6 +16,7 @@ fn config(root: &std::path::Path) -> Arc<Config> {
         lifecycle_arg: vec![],
         ssh: "/usr/bin/ssh".into(),
         prototype_policy_mode: true,
+        vm_policy: None,
     })
 }
 fn sandbox(authentication: Vec<u8>) -> c::DriverSandbox {
@@ -38,7 +39,7 @@ fn sandbox(authentication: Vec<u8>) -> c::DriverSandbox {
 #[tokio::test]
 async fn invalid_launch_authentication_never_calls_lifecycle() -> anyhow::Result<()> {
     let root = tempfile::tempdir()?;
-    let driver = Driver::new(config(root.path()));
+    let driver = Driver::new(config(root.path())).expect("valid test configuration");
     let error = driver
         .create_sandbox(Request::new(c::CreateSandboxRequest {
             sandbox: Some(sandbox(b"{}".to_vec())),
@@ -82,7 +83,7 @@ async fn deletion_failure_keeps_record_for_retry() -> anyhow::Result<()> {
     let auth = serde_json::to_vec(
         &serde_json::json!({"supervisor":{"gateway_token":"test-placeholder","ssh_host_private_key":std::fs::read_to_string(&key)?}}),
     )?;
-    let driver = Driver::new(config(root.path()));
+    let driver = Driver::new(config(root.path())).expect("valid test configuration");
     driver
         .create_sandbox(Request::new(c::CreateSandboxRequest {
             sandbox: Some(sandbox(auth)),
@@ -176,7 +177,7 @@ async fn deletion_failure_keeps_record_for_retry() -> anyhow::Result<()> {
         ),
         "a reconnected watcher must recover missed deletion"
     );
-    let restarted = Driver::new(config(root.path()));
+    let restarted = Driver::new(config(root.path())).expect("valid test configuration");
     assert!(
         !restarted
             .delete_sandbox(Request::new(c::DeleteSandboxRequest {
@@ -205,7 +206,7 @@ async fn deletion_failure_keeps_record_for_retry() -> anyhow::Result<()> {
 #[tokio::test]
 async fn unsupported_contract_major_is_rejected() -> anyhow::Result<()> {
     let root = tempfile::tempdir()?;
-    let driver = Driver::new(config(root.path()));
+    let driver = Driver::new(config(root.path())).expect("valid test configuration");
     let request = c::GetCapabilitiesRequest {
         gateway: Some(
             openshell_kata::proto::openshell::extension::v1::PeerMetadata {
@@ -234,7 +235,7 @@ async fn unsupported_contract_major_is_rejected() -> anyhow::Result<()> {
 async fn stopping_an_unknown_registry_entry_fails_without_claiming_backend_success()
 -> anyhow::Result<()> {
     let root = tempfile::tempdir()?;
-    let driver = Driver::new(config(root.path()));
+    let driver = Driver::new(config(root.path())).expect("valid test configuration");
     let error = driver
         .stop_sandbox(Request::new(c::StopSandboxRequest {
             sandbox_id: "unknown-sandbox".into(),
@@ -243,5 +244,122 @@ async fn stopping_an_unknown_registry_entry_fails_without_claiming_backend_succe
         .await
         .expect_err("unknown backend state must not be called stopped");
     assert_eq!(error.code(), Code::NotFound);
+    Ok(())
+}
+
+async fn failed_launch_fixture(
+    root: &std::path::Path,
+    abort_fails: bool,
+) -> anyhow::Result<(Driver, Vec<u8>)> {
+    let key = root.join("key");
+    anyhow::ensure!(
+        std::process::Command::new("ssh-keygen")
+            .args(["-q", "-t", "ed25519", "-N", "", "-f"])
+            .arg(&key)
+            .status()?
+            .success(),
+        "key fixture"
+    );
+    let script = format!(
+        "#!/bin/sh\ncase \"$1\" in\ncreate) touch '{}'; sleep 0.1; printf 'invalid metadata';;\nabort) touch '{}'; exit {};;\ndelete) touch '{}';;\nesac\n",
+        root.join("started").display(),
+        root.join("aborted").display(),
+        u8::from(abort_fails),
+        root.join("deleted").display()
+    );
+    std::fs::write(root.join("lifecycle"), script)?;
+    std::fs::set_permissions(
+        root.join("lifecycle"),
+        std::fs::Permissions::from_mode(0o700),
+    )?;
+    let auth = serde_json::to_vec(
+        &serde_json::json!({"supervisor":{"gateway_token":"test-placeholder","ssh_host_private_key":std::fs::read_to_string(key)?}}),
+    )?;
+    Ok((Driver::new(config(root))?, auth))
+}
+
+#[tokio::test]
+async fn malformed_launch_metadata_uses_owned_abort_and_retains_failed_cleanup()
+-> anyhow::Result<()> {
+    let root = tempfile::tempdir()?;
+    let (driver, auth) = failed_launch_fixture(root.path(), true).await?;
+    assert!(
+        driver
+            .create_sandbox(Request::new(c::CreateSandboxRequest {
+                sandbox: Some(sandbox(auth))
+            }))
+            .await
+            .is_err()
+    );
+    assert!(root.path().join("aborted").exists());
+    assert!(
+        !root.path().join("deleted").exists(),
+        "failed create must not delete pre-existing same-ID state"
+    );
+    let observed = driver
+        .get_sandbox(Request::new(c::GetSandboxRequest {
+            sandbox_id: "test-sandbox".into(),
+            ..Default::default()
+        }))
+        .await?
+        .into_inner()
+        .sandbox
+        .expect("failed cleanup retained");
+    let ready = &observed.status.expect("status").conditions[0];
+    assert_eq!(ready.status, "False");
+    assert_eq!(ready.reason, "CleanupRequired");
+    Ok(())
+}
+
+#[tokio::test]
+async fn cancelled_create_rpc_still_finishes_owned_cleanup() -> anyhow::Result<()> {
+    let root = tempfile::tempdir()?;
+    let (driver, auth) = failed_launch_fixture(root.path(), false).await?;
+    let request = tokio::spawn(async move {
+        driver
+            .create_sandbox(Request::new(c::CreateSandboxRequest {
+                sandbox: Some(sandbox(auth)),
+            }))
+            .await
+    });
+    tokio::time::timeout(std::time::Duration::from_secs(3), async {
+        while !root.path().join("started").exists() {
+            tokio::task::yield_now().await;
+        }
+    })
+    .await?;
+    request.abort();
+    tokio::time::timeout(std::time::Duration::from_secs(3), async {
+        while !root.path().join("aborted").exists() {
+            tokio::task::yield_now().await;
+        }
+    })
+    .await?;
+    assert!(!root.path().join("deleted").exists());
+    Ok(())
+}
+
+#[tokio::test]
+async fn refused_create_with_noop_abort_does_not_publish_a_false_deletion() -> anyhow::Result<()> {
+    let root = tempfile::tempdir()?;
+    let (driver, auth) = failed_launch_fixture(root.path(), false).await?;
+    assert!(
+        driver
+            .create_sandbox(Request::new(c::CreateSandboxRequest {
+                sandbox: Some(sandbox(auth))
+            }))
+            .await
+            .is_err()
+    );
+    let mut events = driver
+        .watch_sandboxes(Request::new(c::WatchSandboxesRequest::default()))
+        .await?
+        .into_inner();
+    assert!(
+        tokio::time::timeout(std::time::Duration::from_millis(100), events.next())
+            .await
+            .is_err(),
+        "abort does not prove an existing runtime is absent"
+    );
     Ok(())
 }

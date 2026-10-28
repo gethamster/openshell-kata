@@ -1,0 +1,13 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "delete",
+    "rust-upload-check"
+  ],
+  "duration_seconds": 1.335977041,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "✓ Sandbox rust-upload-check deletion accepted; cleanup is pending\n",
+  "timed_out": false
+}

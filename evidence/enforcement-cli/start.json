@@ -1,0 +1,13 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "start",
+    "rust-upload-check"
+  ],
+  "duration_seconds": 49.935100542,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "✓ Started sandbox rust-upload-check\n",
+  "timed_out": false
+}

@@ -1,0 +1,14 @@
+{
+  "command": [
+    "openshell",
+    "gateway",
+    "info",
+    "--output",
+    "json"
+  ],
+  "duration_seconds": 0.027627958,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "{\n  \"auth\": null,\n  \"compute_drivers\": [\n    {\n      \"capabilities\": {\n        \"driver_name\": \"openshell-kata\",\n        \"driver_version\": \"0.1.0\"\n      },\n      \"name\": \"openshell-kata\"\n    }\n  ],\n  \"extensions\": [\n    {\n      \"configured_name\": \"openshell-kata\",\n      \"implementation_name\": \"openshell-kata\",\n      \"implementation_version\": \"0.1.0\",\n      \"kind\": \"compute-driver\",\n      \"protocol_version\": \"1.0\",\n      \"required_capabilities\": [],\n      \"supported_capabilities\": [\n        \"openshell.compute.contract\"\n      ]\n    },\n    {\n      \"configured_name\": \"openshell-driver-db-credstore\",\n      \"implementation_name\": \"openshell/openshell-driver-db-credstore\",\n      \"implementation_version\": \"0.1.6\",\n      \"kind\": \"credential-driver\",\n      \"protocol_version\": \"1.0\",\n      \"required_capabilities\": [\n        \"openshell.credentials.contract\"\n      ],\n      \"supported_capabilities\": [\n        \"openshell.credentials.contract\"\n      ]\n    },\n    {\n      \"configured_name\": \"openshell/regex\",\n      \"implementation_name\": \"openshell/regex\",\n      \"implementation_version\": \"0.1.6\",\n      \"kind\": \"supervisor-middleware\",\n      \"protocol_version\": \"1.0\",\n      \"required_capabilities\": [\n        \"openshell.supervisor-middleware.contract\"\n      ],\n      \"supported_capabilities\": [\n        \"openshell.supervisor-middleware.contract\"\n      ]\n    }\n  ],\n  \"gateway\": \"kata-rust\",\n  \"server\": \"https://127.0.0.1:29670\",\n  \"status\": \"healthy\",\n  \"version\": \"0.1.6\"\n}\n",
+  "timed_out": false
+}

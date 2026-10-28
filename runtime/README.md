@@ -1,42 +1,85 @@
-# Local Kata runtime
+# Rust Kata runtime
 
-`setup-local.sh` creates only the named `openshell-kata-rust` Lima VM on an Apple Silicon Mac with nested virtualization support. It does not change Docker contexts or existing containers. The VM has four CPUs, 8 GiB memory, a 30 GiB disk, and no host directory mounts. Kata guests use one CPU and 2 GiB memory each.
+`setup-local.sh` provisions the dedicated `openshell-kata-enforcement` Lima VM
+on Apple Silicon macOS with nested virtualization. It requires Lima, OpenSSH,
+GitHub CLI and Rust 1.98. No Python helper or Go Kata fallback is used.
+Docker, containerd, nerdctl and Lima remain upstream dependencies.
 
-```sh
-runtime/setup-local.sh
-runtime/lifecycle.py create example-sandbox
-runtime/lifecycle.py stop example-sandbox
-runtime/lifecycle.py start example-sandbox
-runtime/lifecycle.py delete example-sandbox
-```
+The node has four CPUs, 8 GiB RAM, a 30 GiB disk, no host directory mounts and
+no forwarded SSH agent. Tenant workloads always use the official Kata 4.3.1
+Rust shim with Dragonball and `virtio-blk-mmio`. Trusted image assembly alone
+uses runc. The source Docker image and Kata release archive are pinned by hash.
 
-The helper requires Lima, Python 3, OpenSSH, and `gh` for downloading the pinned Kata release. `OPENSHELL_KATA_VM` overrides the dedicated VM name. Private runtime state defaults to `.local/runtime`; `OPENSHELL_KATA_STATE_DIR` overrides that directory. Use a short absolute path because OpenSSH control sockets have a platform path-length limit. Per-sandbox control socket filenames are hashes, so UUID sandbox IDs fit on macOS.
+## Enforcement
 
-## Adapter contract
+Each guest has one vCPU, a 2048 MiB memory ceiling, a private 2048 MiB devmapper
+block root and a persistent expiration deadline. Host cgroups constrain the
+Rust VMM process and its threads. A separate systemd watchdog pins the cgroup
+kill handle before readiness; it survives adapter exit and enforces expiration.
+Restart does not renew the deadline.
 
-The executable accepts two arguments: `create|start|stop|delete` and a sandbox ID. Create/start print one JSON object on stdout containing `sandbox_id`, `host`, `port`, `username`, `private_key_path`, and `known_hosts_path`. Stop/delete print `{}`. A repeated delete with no metadata succeeds only when native container inspection confirms that exact container is absent; existing containers and transport failures are rejected. Start refreshes the guest IP after a restart and replaces any stale SSH tunnel while retaining the loopback port and pinned host identity. Diagnostics use stderr. A nonzero exit means the operation failed. The Rust adapter owns the OpenShell protocol and passes commands, SFTP streams, and approved loopback preview connections through this SSH endpoint.
+Shared filesystems are disabled. The minimal OCI specification contains no
+host bind mounts or host device entries. The guest agent image is read-only at
+the block-device level. Thin-pool block zeroing is mandatory; an unsafe existing
+pool is rejected. See `evidence/runtime-rust-summary.md` for the resource tests.
 
-Each guest has a persistent SSH daemon, its own host key, and a unique client public key. The client private key stays outside the Linux VM. The SSH host identity is pinned before the first connection. User data never uses `nerdctl exec`; containerd handles only lifecycle and trusted image preparation. This avoids the earlier concurrent exec/stream stall. The control socket is separate from guest SSH and only tunnels a loopback port through the dedicated Lima host.
+A generation-owned network namespace and veth are created before boot. Host nft
+rules bind to their identity and permit only the guest's dedicated TCP broker
+and replies to host-initiated SSH. The broker runs without root or capabilities,
+uses a private control socket, and validates public destination addresses.
+Direct guest DNS, UDP, IPv6, metadata, sibling traffic and forwarded inbound
+traffic are denied. Restart boots behind deny-all egress until the adapter
+applies the current gateway policy.
 
-The SSH user is `sandbox` (UID 1000), with `/sandbox` as its home and initial working directory. GNU coreutils supplies `realpath -e --`, which the OpenShell download probe requires. Its private Docker daemon listens only on `/var/run/docker.sock`. Root access through Docker is intentionally confined to the Kata guest. The container gets guest capabilities, not node block devices or a node Docker socket. SSH permits forwarding only to guest loopback destinations. Each sandbox has its own CNI bridge; a rule inserted ahead of CNI forwarding rules rejects traffic between sandbox subnets. New connections from these subnets to the Linux node are rejected.
+The guest owns a Docker daemon listening only on its own Unix socket. Docker
+root and privileged nested containers remain inside the VM boundary. Proxy
+settings are installed for noninteractive SSH commands, Docker image pulls,
+build arguments and application containers; removing those settings cannot
+remove the host packet fence.
 
-Docker data is a 2 GiB tmpfs so overlay2 never uses virtiofs as its upper filesystem. Images and Docker volumes disappear on stop/start. Guest startup removes stale Docker PID files and sockets before launching the new daemon. The sandbox filesystem persists in the container snapshot, but this is not a durable production storage design.
+## Lifecycle contract
 
-## Runtime qualification
+Build the Rust binaries from the repository root. The adapter invokes
+`kata-runtime ACTION ID` with trusted operator arguments:
 
-Kata 4.3.1 and the Docker source image are pinned by digest. The local profile explicitly uses the official Kata Go compatibility runtime. On this nested arm64 host, runtime-rs/QEMU failed network hotplug, and runtime-rs/Dragonball failed to boot the supplied guest kernel because of virtio-mmio/root-device errors. This is a local compatibility profile, not a decision to depend permanently on the deprecated Go runtime. A supported runtime-rs configuration must be qualified on each production node type before hosted rollout. The SSH transport does not depend on which Kata implementation supplies the guest. Trusted image assembly runs in an ordinary unprivileged build container inside the dedicated VM; tenant sandboxes always use Kata.
+- `create`, `start`, `verify`, and `update` require `--policy-file /absolute/path`
+  and a fresh `--proof-nonce`. They emit the pinned loopback SSH route plus
+  matching host-observed enforcement evidence.
+- `stop` and `delete` operate on retained private state and verify cleanup.
+- `abort` takes the failed launch nonce and can remove only resources owned by
+  that launch. A different generation remains intact.
 
-The Linux/cloud backend can implement the same lifecycle JSON contract without Lima; Windows and other cloud node types have not been tested by this local profile.
+`OPENSHELL_KATA_STATE_DIR` or `--state-dir` selects an absolute private state
+root. `--vm` selects the dedicated Lima node. Keep state until guests, watchdogs,
+brokers and tunnels are removed. The private SSH client key and gateway
+credentials never enter the guest. Guest SSH keys are generated and installed
+before its first boot; untrusted guest filesystems are never mounted for that
+operation after execution begins.
+
+The operator profile is documented in `docs/ENFORCEMENT_CONTRACT.md`. Native
+OpenShell guest filesystem/process restrictions remain unsupported with guest
+root and are rejected. The current launcher has not been qualified on Windows,
+native Linux hosts or cloud node types; those backends must preserve this same
+contract and pass the adversarial suite before deployment.
 
 ## Validation and cleanup
 
-```sh
-python3 -m unittest discover -s runtime -p 'test_*.py'
-python3 runtime/test_transport.py .local/runtime/SANDBOX_ID/metadata.json
-python3 runtime/test_workspace.py .local/runtime/SANDBOX_ID/metadata.json
-python3 runtime/test_restart.py .local/runtime/SANDBOX_ID/metadata.json
-```
+`cargo test --locked` covers lifecycle identity, state privacy, command bounds,
+resource/deadline validation, archive transfers and broker controls. The official
+CLI suite is `kata-dev e2e`; the node-side adversarial network harness is
+`test-network-enforcement.sh`. Run it only on this dedicated test node with an
+explicit fixture and control socket.
 
-The transport test keeps a command with open stdin alive while four concurrent SFTP sessions upload and download 16 MiB each, checks every SHA-256, then verifies another exec and the Docker daemon. The integration evidence is under `evidence/runtime-*`. OpenShell-level authorization, policy, Docker Compose, and preview tests are maintained by the parent integration suite.
+Delete sandboxes through the official CLI, then stop local services and delete
+the dedicated Lima VM as described in the repository README. Release archives,
+node build outputs and VM disks are disposable after validation; preserve the
+nonsecret qualification evidence in the repository.
 
-After all integration work finishes, delete each sandbox through its lifecycle helper, then run `limactl stop openshell-kata-rust` and `limactl delete --force openshell-kata-rust`. Keep private state until guests and tunnels have been removed; remove it afterward. Release archives under `runtime/.cache` are disposable and excluded from Git.
+Restart clears only the pinned Kata profile's stale tap/filter state inside its
+verified namespace. Failed-start shims are matched by full ID, namespace,
+executable and creation ownership, then signaled through Linux pidfds. Socket
+cleanup follows [Kata 4.3.1's socket derivation](https://github.com/kata-containers/kata-containers/blob/4.3.1/src/runtime-rs/crates/shim/src/shim.rs#L64)
+and refuses a live endpoint or an unexpected file type. Guest `/run` is tmpfs,
+so Docker's runtime handles do not survive a reboot. Normal stop attempts a
+bounded guest filesystem flush; the independent expiry watchdog always retains
+its hard deadline.

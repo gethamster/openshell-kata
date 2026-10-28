@@ -1,0 +1,18 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "exec",
+    "rust-upload-check",
+    "--no-tty",
+    "--",
+    "sh",
+    "-ec",
+    "cd /sandbox/project/upload; docker compose up -d --build; docker compose ps; curl --noproxy '*' --fail --silent http://127.0.0.1:18080"
+  ],
+  "duration_seconds": 96.909012625,
+  "exit_code": 0,
+  "stderr": " Image busybox:1.37 Pulling \n af820adcc158 Pulling fs layer 0B\n af820adcc158 Downloading 32.12kB\n af820adcc158 Downloading 556.4kB\n af820adcc158 Verifying Checksum 0B\n af820adcc158 Download complete 0B\n af820adcc158 Extracting 32.77kB\n af820adcc158 Extracting 65.54kB\n af820adcc158 Extracting 163.8kB\n af820adcc158 Extracting 196.6kB\n af820adcc158 Extracting 491.5kB\n af820adcc158 Extracting 786.4kB\n af820adcc158 Extracting 852kB\n af820adcc158 Extracting 1.573MB\n af820adcc158 Extracting 1.901MB\n af820adcc158 Pull complete 0B\n Image busybox:1.37 Pulled \n Image upload-web Building \n Image upload-web Built \n Network upload_default Creating \n Network upload_default Creating \n Network upload_default Created \n Network upload_default Created \n Container upload-worker-1 Creating \n Container upload-web-1 Creating \n Container upload-web-1 Created \n Container upload-worker-1 Created \n Container upload-worker-1 Starting \n Container upload-web-1 Starting \n Container upload-worker-1 Started \n Container upload-web-1 Started \n",
+  "stdout": "#1 [internal] load local bake definitions\n#1 reading from stdin 804B 0.1s done\n#1 reading from stdin 804B 0.1s done\n#1 DONE 0.2s\n\n#2 [internal] load build definition from Dockerfile\n#2 DONE 0.1s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile:\n#2 transferring dockerfile: 179B 1.5s done\n#2 DONE 2.7s\n\n#3 [internal] load metadata for docker.io/library/busybox:1.37\n#3 DONE 0.2s\n\n#4 [internal] load .dockerignore\n#4 transferring context: 0.1s\n#4 transferring context: 2B 0.1s done\n#4 DONE 0.4s\n\n#5 [1/4] FROM docker.io/library/busybox:1.37\n#5 ...\n\n#6 [internal] load build context\n#6 DONE 0.1s\n\n#5 [1/4] FROM docker.io/library/busybox:1.37\n#5 DONE 0.4s\n\n#6 [internal] load build context\n#6 ...\n\n#5 [1/4] FROM docker.io/library/busybox:1.37\n#5 DONE 0.7s\n\n#6 [internal] load build context\n#6 transferring context: 70B 1.1s done\n#6 DONE 1.9s\n\n#7 [2/4] WORKDIR /www\n#7 DONE 0.9s\n\n#8 [3/4] RUN printf 'Docker build RUN works\\n' > /build-proof\n#8 DONE 9.4s\n\n#9 [4/4] COPY index.html .\n#9 DONE 1.3s\n\n#10 exporting to image\n#10 exporting layers\n#10 exporting layers 1.5s done\n#10 writing image sha256:4dd6f526799b0f12aa32289682d968d384956c2670f06bbee79136e82e58820b 0.1s done\n#10 naming to docker.io/library/upload-web\n#10 naming to docker.io/library/upload-web 0.0s done\n#10 DONE 2.1s\n\n#11 resolving provenance for metadata file\n#11 DONE 1.5s\nNAME              IMAGE          COMMAND                  SERVICE   CREATED          STATUS          PORTS\nupload-web-1      upload-web     \"httpd -f -p 8080 -h…\"   web       21 seconds ago   Up 5 seconds    127.0.0.1:18080->8080/tcp\nupload-worker-1   busybox:1.37   \"sleep 1800\"             worker    21 seconds ago   Up 18 seconds   \nRust OpenShell + Kata + Docker Compose: OK\n",
+  "timed_out": false
+}

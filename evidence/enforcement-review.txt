@@ -1,0 +1,13 @@
+2026-10-28 — independent, read-only final source review
+
+Result: no remaining critical/high findings in the reviewed delta.
+
+Reviewed: nonce-bound containerd ownership; official executable and exact
+ID/namespace matching; pidfd process termination; derived shim socket cleanup
+that refuses live, non-socket, or non-root artifacts; namespace owner/inode
+validation and rejection of unfamiliar interfaces; broker shutdown before
+bounded guest sync; original expiry across restart; watchdog/cgroup limits
+before boot; deny-all restart networking; guest-local /run tmpfs.
+
+The reviewer performed no builds or workload changes. This scoped review is
+not a claim of a complete independent penetration test or production audit.

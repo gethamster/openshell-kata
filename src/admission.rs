@@ -1,6 +1,23 @@
 use crate::proto::openshell::{compute::v1::DriverSandbox, sandbox::v1::GetSandboxConfigResponse};
 use anyhow::{Result, bail};
 
+pub fn compile_request(
+    sandbox: &DriverSandbox,
+    operator: &crate::profile::VmPolicy,
+) -> Result<crate::profile::VmPolicy> {
+    let native = sandbox
+        .spec
+        .as_ref()
+        .and_then(|s| s.policy.as_ref())
+        .ok_or_else(|| anyhow::anyhow!("hardened mode requires explicit native policy"))?;
+    // Reuse the exact image/environment/resource boundary, then separately
+    // compile native network intent without discarding its requirements.
+    let mut shape = sandbox.clone();
+    shape.spec.as_mut().expect("spec checked").policy = None;
+    validate_request(&shape, true)?;
+    operator.compile(native)
+}
+
 pub fn validate_request(sandbox: &DriverSandbox, prototype: bool) -> Result<()> {
     if !prototype {
         let policy = sandbox

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "upload",
+    "--no-git-ignore",
+    "rust-upload-check",
+    "/Users/andrew/code/openshell-kata/.local/fixtures/upload",
+    "/sandbox/project"
+  ],
+  "duration_seconds": 3.045099458,
+  "exit_code": 0,
+  "stderr": "Uploading /Users/andrew/code/openshell-kata/.local/fixtures/upload -> sandbox:/sandbox/project\n✓ Upload complete: /sandbox/project/upload\n",
+  "stdout": "",
+  "timed_out": false
+}

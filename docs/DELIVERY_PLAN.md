@@ -37,7 +37,8 @@ Keep source, tests, nonsecret evidence, and reproducible commands together.
 Keep generated credentials, binaries, VM disks, and caches out of Git. Use one
 shared build directory and remove task-owned runtime resources after validation.
 During coverage qualification, the combined normal and instrumented build cache
-is bounded at 6 GiB. Remove superseded incremental outputs after validation and
+is bounded at 8 GiB while the runtime and instrumented adapter are tested together.
+Remove superseded incremental outputs after validation and
 retain the evidence separately from build caches.
 
 ## Delivered local milestone
@@ -48,5 +49,25 @@ the source fingerprint and results. The temporary VM and service processes are
 removed after qualification. The retained normal build cache is bounded at
 3 GiB; coverage build outputs and downloaded Kata archives are disposable.
 
-Hosted rollout remains gated on the unfinished runtime policy controls and
-production runtime qualification described in `POLICY_PLAN.md`.
+## Delivered enforcement milestone
+
+The Rust Kata `docker-vm` profile passed a fresh official-CLI run including four
+16 MiB uploads, five matching downloads, concurrent execution, Docker build,
+Compose, preview, stop/start, fresh-file persistence, and deletion. Guest-root
+network attacks, storage caps/zeroing, host cgroup bounds, and an independent
+watchdog were exercised separately. The suite has 139 passing tests and 84.85%
+implementation line coverage. See `evidence/enforcement-qualification.json` for
+the source fingerprint, evidence, and exact limitations.
+
+The adapter, lifecycle, network broker, and development tools are Rust. Python
+helpers and the former Go Kata fallback were removed. The final security review
+found no critical/high issues in the reviewed lifecycle and boundary delta.
+
+The task-owned services and VM are removed after qualification. Reports are
+retained; the isolated instrumented cache is disposable. An unrelated checkout
+was found writing to the default `target/`, so final verification used the
+task-owned `.local/policy-build` directory and did not clean the shared cache.
+
+Hosted rollout remains gated on production and additional-platform
+qualification described in `POLICY_PLAN.md`. There is no Git remote or release
+target configured for this repository, so publication is blocked on that input.

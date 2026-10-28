@@ -1,0 +1,14 @@
+{
+  "registry": "registry-1.docker.io",
+  "image": "library/busybox:1.37",
+  "platform": "linux/arm64",
+  "config_blob_redirect": {
+    "status": 307,
+    "host": "production.cloudfront.docker.com"
+  },
+  "layer_blob_redirect": {
+    "status": 307,
+    "host": "production.cloudfront.docker.com"
+  },
+  "authorization": "anonymous registry token, not recorded"
+}

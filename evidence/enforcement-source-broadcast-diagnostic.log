@@ -1,0 +1,30 @@
+Connection to 10.203.0.1 38080 port [tcp/*] succeeded!
+PROBE_EXIT=0
+trace id 727e2906 netdev osk_trace ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 9022 ip protocol tcp ip length 60 tcp sport 60123 tcp dport 38080 tcp flags == syn tcp window 64240 
+trace id 727e2906 netdev osk_trace ingress rule ip daddr 10.203.0.1 tcp dport 38080 meta nftrace set 1 (verdict continue)
+trace id 727e2906 netdev osk_trace ingress policy accept 
+trace id 727e2906 netdev osk_net_6 ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 9022 ip protocol tcp ip length 60 tcp sport 60123 tcp dport 38080 tcp flags == syn tcp window 64240 
+trace id 727e2906 netdev osk_net_6 ingress rule ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 tcp dport 38080 accept (verdict accept)
+trace id 727e2906 inet osk_net_6 input packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 9022 ip protocol tcp ip length 60 tcp sport 60123 tcp dport 38080 tcp flags == syn tcp window 64240 
+trace id 727e2906 inet osk_net_6 input rule iifname "okehost0" ip saddr 10.203.0.2 ip daddr 10.203.0.1 tcp dport 38080 accept (verdict accept)
+trace id 700b9c71 netdev osk_trace ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 9023 ip protocol tcp ip length 52 tcp sport 60123 tcp dport 38080 tcp flags == ack tcp window 502 
+trace id 700b9c71 netdev osk_trace ingress rule ip daddr 10.203.0.1 tcp dport 38080 meta nftrace set 1 (verdict continue)
+trace id 700b9c71 netdev osk_trace ingress policy accept 
+trace id 700b9c71 netdev osk_net_6 ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 9023 ip protocol tcp ip length 52 tcp sport 60123 tcp dport 38080 tcp flags == ack tcp window 502 
+trace id 700b9c71 netdev osk_net_6 ingress rule ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 tcp dport 38080 accept (verdict accept)
+trace id 700b9c71 inet osk_net_6 input packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 9023 ip protocol tcp ip length 52 tcp sport 60123 tcp dport 38080 tcp flags == ack tcp window 502 
+trace id 700b9c71 inet osk_net_6 input rule iifname "okehost0" ip saddr 10.203.0.2 ip daddr 10.203.0.1 tcp dport 38080 accept (verdict accept)
+trace id 727e2906 netdev osk_trace ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 9024 ip protocol tcp ip length 52 tcp sport 60123 tcp dport 38080 tcp flags == 0x11 tcp window 502 
+trace id 727e2906 netdev osk_trace ingress rule ip daddr 10.203.0.1 tcp dport 38080 meta nftrace set 1 (verdict continue)
+trace id 727e2906 netdev osk_trace ingress policy accept 
+trace id 727e2906 netdev osk_net_6 ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 9024 ip protocol tcp ip length 52 tcp sport 60123 tcp dport 38080 tcp flags == 0x11 tcp window 502 
+trace id 727e2906 netdev osk_net_6 ingress rule ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 tcp dport 38080 accept (verdict accept)
+trace id 727e2906 inet osk_net_6 input packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 9024 ip protocol tcp ip length 52 tcp sport 60123 tcp dport 38080 tcp flags == 0x11 tcp window 502 
+trace id 727e2906 inet osk_net_6 input rule iifname "okehost0" ip saddr 10.203.0.2 ip daddr 10.203.0.1 tcp dport 38080 accept (verdict accept)
+trace id 0c5d97cf netdev osk_trace ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 0 ip protocol tcp ip length 40 tcp sport 60123 tcp dport 38080 tcp flags == rst tcp window 0 
+trace id 0c5d97cf netdev osk_trace ingress rule ip daddr 10.203.0.1 tcp dport 38080 meta nftrace set 1 (verdict continue)
+trace id 0c5d97cf netdev osk_trace ingress policy accept 
+trace id 0c5d97cf netdev osk_net_6 ingress packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 0 ip protocol tcp ip length 40 tcp sport 60123 tcp dport 38080 tcp flags == rst tcp window 0 
+trace id 0c5d97cf netdev osk_net_6 ingress rule ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 tcp dport 38080 accept (verdict accept)
+trace id 0c5d97cf inet osk_net_6 input packet: iif "okehost0" ether saddr b6:93:d0:ea:f8:e7 ether daddr 86:08:cd:14:80:d2 ip saddr 10.203.0.2 ip daddr 10.203.0.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 0 ip protocol tcp ip length 40 tcp sport 60123 tcp dport 38080 tcp flags == rst tcp window 0 
+trace id 0c5d97cf inet osk_net_6 input rule iifname "okehost0" ip saddr 10.203.0.2 ip daddr 10.203.0.1 tcp dport 38080 accept (verdict accept)

@@ -1,0 +1,24 @@
+{"test":"positive_host_service_baselines","passed":true}
+{"test":"guest_root_can_flush_guest_firewall","passed":true}
+Connection to 10.203.0.2 22 port [tcp/ssh] succeeded!
+{"test":"host_local_control_path_allowed","passed":true}
+{"test":"forwarded_sibling_inbound","passed":true}
+{"test":"forwarded_packets_do_not_reach_guest","passed":true}
+{"test":"sibling_cannot_use_tenant_broker","passed":true}
+{"test":"raw_tcp_to_host","passed":true}
+{"test":"metadata_endpoint","passed":true}
+{"test":"sibling_network","passed":true}
+{"test":"ipv6_to_host","passed":true}
+{"test":"raw_udp_to_host","passed":true}
+{"test":"direct_dns","passed":true}
+{"test":"allowed_https_connect","passed":true}
+{"test":"allowed_http_forward","passed":true}
+{"test":"unlisted_host_denied","passed":true}
+{"test":"private_host_denied","passed":true}
+{"test":"malformed_host_denied","passed":true}
+{"test":"allowed_name_resolving_private_denied","passed":true}
+{"test":"spoofed_source_ip","passed":true}
+{"test":"raw_source_ip_spoof","passed":true}
+{"test":"unprivileged_broker_no_capabilities","passed":true}
+{"test":"active_connection_revoked","passed":true}
+{"complete":true,"mode":"namespace"}

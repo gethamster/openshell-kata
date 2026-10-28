@@ -1,0 +1,11 @@
+2026-10-28 — final task-owned runtime cleanup
+
+Before shutdown: containerd tasks list empty; containers list empty;
+no loaded openshell-kata systemd units; local adapter/gateway services stopped.
+The dedicated openshell-kata-enforcement Lima VM was stopped and deleted.
+Lima reported no remaining instances.
+
+Removed 2.4 GiB of isolated instrumented build output and task-owned release
+and source archives after saving reports. Retained normal isolated build cache:
+1.5 GiB (3 GiB bound). The unrelated shared target cache was left untouched.
+Private local credentials and the original qualification record were preserved.

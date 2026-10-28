@@ -14,6 +14,7 @@ fn local_prototype_mode_cannot_be_redirected_by_url_userinfo() {
         lifecycle_arg: Vec::new(),
         ssh: "/usr/bin/ssh".into(),
         prototype_policy_mode: true,
+        vm_policy: None,
     };
     assert!(config.validate().is_ok());
     for endpoint in [
@@ -72,5 +73,17 @@ fn uploads_confine_destination_to_workspace() {
             UploadPlan::parse(format!(r#"{{"destination_directory":"{path}"}}"#).as_bytes())
                 .is_err()
         );
+    }
+}
+
+#[test]
+fn upload_plan_rejects_unknown_fields_control_characters_and_unknown_kinds() {
+    for plan in [
+        r#"{"destination_directory":"/sandbox","extra":true}"#,
+        r#"{"destination_directory":"/sandbox/\u0000"}"#,
+        r#"{"destination_directory":"/sandbox","expected_destination":{"path":"/sandbox","kind":"device"}}"#,
+        r#"{"destination_directory":"/sandbox","expected_destination":{"path":"/sandbox\n","kind":"file"}}"#,
+    ] {
+        assert!(UploadPlan::parse(plan.as_bytes()).is_err());
     }
 }

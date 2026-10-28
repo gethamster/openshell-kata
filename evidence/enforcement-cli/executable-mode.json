@@ -1,0 +1,18 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "exec",
+    "rust-upload-check",
+    "--no-tty",
+    "--",
+    "sh",
+    "-ec",
+    "/sandbox/project/upload/probe.sh"
+  ],
+  "duration_seconds": 0.219255292,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "executable mode preserved\n",
+  "timed_out": false
+}

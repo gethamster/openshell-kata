@@ -1,0 +1,15 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "download",
+    "rust-upload-check",
+    "/sandbox/project/upload",
+    "/Users/andrew/code/openshell-kata/.local/downloads/3"
+  ],
+  "duration_seconds": 1.853471375,
+  "exit_code": 0,
+  "stderr": "Downloading sandbox:/sandbox/project/upload -> /Users/andrew/code/openshell-kata/.local/downloads/3\n✓ Download complete\n",
+  "stdout": "",
+  "timed_out": false
+}

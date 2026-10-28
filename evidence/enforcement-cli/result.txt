@@ -1,0 +1,1 @@
+PASS: transfer hashes, concurrent exec, Docker build/Compose, preview, restart, delete

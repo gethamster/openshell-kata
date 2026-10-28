@@ -1,12 +1,5 @@
-# Development protocol fixture only; the adapter must not claim to enforce it.
+# Native OpenShell policy for a Docker-capable VM with no outbound destinations.
+# Add explicit all-binary TCP destinations within the operator VM profile's ceiling
+# when a test requires network access. Guest path and process clauses are absent.
 version: 1
-filesystem_policy:
-  include_workdir: true
-  read_only: [/usr, /lib, /etc]
-  read_write: [/sandbox, /tmp]
-landlock:
-  compatibility: best_effort
-process:
-  run_as_user: sandbox
-  run_as_group: sandbox
 network_policies: {}

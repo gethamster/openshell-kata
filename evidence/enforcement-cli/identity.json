@@ -1,0 +1,18 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "exec",
+    "rust-upload-check",
+    "--no-tty",
+    "--",
+    "sh",
+    "-ec",
+    "id; uname -r; docker version --format '{{.Server.Version}}'"
+  ],
+  "duration_seconds": 7.712530458,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "uid=1000(sandbox) gid=1000(sandbox) groups=1000(sandbox)\n6.18.56\n29.9.2\n",
+  "timed_out": false
+}

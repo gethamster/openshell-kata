@@ -1,0 +1,18 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "exec",
+    "rust-upload-check",
+    "--no-tty",
+    "--",
+    "sh",
+    "-ec",
+    "printf '%s' 'e8e25c91-22fa-42bd-91da-d99ffcd04430' > /sandbox/restart-marker"
+  ],
+  "duration_seconds": 0.192777041,
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "",
+  "timed_out": false
+}

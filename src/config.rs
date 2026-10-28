@@ -48,9 +48,18 @@ pub struct Config {
     /// Explicit local experiment: policies are inspected but not fully enforced.
     #[arg(long)]
     pub prototype_policy_mode: bool,
+    /// Trusted immutable VM policy; required for hardened runtime enforcement.
+    #[arg(long)]
+    pub vm_policy: Option<PathBuf>,
 }
 impl Config {
     pub fn validate(&self) -> Result<()> {
+        if let Some(path) = &self.vm_policy {
+            if !path.is_absolute() || self.prototype_policy_mode {
+                bail!("VM policy requires an absolute path and cannot use prototype mode");
+            }
+            crate::profile::VmPolicy::load(path)?;
+        }
         for path in [&self.socket, &self.gateway_ca, &self.lifecycle, &self.ssh] {
             if !path.is_absolute() {
                 bail!("operator paths must be absolute");
