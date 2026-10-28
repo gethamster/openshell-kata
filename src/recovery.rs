@@ -1,7 +1,7 @@
 //! Credential-free durable intent for stopped sandbox recovery.
 
 use crate::{
-    config::{Config, SandboxId},
+    config::{Config, RuntimeProfile, SandboxId},
     proto::openshell::compute::v1 as c,
 };
 use anyhow::{Context, Result, ensure};
@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
     fs,
-    io::Write,
+    io::{Read, Write},
     os::unix::fs::PermissionsExt,
     path::PathBuf,
     sync::{Arc, Mutex},
@@ -78,6 +78,8 @@ struct Snapshot {
     sandbox: Vec<u8>,
     runtime_identity: String,
     generation: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    operator_sha256: Option<String>,
 }
 
 /// Private atomic snapshots of operator-validated intent, never bearer tokens.
@@ -85,6 +87,7 @@ struct Snapshot {
 pub struct Store {
     root: PathBuf,
     mutation: Arc<Mutex<()>>,
+    native_fingerprint: Option<String>,
 }
 
 impl Store {
@@ -92,6 +95,30 @@ impl Store {
         Self {
             root,
             mutation: Arc::default(),
+            native_fingerprint: None,
+        }
+    }
+
+    /// Open recovery for a validated operator configuration.
+    ///
+    /// Native records bind to the pinned policy, gateway CA and lifecycle selection;
+    /// legacy hosted records retain their existing two-per-workspace contract.
+    ///
+    /// # Errors
+    /// Rejects missing or unsafe native configuration and unreadable public CA files.
+    pub fn for_config(config: &Config) -> Result<Self> {
+        let root = config
+            .recovery_dir
+            .clone()
+            .context("recovery directory is required")?;
+        if config.runtime_profile == RuntimeProfile::Local {
+            config.validate()?;
+            Ok(Self {
+                native_fingerprint: Some(native_fingerprint(config)?),
+                ..Self::new(root)
+            })
+        } else {
+            Ok(Self::new(root))
         }
     }
 
@@ -167,6 +194,7 @@ impl Store {
             sandbox: sanitized.sandbox.encode_to_vec(),
             runtime_identity: sanitized.runtime_identity,
             generation: sanitized.generation,
+            operator_sha256: self.native_fingerprint.clone(),
         };
         let encoded = serde_json::to_vec(&snapshot)?;
         ensure!(
@@ -179,6 +207,10 @@ impl Store {
         for (path, _) in &inventory {
             let stored: Snapshot = serde_json::from_slice(&fs::read(path)?)?;
             ensure!(stored.version == 1, "unsupported recovery snapshot version");
+            ensure!(
+                stored.operator_sha256 == self.native_fingerprint,
+                "recovery operator binding differs"
+            );
             let sandbox = c::DriverSandbox::decode(stored.sandbox.as_slice())?;
             ensure!(
                 self.path(&sandbox.id)? == *path,
@@ -195,10 +227,17 @@ impl Store {
                 workspace_records += 1;
             }
         }
-        ensure!(
-            existing || workspace_records < 2,
-            "pilot workspace already has two retained sandboxes"
-        );
+        if self.native_fingerprint.is_some() {
+            ensure!(
+                existing || inventory.len() < 4,
+                "native node already has four retained sandboxes"
+            );
+        } else {
+            ensure!(
+                existing || workspace_records < 2,
+                "pilot workspace already has two retained sandboxes"
+            );
+        }
         let replaced = inventory
             .iter()
             .find(|(path, _)| path == &target)
@@ -233,13 +272,31 @@ impl Store {
             .lock()
             .map_err(|_| anyhow::anyhow!("recovery store lock unavailable"))?;
         self.directory()?;
+        let expected_binding = if config.runtime_profile == RuntimeProfile::Local {
+            Some(native_fingerprint(config)?)
+        } else {
+            None
+        };
+        ensure!(
+            expected_binding == self.native_fingerprint,
+            "recovery store operator configuration differs"
+        );
+        let inventory = self.inventory()?;
+        ensure!(
+            self.native_fingerprint.is_none() || inventory.len() <= 4,
+            "native recovery inventory exceeds four retained sandboxes"
+        );
         let mut retained = Vec::new();
-        for (path, _) in self.inventory()? {
+        for (path, _) in inventory {
             let snapshot: Snapshot = serde_json::from_slice(&fs::read(&path)?)
                 .context("decoding sandbox recovery intent")?;
             ensure!(
                 snapshot.version == 1,
                 "unsupported recovery snapshot version"
+            );
+            ensure!(
+                snapshot.operator_sha256 == expected_binding,
+                "recovery operator binding differs"
             );
             let sandbox = c::DriverSandbox::decode(snapshot.sandbox.as_slice())?;
             ensure!(
@@ -282,4 +339,45 @@ impl Store {
             Err(error) => Err(error.into()),
         }
     }
+}
+
+/// Bind native recovery to public operator identity and enforcement configuration.
+fn native_fingerprint(config: &Config) -> Result<String> {
+    config.validate()?;
+    ensure!(
+        config.runtime_profile == RuntimeProfile::Local && config.recovery_dir.is_some(),
+        "native recovery configuration is required"
+    );
+    let policy = crate::profile::VmPolicy::load(
+        config
+            .vm_policy
+            .as_deref()
+            .context("native recovery policy is required")?,
+    )?;
+    let mut ca = Vec::new();
+    fs::File::open(&config.gateway_ca)?
+        .take(1024 * 1024 + 1)
+        .read_to_end(&mut ca)?;
+    ensure!(
+        !ca.is_empty() && ca.len() <= 1024 * 1024,
+        "gateway CA bundle size differs"
+    );
+    let environment: std::collections::BTreeMap<_, _> = [
+        "OPENSHELL_KATA_NODE_TRANSPORT",
+        "OPENSHELL_KATA_RESOURCE_PROFILE",
+        "OPENSHELL_KATA_STATE_DIR",
+    ]
+    .into_iter()
+    .map(|name| {
+        (
+            name,
+            std::env::var_os(name).map(|value| value.to_string_lossy().into_owned()),
+        )
+    })
+    .collect();
+    let binding = serde_json::json!({"version":1,"profile":"native-enforced","policy_sha256":policy.digest()?,"guest_image":config.guest_image,"gateway":config.gateway,"gateway_ca_sha256":format!("{:x}", Sha256::digest(&ca)),"lifecycle":config.lifecycle,"lifecycle_arg":config.lifecycle_arg,"ssh":config.ssh,"environment":environment});
+    Ok(format!(
+        "{:x}",
+        Sha256::digest(serde_json::to_vec(&binding)?)
+    ))
 }

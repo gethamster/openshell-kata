@@ -255,3 +255,166 @@ fn concurrent_reservations_cannot_exceed_workspace_inventory() -> anyhow::Result
     assert_eq!(store.load(&configuration)?.len(), 2);
     Ok(())
 }
+
+fn native_config(root: &Path) -> anyhow::Result<Config> {
+    let policy = root.join("vm-policy.json");
+    fs::write(
+        &policy,
+        serde_json::to_vec(
+            &serde_json::json!({"version":1,"profile":"docker-vm","resources":{"vcpus":32,"memory_mib":131072,"disk_mib":262144,"lifetime_secs":3600},"filesystem":{"host_mounts":"deny","transfer_max_bytes":268435456,"transfer_max_entries":4096},"network":{"tcp_allow":[]}}),
+        )?,
+    )?;
+    fs::write(root.join("ca"), b"public-test-ca")?;
+    Ok(Config {
+        runtime_profile: RuntimeProfile::Local,
+        vm_policy: Some(policy),
+        guest_network_cidr: None,
+        ..config(root)
+    })
+}
+
+#[test]
+fn native_recovery_is_bound_scrubbed_and_caps_all_workspaces_at_four() -> anyhow::Result<()> {
+    let root = tempfile::tempdir()?;
+    let config = native_config(root.path())?;
+    let store = Store::for_config(&config)?;
+    for index in 0..4 {
+        let mut retained = intent();
+        retained.sandbox.id = format!("native-{index}");
+        retained.sandbox.workspace = format!("workspace-{index}");
+        store.save(&retained)?;
+    }
+    let loaded = store.load(&config)?;
+    assert_eq!(loaded.len(), 4);
+    assert!(loaded.iter().all(|r| {
+        r.sandbox
+            .spec
+            .as_ref()
+            .expect("spec")
+            .launch_authentication
+            .is_empty()
+    }));
+    let mut fifth = intent();
+    fifth.sandbox.id = "fifth".into();
+    fifth.sandbox.workspace = "unrelated-workspace".into();
+    assert!(
+        store.save(&fifth).is_err(),
+        "native disk cap is global, not per workspace"
+    );
+    let changed = Config {
+        gateway: "https://localhost:2".into(),
+        ..config.clone()
+    };
+    assert!(
+        Store::for_config(&changed)?.load(&changed).is_err(),
+        "gateway authority cannot rebind retained intent"
+    );
+    let changed = Config {
+        lifecycle_arg: vec!["--resource-profile=local".into()],
+        ..config.clone()
+    };
+    assert!(
+        Store::for_config(&changed)?.load(&changed).is_err(),
+        "operator lifecycle selection must match"
+    );
+    fs::write(
+        config.vm_policy.as_ref().expect("policy"),
+        fs::read_to_string(config.vm_policy.as_ref().expect("policy"))?.replace("3600", "3601"),
+    )?;
+    assert!(
+        Store::for_config(&config)?.load(&config).is_err(),
+        "policy changes need explicit migration"
+    );
+    Ok(())
+}
+
+#[test]
+fn native_recovery_rejects_legacy_unbound_records_and_unsafe_configuration() -> anyhow::Result<()> {
+    let root = tempfile::tempdir()?;
+    let config = native_config(root.path())?;
+    Store::new(config.recovery_dir.clone().expect("registry")).save(&intent())?;
+    assert!(Store::for_config(&config)?.load(&config).is_err());
+    for invalid in [
+        Config {
+            vm_policy: None,
+            ..config.clone()
+        },
+        Config {
+            guest_image: None,
+            ..config.clone()
+        },
+        Config {
+            prototype_policy_mode: true,
+            ..config.clone()
+        },
+        Config {
+            recovery_dir: Some("relative".into()),
+            ..config.clone()
+        },
+    ] {
+        assert!(invalid.validate().is_err());
+        assert!(Store::for_config(&invalid).is_err());
+    }
+    Ok(())
+}
+
+#[test]
+fn native_concurrent_reservations_cannot_exceed_four_disks() -> anyhow::Result<()> {
+    let root = tempfile::tempdir()?;
+    let configuration = native_config(root.path())?;
+    let store = Store::for_config(&configuration)?;
+    let barrier = std::sync::Arc::new(std::sync::Barrier::new(7));
+    let workers: Vec<_> = (0..6)
+        .map(|index| {
+            let store = store.clone();
+            let barrier = barrier.clone();
+            std::thread::spawn(move || {
+                let mut record = intent();
+                record.sandbox.id = format!("native-concurrent-{index}");
+                record.sandbox.workspace = format!("workspace-{index}");
+                barrier.wait();
+                store.save(&record).is_ok()
+            })
+        })
+        .collect();
+    barrier.wait();
+    let saved = workers
+        .into_iter()
+        .map(|worker| worker.join().expect("worker"))
+        .filter(|saved| *saved)
+        .count();
+    assert_eq!(saved, 4);
+    assert_eq!(store.load(&configuration)?.len(), 4);
+    Ok(())
+}
+
+#[test]
+fn native_recovery_rejects_changed_public_ca_and_invalid_retained_shape() -> anyhow::Result<()> {
+    let root = tempfile::tempdir()?;
+    let config = native_config(root.path())?;
+    let store = Store::for_config(&config)?;
+    let mut invalid = intent();
+    invalid
+        .sandbox
+        .spec
+        .as_mut()
+        .expect("spec")
+        .template
+        .as_mut()
+        .expect("template")
+        .image = IMAGE.replace("aaaa", "bbbb");
+    store.save(&invalid)?;
+    assert!(
+        store.load(&config).is_err(),
+        "retained image must still match the pinned operator image"
+    );
+    store.save(&intent())?;
+    fs::write(&config.gateway_ca, b"replacement-public-ca")?;
+    assert!(
+        Store::for_config(&config)?.load(&config).is_err(),
+        "CA authority replacement cannot rebind retained disks"
+    );
+    fs::write(&config.gateway_ca, b"")?;
+    assert!(Store::for_config(&config).is_err());
+    Ok(())
+}

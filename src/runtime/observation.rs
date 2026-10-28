@@ -7,7 +7,12 @@ use std::ffi::OsString;
 fn args(values: &[&str]) -> Vec<OsString> {
     values.iter().map(OsString::from).collect()
 }
-pub(super) async fn host_process(node: &Node, id: &str, native: &Value) -> Result<(u32, String)> {
+pub(super) async fn host_process(
+    node: &Node,
+    id: &str,
+    native: &Value,
+    policy: &VmPolicy,
+) -> Result<(u32, String)> {
     let internal = native["ID"].as_str().context("missing container ID")?;
     let output = node
         .node(&args(&["pgrep", "-f", "containerd-shim-kata-v2"]))
@@ -50,8 +55,10 @@ pub(super) async fn host_process(node: &Node, id: &str, native: &Value) -> Resul
             let cpu = node
                 .node(&args(&["cat", &format!("{cgroup}/cpu.max")]))
                 .await?;
-            if String::from_utf8(memory.stdout)?.trim() != "2147483648"
-                || String::from_utf8(cpu.stdout)?.trim() != "100000 100000"
+            if String::from_utf8(memory.stdout)?.trim()
+                != (policy.resources.memory_mib * 1024 * 1024).to_string()
+                || String::from_utf8(cpu.stdout)?.trim()
+                    != format!("{} 100000", u64::from(policy.resources.vcpus) * 100000)
             {
                 bail!("host resource limits differ from admitted profile");
             }
@@ -68,7 +75,7 @@ pub(super) async fn host_process(node: &Node, id: &str, native: &Value) -> Resul
                 .lines()
                 .filter(|name| name.starts_with("db_vcpu"))
                 .count()
-                != 1
+                != policy.resources.vcpus as usize
             {
                 bail!("unexpected virtual CPU count");
             }

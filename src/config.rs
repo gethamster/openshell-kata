@@ -91,6 +91,17 @@ impl Config {
             }
             crate::hosted::validate_image(image)?;
         }
+        if self.runtime_profile == RuntimeProfile::Local
+            && let Some(directory) = &self.recovery_dir
+            && (!directory.is_absolute()
+                || self.prototype_policy_mode
+                || self.vm_policy.is_none()
+                || self.guest_image.is_none())
+        {
+            bail!(
+                "native recovery requires an absolute directory, enforced policy and pinned guest image"
+            );
+        }
         if self.runtime_profile == RuntimeProfile::Kubernetes {
             if self
                 .recovery_dir
@@ -141,7 +152,17 @@ impl Config {
     ) -> Result<()> {
         match self.runtime_profile {
             RuntimeProfile::Local => {
-                crate::admission::validate_request(sandbox, self.prototype_policy_mode)
+                if let Some(path) = &self.vm_policy {
+                    let policy = crate::profile::VmPolicy::load(path)?;
+                    crate::admission::compile_request_for_image(
+                        sandbox,
+                        &policy,
+                        self.guest_image.as_deref(),
+                    )
+                    .map(|_| ())
+                } else {
+                    crate::admission::validate_request(sandbox, self.prototype_policy_mode)
+                }
             }
             RuntimeProfile::Kubernetes => {
                 crate::hosted::validate_request(sandbox, self.guest_image.as_deref().unwrap_or(""))

@@ -58,9 +58,9 @@ operation after execution begins.
 
 The operator profile is documented in `docs/ENFORCEMENT_CONTRACT.md`. Native
 OpenShell guest filesystem/process restrictions remain unsupported with guest
-root and are rejected. The current launcher has not been qualified on Windows,
-native Linux hosts or cloud node types; those backends must preserve this same
-contract and pass the adversarial suite before deployment.
+root and are rejected. Windows and additional cloud node types must preserve this contract and pass
+the adversarial suite before deployment. The native Linux setup below provides
+the port; target-host qualification remains an explicit deployment gate.
 
 ## Validation and cleanup
 
@@ -83,3 +83,90 @@ and refuses a live endpoint or an unexpected file type. Guest `/run` is tmpfs,
 so Docker's runtime handles do not survive a reboot. Normal stop attempts a
 bounded guest filesystem flush; the independent expiry watchdog always retains
 its hard deadline.
+
+## Dedicated native x86 Linux node
+
+The `linux-local` transport runs bounded `sudo -n -- timeout` commands directly
+on a dedicated Linux host. It does not invoke Lima or Kubernetes. The adapter
+still uses `--runtime-profile local`; choose the node and resource contract with
+trusted service environment settings:
+
+```sh
+OPENSHELL_KATA_NODE_TRANSPORT=linux-local
+OPENSHELL_KATA_RESOURCE_PROFILE=foundry-build
+OPENSHELL_KATA_STATE_DIR=/var/lib/system/kata/private-state
+```
+
+The lifecycle also accepts `--node-transport linux-local` and
+`--resource-profile foundry-build`. The fixed build profile admits exactly
+32 vCPUs, 131072 MiB RAM and 262144 MiB private disk. `VmPolicy` retains
+`"profile":"docker-vm"`. CPU and memory appear in the OCI configuration and
+host cgroups, and observations verify actual Dragonball CPU threads and block
+device capacity. At most four retained build disks are admitted, including
+stopped guests. Delete a guest to release its reservation. An immutable
+operator-selected OCI guest image is mandatory for this profile.
+
+Build native entrypoints on x86 Linux using `build-linux.sh /absolute/new/bin`.
+Provide an existing bounded `CARGO_TARGET_DIR`, Rust 1.98, musl tools and the
+`x86_64-unknown-linux-musl` target. The script builds native `openshell-kata`,
+`kata-runtime`, `kata-network`, `kata-operator` and a static guest `kata-workspace`.
+The native guest image uses `Dockerfile.local-guest`, whose initializer is
+`guest-init.sh`; the hosted image uses a different initializer. Build and publish
+that OCI artifact through the owning release pipeline and pass its digest via
+`--guest-image` on the adapter.
+
+Provision upstream containerd, ctr, nerdctl, nftables, iproute2, OpenSSH server,
+LVM/device-mapper tools, zstd, binutils, Python 3 and sudo before node setup.
+The host must expose nested `/dev/kvm` and cgroups v2. Run on the dedicated node
+as root, after its retained SSD filesystem is mounted:
+
+```sh
+runtime/setup-linux.sh \
+  --archive /trusted/kata-static-4.3.1-amd64.tar.zst \
+  --binary-dir /trusted/bin \
+  --pool-dir /var/lib/system/kata/pool \
+  --resource-profile foundry-build --operator foundry
+```
+
+Setup verifies the official Kata 4.3.1 archive's 1,021,129,805-byte length and
+SHA-256 `1463a2b86845f4d3d8e87f2f764ec59856fc0fee3520967a79ade32762be2e97`.
+It installs the Rust Dragonball runtime, disables shared filesystems, preserves
+x86 PCI block transport, and installs the five entrypoints in
+`/opt/openshell-kata`. It requires a dedicated containerd configuration and
+refuses to replace an unrelated one.
+
+A 1280 GiB preallocated thin pool plus 1 GiB metadata file bounds retained SSD
+use. Each private snapshot is capped at 256 GiB. Mandatory zeroing prevents
+recycled block disclosure, and exhaustion returns errors. Containerd metadata
+and snapshotter state live beside the pool on the retained filesystem. Setup
+never truncates or resizes existing backing files. It pins their filesystem UUID
+and inode identities, rejects partial or unowned pool state, and treats a
+matching installation as a verified no-op. The boot service reconstructs
+loop and device-mapper identities before starting containerd and explicitly
+requires the retained mount.
+
+A separate localhost-only SSH daemon on port 22220 provides the node hop with
+fixed host pinning. Its client cannot run interactive host commands; only trusted
+operator forwarding is used. Guest SSH still has its unique private key and
+strict host pinning. The trusted operator account receives passwordless access
+to the bounded `timeout` command as root for node administration; do not expose
+that account or its keys to guests.
+
+Use a private absolute `--recovery-dir` on the adapter, separate from
+`OPENSHELL_KATA_STATE_DIR`. Restart recovery stops retained compute and exposes
+credential-free stopped intent; a fresh authenticated Start is required. Node
+boot identity changes require complete absence of the old namespace and link,
+confirmed stopped containerd tasks and the same private snapshot. Recovery
+creates new generation-owned attachment observations and packet-fence proofs,
+reserving all retained addresses before the adapter begins serving new requests.
+It preserves the original disk and expiration deadline.
+
+`sudo runtime/setup-linux.sh --verify` prints public JSON with
+`node_verified:true` after checking actual pool identity, zeroing, resource
+configuration, KVM, cgroups, nft availability, devmapper health and service state.
+The installed public configuration is `/etc/openshell-kata/node.json` (mode0600).
+Preserve it with the retained SSD recovery evidence before replacing a boot disk.
+This node check does not certify guest execution: before activation, run the
+real create/verify/stop/restart/delete and adversarial network, storage and
+expiration suite on the target nested-KVM host, and repeat recovery after a node
+reboot. Preserve those results in the deployment's release evidence.
