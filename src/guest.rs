@@ -1,7 +1,7 @@
-use crate::config::{Config, SandboxId};
+use crate::config::{Config, RuntimeProfile, SandboxId};
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
-use std::{net::IpAddr, path::PathBuf, process::Stdio};
+use std::{net::IpAddr, path::PathBuf, process::Stdio, time::Duration};
 use tokio::process::{Child, Command};
 
 /// Trusted lifecycle output describing a pinned SSH route to one guest.
@@ -16,6 +16,8 @@ pub struct Guest {
     pub known_hosts_path: PathBuf,
     #[serde(default)]
     pub enforcement: Option<crate::profile::EnforcementEvidence>,
+    #[serde(default)]
+    pub runtime_identity: Option<String>,
 }
 impl Guest {
     pub fn validate(&self, id: &SandboxId) -> Result<()> {
@@ -39,6 +41,36 @@ impl Guest {
         Ok(())
     }
 
+    fn validate_for(&self, config: &Config, id: &SandboxId) -> Result<()> {
+        if config.runtime_profile == RuntimeProfile::Local {
+            return self.validate(id);
+        }
+        let network = crate::hosted::validate_network(
+            config
+                .guest_network_cidr
+                .as_deref()
+                .context("hosted guest network required")?,
+        )?;
+        let valid_ip = self
+            .host
+            .parse::<IpAddr>()
+            .is_ok_and(|ip| network.contains(&ip));
+        if self.sandbox_id != id.as_str()
+            || !valid_ip
+            || self.port != 22
+            || self.username != "sandbox"
+            || !self.private_key_path.is_absolute()
+            || !self.known_hosts_path.is_absolute()
+            || self
+                .runtime_identity
+                .as_deref()
+                .is_none_or(|value| uuid::Uuid::parse_str(value).is_err())
+        {
+            bail!("invalid hosted guest endpoint or generation");
+        }
+        Ok(())
+    }
+
     fn command(&self, config: &Config) -> Command {
         let mut command = Command::new(&config.ssh);
         command
@@ -49,6 +81,8 @@ impl Guest {
                 "-oBatchMode=yes",
                 "-oIdentitiesOnly=yes",
                 "-oStrictHostKeyChecking=yes",
+                "-oGlobalKnownHostsFile=/dev/null",
+                "-oUpdateHostKeys=no",
                 "-oForwardAgent=no",
                 "-oControlMaster=no",
                 "-oLogLevel=ERROR",
@@ -120,6 +154,26 @@ pub async fn lifecycle_with_policy(
     policy: Option<&crate::profile::VmPolicy>,
     nonce: &str,
 ) -> Result<Option<Guest>> {
+    lifecycle_for_policy(config, action, id, None, policy, nonce).await
+}
+
+pub async fn lifecycle_for(
+    config: &Config,
+    action: &str,
+    id: &SandboxId,
+    workspace: Option<&str>,
+) -> Result<Option<Guest>> {
+    lifecycle_for_policy(config, action, id, workspace, None, "").await
+}
+
+pub async fn lifecycle_for_policy(
+    config: &Config,
+    action: &str,
+    id: &SandboxId,
+    workspace: Option<&str>,
+    policy: Option<&crate::profile::VmPolicy>,
+    nonce: &str,
+) -> Result<Option<Guest>> {
     let policy_file = policy
         .map(|policy| -> Result<_> {
             let mut file = tempfile::NamedTempFile::new()?;
@@ -133,16 +187,32 @@ pub async fn lifecycle_with_policy(
         .args(&config.lifecycle_arg)
         .arg(action)
         .arg(id.as_str());
+    for (name, value) in [
+        ("OPENSHELL_KATA_GUEST_IMAGE", &config.guest_image),
+        (
+            "OPENSHELL_KATA_GUEST_NETWORK_CIDR",
+            &config.guest_network_cidr,
+        ),
+    ] {
+        if let Some(value) = value {
+            command.env(name, value);
+        } else {
+            command.env_remove(name);
+        }
+    }
+    if let Some(workspace) = workspace {
+        command.env("OPENSHELL_KATA_WORKSPACE", workspace);
+    }
     if let Some(file) = &policy_file {
         command.arg("--policy-file").arg(file.path());
     }
     if !nonce.is_empty() {
         command.arg("--proof-nonce").arg(nonce);
     }
-    let timeout = std::time::Duration::from_secs(if matches!(action, "create" | "start") {
-        600
-    } else {
-        30
+    let timeout = Duration::from_secs(match (config.runtime_profile, action) {
+        (RuntimeProfile::Kubernetes, "create" | "start" | "stop" | "delete" | "abort") => 660,
+        (_, "create" | "start") => 600,
+        _ => 30,
     });
     let output = tokio::time::timeout(
         timeout,
@@ -166,10 +236,13 @@ pub async fn lifecycle_with_policy(
             output.status
         );
     }
-    if matches!(action, "create" | "start" | "verify" | "update") {
+    if matches!(action, "create" | "start")
+        || (config.runtime_profile == RuntimeProfile::Local
+            && matches!(action, "verify" | "update"))
+    {
         let guest: Guest =
             serde_json::from_slice(&output.stdout).context("decoding guest lifecycle metadata")?;
-        guest.validate(id)?;
+        guest.validate_for(config, id)?;
         if let Some(policy) = policy {
             guest
                 .enforcement
@@ -180,5 +253,56 @@ pub async fn lifecycle_with_policy(
         Ok(Some(guest))
     } else {
         Ok(None)
+    }
+}
+
+pub async fn verify_runtime(
+    config: &Config,
+    sandbox: &crate::proto::openshell::compute::v1::DriverSandbox,
+    identity: &str,
+) -> Result<()> {
+    if config.runtime_profile == RuntimeProfile::Local {
+        return Ok(());
+    }
+    let mut command = Command::new(&config.lifecycle);
+    command
+        .args(&config.lifecycle_arg)
+        .arg("verify")
+        .arg(&sandbox.id)
+        .env(
+            "OPENSHELL_KATA_GUEST_NETWORK_CIDR",
+            config.guest_network_cidr.as_deref().unwrap_or(""),
+        )
+        .stdin(Stdio::null())
+        .kill_on_drop(true);
+    let output = bounded_output(command, Duration::from_secs(15)).await?;
+    if !output.status.success() {
+        bail!("live Kubernetes runtime verification failed");
+    }
+    let proof: crate::hosted::RuntimeProof = serde_json::from_slice(&output.stdout)?;
+    proof.validate(
+        sandbox,
+        config.guest_image.as_deref().unwrap_or(""),
+        identity,
+    )
+}
+
+async fn bounded_output(mut command: Command, duration: Duration) -> Result<std::process::Output> {
+    tokio::time::timeout(duration, command.kill_on_drop(true).output())
+        .await
+        .context("runtime command deadline exceeded")?
+        .context("running guest lifecycle")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn hanging_runtime_command_has_a_deadline() {
+        let mut command = Command::new("/bin/sleep");
+        command.arg("10");
+        let result = bounded_output(command, Duration::from_millis(20)).await;
+        assert!(result.is_err());
     }
 }

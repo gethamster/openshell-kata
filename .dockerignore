@@ -1,0 +1,10 @@
+.git
+.local
+target
+runtime/.cache
+evidence
+**/*.pem
+**/*.key
+**/*.sock
+**/*.pid
+**/*.profraw

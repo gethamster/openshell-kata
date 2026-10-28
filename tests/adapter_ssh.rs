@@ -110,6 +110,10 @@ impl Fixture {
             ssh: executable,
             prototype_policy_mode: true,
             vm_policy: None,
+            runtime_profile: openshell_kata::config::RuntimeProfile::Local,
+            guest_image: None,
+            guest_network_cidr: None,
+            recovery_dir: None,
         });
         let guest = Guest {
             sandbox_id: "test-id".into(),
@@ -119,6 +123,7 @@ impl Fixture {
             private_key_path: key.clone(),
             known_hosts_path: files.path().join("unused-hosts"),
             enforcement: None,
+            runtime_identity: None,
         };
         let host_key = std::fs::read_to_string(key)?;
         let authentication = serde_json::to_vec(
@@ -254,6 +259,15 @@ async fn invalid_upload_plan_closes_channel_without_waiting_for_eof() -> anyhow:
 
 #[tokio::test]
 async fn failed_extractor_reports_failure_after_archive_validation() -> anyhow::Result<()> {
+    assert_extractor_failure_without_final_ack(b"source").await
+}
+
+#[tokio::test]
+async fn early_extractor_failure_preserves_status_without_a_final_ack() -> anyhow::Result<()> {
+    assert_extractor_failure_without_final_ack(&vec![0x71; 2 * 1024 * 1024]).await
+}
+
+async fn assert_extractor_failure_without_final_ack(body: &[u8]) -> anyhow::Result<()> {
     let fixture = Fixture::new().await?;
     let mut channel = fixture.client.channel_open_session().await?;
     channel
@@ -262,17 +276,29 @@ async fn failed_extractor_reports_failure_after_archive_validation() -> anyhow::
     channel
         .data(&b"{\"destination_directory\":\"/sandbox/failure\"}\n"[..])
         .await?;
-    channel
-        .data(upload_tar(b"source", "file")?.as_slice())
-        .await?;
+    let bytes = upload_tar(body, "file")?;
+    channel.data(bytes.as_slice()).await?;
     channel.eof().await?;
     let mut exit = None;
+    let mut errors = Vec::new();
+    let mut acknowledgments = Vec::new();
     while let Some(message) = tokio::time::timeout(Duration::from_secs(5), channel.wait()).await? {
-        if let ChannelMsg::ExitStatus { exit_status } = message {
-            exit = Some(exit_status);
+        match message {
+            ChannelMsg::ExitStatus { exit_status } => exit = Some(exit_status),
+            ChannelMsg::ExtendedData { data, .. } => errors.extend_from_slice(&data),
+            ChannelMsg::Data { data } => acknowledgments.extend_from_slice(&data),
+            _ => {}
         }
     }
-    assert_eq!(exit, Some(23));
+    assert_eq!(exit, Some(23), "{}", String::from_utf8_lossy(&errors));
+    assert!(
+        acknowledgments
+            .as_chunks::<8>()
+            .0
+            .iter()
+            .all(|value| { u64::from_be_bytes(*value) != bytes.len() as u64 }),
+        "failed extraction must not acknowledge the final archive total"
+    );
     fixture.close().await;
     Ok(())
 }

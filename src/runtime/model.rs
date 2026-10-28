@@ -59,6 +59,7 @@ impl Route {
             private_key_path: self.private_key_path.clone(),
             known_hosts_path: self.known_hosts_path.clone(),
             enforcement,
+            runtime_identity: None,
         }
     }
     /// Produce JSON without requiring the adapter's internal transport type to serialize.
@@ -74,6 +75,9 @@ impl Route {
 #[serde(deny_unknown_fields)]
 pub struct Record {
     pub creation_nonce: String,
+    /// Trusted image reference retained across restarts, never selected by tenant input.
+    #[serde(default = "default_image")]
+    pub image: String,
     pub attachment: super::network::Attachment,
     pub route: Route,
     pub policy: VmPolicy,
@@ -83,6 +87,29 @@ pub struct Record {
     pub hypervisor_pid: u32,
     pub watchdog_pid: u32,
     pub cgroup_path: String,
+}
+
+fn default_image() -> String {
+    "docker.io/library/openshell-kata-enforced:local".to_owned()
+}
+
+/// Select the fixed local image or an explicit immutable operator image.
+pub fn selected_image(image: Option<&str>) -> Result<String> {
+    match image {
+        Some(image) => {
+            crate::hosted::validate_image(image)?;
+            Ok(image.to_owned())
+        }
+        None => Ok(default_image()),
+    }
+}
+
+/// Require the containerd observation to use the retained, admitted image reference.
+pub fn verify_image(native: &Value, expected: &str) -> Result<()> {
+    if native["Image"].as_str() != Some(expected) {
+        bail!("observed guest image differs from admitted operator image");
+    }
+    Ok(())
 }
 
 /// Require an unpredictable, printable per-request proof challenge.

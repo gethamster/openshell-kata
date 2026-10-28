@@ -41,6 +41,14 @@ are rejected. Two transfers can run per VM; idle and total-stage deadlines are
 bounded. Raw SFTP is rejected in enforced mode. Ordinary command output is not a
 file-transfer API and is not subject to archive quotas.
 
+The [Kubernetes profile](docs/HOSTED.md) uses the same adapter and the Rust
+`kata-kubernetes` launcher, with explicit operator-owned image, private network
+range and recovery settings. Its current network capability is deny-all guest
+egress; the local TCP broker is a separate capability. `kata-operator` handles
+trusted startup preparation and socket readiness without Python. Both guest
+recipes include `kata-workspace` for System command/file operations and protocol
+compatibility checks.
+
 ## Local development
 
 The current local setup targets an Apple Silicon Mac with nested virtualization,
@@ -93,11 +101,12 @@ requires negative tests from guest root; passing parser tests is insufficient.
 The [original qualification record](evidence/qualification.json) is the earlier
 upload-repair milestone, using the former compatibility runtime. It does not
 certify the new enforcement profile. The [enforcement qualification record](evidence/enforcement-qualification.json)
-records the current Rust Kata run: 139 tests, 84.85% implementation line coverage,
+records the initial Rust Kata enforcement milestone: 139 tests, 84.85% implementation line coverage,
 the complete CLI flow, guest-root network attacks, storage/resource bounds, and
 independent deadline termination. This qualifies the tested Apple Silicon/Lima
 profile; the broader production and platform matrix remains in
-[the policy plan](docs/POLICY_PLAN.md).
+[the policy plan](docs/POLICY_PLAN.md). The subsequent shared-runtime and System
+integration gates are tracked separately in [the delivery plan](docs/DELIVERY_PLAN.md).
 
 ## Cleanup and delivery scope
 
@@ -112,7 +121,8 @@ limactl delete --force openshell-kata-enforcement
 
 Keep `.local/runtime` until guests and tunnels have been removed. The private
 block storage persists through stop/start but is not a production backup system.
-No hosted infrastructure deployment is part of this local implementation.
+The hosted deployment is coordinated separately with its SRE owner. A passing
+local profile does not qualify its Kubernetes artifacts or tenant cutover.
 
 The external compute interface is versioned, while the supervisor protocol is
 internal. Upgrading OpenShell requires requalification. See [porting notes](docs/PORTING.md)

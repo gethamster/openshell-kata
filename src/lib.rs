@@ -5,13 +5,18 @@ pub mod config;
 pub mod download;
 pub mod driver;
 pub mod guest;
+pub mod hosted;
+pub mod kubernetes;
 pub mod network;
+pub mod operator;
 pub mod policy;
 pub mod profile;
+pub mod recovery;
 pub mod runtime;
 pub mod ssh;
 pub mod supervisor;
 pub mod upload;
+pub mod workspace;
 /// Pinned, unmodified OpenShell wire contracts.
 #[allow(clippy::all, rustdoc::invalid_html_tags)]
 pub mod proto {

@@ -56,6 +56,36 @@ fn imports_and_exports_normalized_archive_atomically() {
     assert_eq!(std::fs::read_dir(root.path()).expect("entries").count(), 1);
 }
 
+#[cfg(unix)]
+#[test]
+fn publication_sync_remains_bound_to_an_opened_directory_after_rename() {
+    let parent =
+        openshell_kata::boundary::filesystem::private_transfer_directory().expect("private parent");
+    let original = parent.path().join("original");
+    let renamed = parent.path().join("renamed");
+    std::fs::create_dir(&original).expect("store directory");
+    use std::os::unix::fs::PermissionsExt;
+    std::fs::set_permissions(&original, std::fs::Permissions::from_mode(0o700))
+        .expect("private store");
+    let store = ImportStore::open(&original).expect("open store capability");
+    std::fs::rename(&original, &renamed).expect("rename opened store");
+    std::fs::create_dir(&original).expect("unrelated replacement directory");
+
+    let id = store
+        .import_tar(
+            Cursor::new(archive(&[("safe", tar::EntryType::Regular, b"source")])),
+            &FilesystemPolicy::default(),
+        )
+        .expect("publish and sync using the retained directory capability");
+
+    assert!(renamed.join(format!("{id}.tar")).is_file());
+    assert_eq!(
+        std::fs::read_dir(&original).expect("replacement").count(),
+        0
+    );
+    store.remove(&id).expect("remove published transfer");
+}
+
 #[test]
 fn rejects_traversal_links_devices_duplicate_and_conflicting_paths() {
     let root = openshell_kata::boundary::filesystem::private_transfer_directory().expect("root");

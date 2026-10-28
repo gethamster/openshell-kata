@@ -1,13 +1,20 @@
+mod credentials;
+
 use crate::{
     admission,
-    config::{Config, SandboxId, shell_quote},
+    config::{Config, RuntimeProfile, SandboxId, shell_quote},
     guest::Guest,
     proto::openshell::{compute::v1 as c, sandbox::v1 as s, v1 as o},
     ssh,
 };
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
-use std::{collections::VecDeque, path::PathBuf, sync::Arc, time::Duration};
+use std::{
+    collections::VecDeque,
+    path::PathBuf,
+    sync::{Arc, RwLock},
+    time::Duration,
+};
 use tokio::{
     io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt},
     net::UnixStream,
@@ -24,6 +31,7 @@ use uuid::Uuid;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Phase {
     Starting,
+    Closing,
     Ready,
     Stopped,
     Stopping,
@@ -35,6 +43,134 @@ pub enum Output {
     Stdout(Vec<u8>),
     Stderr(Vec<u8>),
     Exit(u32),
+}
+
+async fn cancel_before_cleanup(cancel: &CancellationToken, cleanup: impl Future<Output = ()>) {
+    cancel.cancel();
+    let _ = tokio::time::timeout(Duration::from_secs(10), cleanup).await;
+}
+
+async fn bounded_send<T: Send>(
+    sender: &mpsc::Sender<T>,
+    message: T,
+    cancel: &CancellationToken,
+) -> Result<()> {
+    tokio::select! {
+        () = cancel.cancelled() => bail!("runtime access cancelled"),
+        result = tokio::time::timeout(Duration::from_secs(1), sender.send(message)) => {
+            result.context("supervisor heartbeat queue deadline exceeded")?.map_err(|_| anyhow::anyhow!("supervisor heartbeat queue closed"))
+        }
+    }
+}
+
+fn mark_failed(phase: &watch::Sender<Phase>) -> bool {
+    phase.send_if_modified(|current| {
+        if matches!(current, Phase::Starting | Phase::Ready) {
+            *current = Phase::Failed;
+            true
+        } else {
+            false
+        }
+    })
+}
+
+struct GatewayCredential {
+    token: String,
+    session_id: Option<String>,
+}
+
+fn refreshed_token(
+    response: o::RefreshSandboxTokenResponse,
+    expected_session: Option<&str>,
+) -> Result<GatewayCredential> {
+    anyhow::ensure!(
+        !response.token.is_empty()
+            && !response.session_id.is_empty()
+            && expected_session.is_none_or(|expected| response.session_id == expected),
+        "invalid refreshed runtime credential"
+    );
+    anyhow::ensure!(
+        response.extension_credentials.is_empty(),
+        "unrequested extension credentials"
+    );
+    Ok(GatewayCredential {
+        token: response.token,
+        session_id: Some(response.session_id),
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn intentional_close_cannot_be_replaced_by_supervisor_error() {
+        for current in [
+            Phase::Closing,
+            Phase::Stopping,
+            Phase::Deleting,
+            Phase::Stopped,
+            Phase::Failed,
+        ] {
+            let (phase, _) = watch::channel(current);
+            assert!(!mark_failed(&phase));
+            assert_eq!(*phase.borrow(), current);
+        }
+        for current in [Phase::Starting, Phase::Ready] {
+            let (phase, _) = watch::channel(current);
+            assert!(mark_failed(&phase));
+            assert_eq!(*phase.borrow(), Phase::Failed);
+        }
+    }
+
+    #[tokio::test]
+    async fn hanging_cleanup_cannot_delay_access_revocation() {
+        let cancel = CancellationToken::new();
+        let cleanup = async {
+            assert!(cancel.is_cancelled());
+            std::future::pending::<()>().await;
+        };
+        let result = tokio::time::timeout(
+            Duration::from_millis(20),
+            cancel_before_cleanup(&cancel, cleanup),
+        )
+        .await;
+        assert!(result.is_err());
+        assert!(cancel.is_cancelled());
+    }
+
+    #[tokio::test]
+    async fn full_heartbeat_queue_is_bounded_and_cancellable() {
+        let (sender, _receiver) = mpsc::channel(1);
+        sender.send(1).await.expect("empty fixture queue");
+        let cancel = CancellationToken::new();
+        assert!(bounded_send(&sender, 2, &cancel).await.is_err());
+        cancel.cancel();
+        assert!(
+            tokio::time::timeout(Duration::from_millis(20), bounded_send(&sender, 2, &cancel))
+                .await
+                .expect("cancellation is immediate")
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn refreshed_credentials_preserve_the_authenticated_session() {
+        let response = o::RefreshSandboxTokenResponse {
+            token: "fixture-token".into(),
+            session_id: "generation".into(),
+            ..Default::default()
+        };
+        assert!(refreshed_token(response.clone(), Some("other")).is_err());
+        let initial = refreshed_token(response.clone(), None).expect("first authenticated refresh");
+        assert_eq!(initial.session_id.as_deref(), Some("generation"));
+        assert_eq!(
+            refreshed_token(response, Some("generation"))
+                .expect("matching refresh")
+                .token,
+            "fixture-token"
+        );
+    }
 }
 #[derive(Deserialize)]
 struct Authentication {
@@ -74,6 +210,8 @@ pub struct Runtime {
     pub history: Mutex<VecDeque<Output>>,
     pub main_exit: watch::Sender<Option<u32>>,
     authentication: Authentication,
+    gateway_token: RwLock<GatewayCredential>,
+    credential_handshakes: tokio::sync::RwLock<()>,
     tasks: Mutex<Vec<tokio::task::JoinHandle<()>>>,
     endpoint: Mutex<Option<tempfile::TempDir>>,
 }
@@ -107,10 +245,14 @@ impl Runtime {
         let (phase, _) = watch::channel(Phase::Starting);
         let (output, _) = broadcast::channel(128);
         let (main_exit, _) = watch::channel(None);
+        let instance = guest
+            .runtime_identity
+            .clone()
+            .unwrap_or_else(|| Uuid::new_v4().to_string());
         Ok(Arc::new(Self {
             spec,
             id,
-            instance: Uuid::new_v4().to_string(),
+            instance,
             config,
             guest,
             vm_policy,
@@ -122,10 +264,19 @@ impl Runtime {
             output,
             history: Mutex::new(VecDeque::new()),
             main_exit,
+            credential_handshakes: tokio::sync::RwLock::new(()),
+            gateway_token: RwLock::new(GatewayCredential {
+                token: auth.supervisor.gateway_token.clone(),
+                session_id: None,
+            }),
             authentication: auth,
             tasks: Mutex::new(Vec::new()),
             endpoint: Mutex::new(None),
         }))
+    }
+    /// Whether execution requires the verified VM boundary to be Ready.
+    pub fn is_enforced(&self) -> bool {
+        self.vm_policy.is_some() || self.config.runtime_profile == RuntimeProfile::Kubernetes
     }
     pub async fn start(self: &Arc<Self>) -> Result<()> {
         let (directory, task) = ssh::listen(
@@ -139,14 +290,19 @@ impl Runtime {
         let runtime = self.clone();
         let task = tokio::spawn(async move {
             if let Err(error) = runtime.supervise(path).await {
+                if !mark_failed(&runtime.phase) {
+                    return;
+                }
                 tracing::error!(sandbox = %runtime.id, error = %error, "supervisor stopped");
-                runtime.phase.send_replace(Phase::Failed);
                 runtime.cancel.cancel();
                 if runtime.vm_policy.is_some()
-                    && let Err(stop_error) =
-                        crate::guest::lifecycle(&runtime.config, "stop", &runtime.id).await
+                    || runtime.config.runtime_profile == RuntimeProfile::Kubernetes
                 {
-                    tracing::error!(sandbox=%runtime.id,error=%stop_error,"failed to stop rejected VM");
+                    cancel_before_cleanup(&runtime.cancel, async {
+                        if let Err(error) = crate::guest::lifecycle(&runtime.config, "stop", &runtime.id).await {
+                            tracing::error!(sandbox=%runtime.id,%error,"failed to stop rejected VM");
+                        }
+                    }).await;
                 }
             }
         });
@@ -154,6 +310,14 @@ impl Runtime {
         Ok(())
     }
     pub async fn close(&self) {
+        self.phase.send_if_modified(|phase| {
+            if matches!(phase, Phase::Starting | Phase::Ready) {
+                *phase = Phase::Closing;
+                true
+            } else {
+                false
+            }
+        });
         self.cancel.cancel();
         for task in self.tasks.lock().await.drain(..) {
             task.abort();
@@ -165,17 +329,41 @@ impl Runtime {
         let mut request = Request::new(message);
         request.metadata_mut().insert(
             "authorization",
-            format!("Bearer {}", self.authentication.supervisor.gateway_token).parse()?,
+            format!(
+                "Bearer {}",
+                self.gateway_token
+                    .read()
+                    .map_err(|_| anyhow::anyhow!("runtime credential lock unavailable"))?
+                    .token
+            )
+            .parse()?,
         );
         Ok(request)
     }
     async fn client(&self) -> Result<o::open_shell_client::OpenShellClient<Channel>> {
         let ca = tokio::fs::read(&self.config.gateway_ca).await?;
         let channel = Endpoint::from_shared(self.config.gateway.clone())?
+            .connect_timeout(Duration::from_secs(10))
             .tls_config(ClientTlsConfig::new().ca_certificate(Certificate::from_pem(ca)))?
             .connect()
             .await?;
         Ok(o::open_shell_client::OpenShellClient::new(channel))
+    }
+    async fn refresh_credential(
+        &self,
+        client: &mut o::open_shell_client::OpenShellClient<Channel>,
+    ) -> Result<()> {
+        credentials::rotate(&self.credential_handshakes,async {
+            let mut request=self.request(o::RefreshSandboxTokenRequest::default())?;
+            request.set_timeout(Duration::from_secs(10));
+            let response=tokio::select! {
+                ()=self.cancel.cancelled()=>bail!("runtime credential renewal cancelled"),
+                response=tokio::time::timeout(Duration::from_secs(10),client.refresh_sandbox_token(request))=>response.context("runtime credential refresh deadline exceeded")??.into_inner(),
+            };
+            let mut credential=self.gateway_token.write().map_err(|_|anyhow::anyhow!("runtime credential lock unavailable"))?;
+            *credential=refreshed_token(response,credential.session_id.as_deref())?;
+            Ok(())
+        }).await
     }
     async fn supervise(self: &Arc<Self>, ssh_path: PathBuf) -> Result<()> {
         let mut client = self.client().await?;
@@ -203,6 +391,15 @@ impl Runtime {
         let mut applied = self.vm_policy.clone();
         self.enforce_snapshot(&snapshot, &mut applied).await?;
         self.check_providers(&mut client, &snapshot).await?;
+        if self.config.runtime_profile == RuntimeProfile::Kubernetes {
+            let _validated = crate::policy::validate_policy(
+                snapshot
+                    .policy
+                    .as_ref()
+                    .context("effective hosted policy required")?,
+            )?;
+            crate::guest::verify_runtime(&self.config, &self.spec, &self.instance).await?;
+        }
         let pending = o::ReportSandboxConfigurationRequest {
             sandbox_id: self.id.to_string(),
             expected_instance_id: snapshot.configuration_instance_id.clone(),
@@ -233,26 +430,49 @@ impl Runtime {
             .connect_supervisor(self.request(ReceiverStream::new(receiver))?)
             .await?
             .into_inner();
+        // VM boot may consume most of the launch JWT's lifetime. Renew only
+        // after the supervisor handshake is authenticated and before processing
+        // SessionAccepted or opening relays, then use the normal periodic cadence.
+        if self.is_enforced() {
+            self.refresh_credential(&mut client).await?;
+        }
         let mut heartbeat = tokio::time::interval(Duration::from_secs(5));
+        let mut refresh = credentials::refresh_timer();
         loop {
             tokio::select! {
                 () = self.cancel.cancelled() => return Ok(()),
+                _ = refresh.tick(), if self.is_enforced() => { self.refresh_credential(&mut client).await?; },
                 _ = heartbeat.tick() => {
-                    if self.vm_policy.is_some() {
-                        let snapshot=client.get_sandbox_config(self.request(s::GetSandboxConfigRequest {name:self.spec.name.clone(),..Default::default()})?).await?.into_inner();
-                        self.enforce_snapshot(&snapshot,&mut applied).await?;
-                        if snapshot!=last_snapshot {
-                            self.check_providers(&mut client,&snapshot).await?;
-                            self.report_accepted(&mut client,&snapshot).await?;
-                            last_snapshot=snapshot;
+                    if self.vm_policy.is_some() || self.config.runtime_profile == RuntimeProfile::Kubernetes {
+                        tokio::select! {
+                            () = self.cancel.cancelled() => return Ok(()),
+                            result = tokio::time::timeout(Duration::from_secs(20), async {
+                                let mut request = self.request(s::GetSandboxConfigRequest { name:self.spec.name.clone(), ..Default::default() })?;
+                                request.set_timeout(Duration::from_secs(10));
+                                let effective = client.get_sandbox_config(request).await?.into_inner();
+                                self.enforce_snapshot(&effective,&mut applied).await?;
+                                if self.config.runtime_profile == RuntimeProfile::Kubernetes {
+                                    if effective.version!=last_snapshot.version || effective.config_revision!=last_snapshot.config_revision { bail!("effective policy changed; hosted runtime must be reprovisioned"); }
+                                    let _validated = crate::policy::validate_policy(effective.policy.as_ref().context("effective hosted policy required")?)?;
+                                    crate::guest::verify_runtime(&self.config,&self.spec,&self.instance).await?;
+                                }
+                                if effective != last_snapshot {
+                                    self.check_providers(&mut client,&effective).await?;
+                                    self.report_accepted(&mut client,&effective).await?;
+                                    last_snapshot = effective;
+                                }
+                                Ok::<_,anyhow::Error>(())
+                            }) => { result.context("runtime revalidation deadline exceeded")??; }
                         }
                     }
-                    sender.send(o::SupervisorMessage { payload: Some(o::supervisor_message::Payload::Heartbeat(o::SupervisorHeartbeat {})) }).await?;
+                    bounded_send(&sender,o::SupervisorMessage {payload:Some(o::supervisor_message::Payload::Heartbeat(o::SupervisorHeartbeat {}))},&self.cancel).await?;
                 },
                 message = stream.message() => match message?.and_then(|m|m.payload) {
                     Some(o::gateway_message::Payload::SessionAccepted(_)) => {
                         if self.vm_policy.is_some() { self.enforce_snapshot(&last_snapshot,&mut applied).await?; }
-                        self.phase.send_replace(Phase::Ready); tracing::info!(sandbox=%self.id,"supervisor connected");
+                        if self.config.runtime_profile == RuntimeProfile::Kubernetes { crate::guest::verify_runtime(&self.config,&self.spec,&self.instance).await?; }
+                        self.phase.send_if_modified(|phase| { if *phase == Phase::Starting { *phase=Phase::Ready;true }else{false} });
+                        tracing::info!(sandbox=%self.id,"supervisor connected");
                     },
                     Some(o::gateway_message::Payload::RelayOpen(open)) => {
                         let runtime = self.clone(); let sender = sender.clone(); let path = ssh_path.clone();
@@ -457,10 +677,16 @@ impl Runtime {
             })
             .await?;
         let mut client = self.client().await?;
-        let mut incoming = client
-            .relay_stream(self.request(ReceiverStream::new(receiver))?)
-            .await?
-            .into_inner();
+        let mut incoming = credentials::handshake(&self.credential_handshakes, async {
+            // Token refresh consumes the old bearer on the gateway before its
+            // response arrives. Build the request only after this guard is held.
+            let request=self.request(ReceiverStream::new(receiver))?;
+            let response=tokio::select! {
+                ()=self.cancel.cancelled()=>bail!("relay cancelled before authentication"),
+                result=tokio::time::timeout(Duration::from_secs(10),client.relay_stream(request))=>result.context("relay authentication deadline exceeded")??,
+            };
+            Ok(response.into_inner())
+        }).await?;
         control
             .send(o::SupervisorMessage {
                 payload: Some(o::supervisor_message::Payload::RelayOpenResult(

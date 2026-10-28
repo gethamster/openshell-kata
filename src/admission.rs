@@ -5,6 +5,15 @@ pub fn compile_request(
     sandbox: &DriverSandbox,
     operator: &crate::profile::VmPolicy,
 ) -> Result<crate::profile::VmPolicy> {
+    compile_request_for_image(sandbox, operator, None)
+}
+
+/// Compile a request against an optional operator-pinned image and actual VM limits.
+pub fn compile_request_for_image(
+    sandbox: &DriverSandbox,
+    operator: &crate::profile::VmPolicy,
+    image: Option<&str>,
+) -> Result<crate::profile::VmPolicy> {
     let native = sandbox
         .spec
         .as_ref()
@@ -13,7 +22,39 @@ pub fn compile_request(
     // Reuse the exact image/environment/resource boundary, then separately
     // compile native network intent without discarding its requirements.
     let mut shape = sandbox.clone();
-    shape.spec.as_mut().expect("spec checked").policy = None;
+    let spec = shape.spec.as_mut().expect("spec checked");
+    spec.policy = None;
+    let template = spec
+        .template
+        .as_mut()
+        .ok_or_else(|| anyhow::anyhow!("sandbox template required"))?;
+    if let Some(image) = image {
+        crate::hosted::validate_image(image)?;
+        anyhow::ensure!(
+            template.image == image,
+            "guest image differs from operator profile"
+        );
+        template.image = "docker:29-dind".into();
+    }
+    if let Some(resources) = &template.resources {
+        let cpu = operator.resources.vcpus.to_string();
+        let memory_mi = format!("{}Mi", operator.resources.memory_mib);
+        let memory_gi = format!("{}Gi", operator.resources.memory_mib / 1024);
+        let cpu_ok = |value: &str| value.is_empty() || value == cpu;
+        let memory_ok = |value: &str| {
+            value.is_empty()
+                || value == memory_mi
+                || (operator.resources.memory_mib.is_multiple_of(1024) && value == memory_gi)
+        };
+        anyhow::ensure!(
+            cpu_ok(&resources.cpu_request)
+                && cpu_ok(&resources.cpu_limit)
+                && memory_ok(&resources.memory_request)
+                && memory_ok(&resources.memory_limit),
+            "resource request differs from operator VM profile"
+        );
+        template.resources = None;
+    }
     validate_request(&shape, true)?;
     operator.compile(native)
 }
@@ -50,6 +91,15 @@ pub fn validate_request(sandbox: &DriverSandbox, prototype: bool) -> Result<()> 
             .driver_config
             .as_ref()
             .is_some_and(|v| !v.fields.is_empty())
+        || template
+            .platform_config
+            .as_ref()
+            .is_some_and(|v| !v.fields.is_empty())
+        || template.user_namespaces.is_some()
+        || spec
+            .workload_identity
+            .as_ref()
+            .is_some_and(|v| !v.user.is_empty() || !v.group.is_empty())
         || spec.isolation_backend.is_some()
     {
         bail!("unsupported runtime configuration");

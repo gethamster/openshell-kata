@@ -233,3 +233,61 @@ fn evidence_is_bound_to_request_policy_resources_and_live_lease() -> anyhow::Res
     );
     Ok(())
 }
+
+#[test]
+fn local_operator_image_and_resources_are_ceilings_not_request_overrides() -> anyhow::Result<()> {
+    use openshell_kata::{admission, proto::openshell::compute::v1 as c};
+    let image = format!("registry.example/system@sha256:{}", "a".repeat(64));
+    let mut sandbox = c::DriverSandbox {
+        id: "fixture".into(),
+        spec: Some(c::DriverSandboxSpec {
+            policy: Some(SandboxPolicy {
+                version: 1,
+                ..Default::default()
+            }),
+            template: Some(c::DriverSandboxTemplate {
+                image: image.clone(),
+                resources: Some(c::DriverResourceRequirements {
+                    cpu_request: "1".into(),
+                    cpu_limit: "1".into(),
+                    memory_request: "2Gi".into(),
+                    memory_limit: "2048Mi".into(),
+                }),
+                ..Default::default()
+            }),
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+    admission::compile_request_for_image(&sandbox, &profile(), Some(&image))?;
+    assert!(
+        admission::compile_request_for_image(&sandbox, &profile(), None).is_err(),
+        "caller cannot select an unconfigured image"
+    );
+    let template = sandbox
+        .spec
+        .as_mut()
+        .expect("spec")
+        .template
+        .as_mut()
+        .expect("template");
+    template.image = format!("registry.example/system@sha256:{}", "b".repeat(64));
+    assert!(
+        admission::compile_request_for_image(&sandbox, &profile(), Some(&image)).is_err(),
+        "operator digest must match"
+    );
+    let template = sandbox
+        .spec
+        .as_mut()
+        .expect("spec")
+        .template
+        .as_mut()
+        .expect("template");
+    template.image = image.clone();
+    template.resources.as_mut().expect("limits").cpu_limit = "2".into();
+    assert!(
+        admission::compile_request_for_image(&sandbox, &profile(), Some(&image)).is_err(),
+        "requested CPU cannot exceed actual VM profile"
+    );
+    Ok(())
+}

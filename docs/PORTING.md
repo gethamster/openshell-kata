@@ -49,17 +49,24 @@ Landlock, process-identity and executable-specific policies are rejected because
 guest-root Docker can defeat those controls. Readiness requires launch-bound
 host enforcement evidence; passing admission alone does not establish isolation.
 The older `--prototype-policy-mode` remains restricted to a TLS loopback gateway
-and makes no enforcement guarantee. Only the fixed `docker:29-dind` runtime is
-supported; caller environment, resource overrides, custom runtime selections,
-provider credentials and unsupported inspection requests remain rejected.
+and makes no enforcement guarantee. The default local image remains the fixed
+`docker:29-dind` profile. An explicit immutable operator image is admitted only
+when it matches the actual retained containerd image and supported resource
+profile; callers cannot choose arbitrary images or resources. Provider
+credentials and unsupported inspection requests remain rejected.
 
-The adapter currently keeps its registry in memory. Process restart requires
-explicit guest cleanup/recreation. The canonical main command is noninteractive;
+The local profile keeps its adapter registry in memory and requires explicit
+guest cleanup/recreation after process restart. The Kubernetes profile has a
+bounded credential-free recovery registry: restart stops retained guests and
+requires fresh authenticated Start and proof before Ready. See `HOSTED.md`.
+The canonical main command is noninteractive;
 PTY emulation, `--no-login-shell`, main-process exit reconciliation and memory
 suspension are not implemented. The supervisor contract is internal to
 OpenShell, so version compatibility is pinned rather than assumed. Launch-token
-refresh and control-session reconnection are not implemented; live experiments
-must finish within the configured token lifetime or recreate the sandbox.
+renewal occurs after authenticated supervisor connection and before Ready, then
+every five minutes. A read/write gate serializes relay authentication against
+consumption and replacement of the old token. Control-session reconnection is
+still unsupported and fails closed.
 
 ## Test mapping
 

@@ -1,0 +1,360 @@
+use super::Workspace;
+use anyhow::{Context, Result, bail, ensure};
+use cap_fs_ext::{DirExt, FollowSymlinks, OpenOptionsFollowExt};
+use cap_std::fs::Dir;
+use serde::{Deserialize, Serialize};
+#[cfg(target_os = "linux")]
+use std::io::Write;
+use std::{
+    io::Read,
+    process::{ExitStatus, Stdio},
+};
+use uuid::Uuid;
+
+const RECORD_DIRECTORY: &str = ".system-processes";
+const MAX_COMMAND_BYTES: usize = 128 * 1024;
+const MAX_RECORD_BYTES: u64 = 4096;
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct Record {
+    version: u32,
+    pid: u32,
+    start: u64,
+}
+
+/// Run a command beneath a session leader whose identity can be cancelled safely.
+///
+/// # Errors
+/// Rejects invalid arguments, non-Linux hosts, or subprocess/filesystem errors.
+pub async fn run(workspace: &Workspace, id: &str, command: &str) -> Result<i32> {
+    validate_id(id)?;
+    validate_command(command)?;
+    ensure!(
+        cfg!(target_os = "linux"),
+        "workspace process control requires Linux"
+    );
+    if cancelled(workspace, id)? {
+        return Ok(137);
+    }
+    let mut child = tokio::process::Command::new(std::env::current_exe()?)
+        .arg("--root")
+        .arg(&workspace.root)
+        .arg("__run-child")
+        .arg(id)
+        .arg(command)
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .spawn()
+        .context("spawn workspace process controller")?;
+    let pid = child.id().context("workspace controller has no PID")?;
+    let result = child.wait().await;
+    cleanup_record(workspace, id, pid)?;
+    Ok(exit_code(result?))
+}
+
+/// Run the private session controller, called only by this executable's `run` path.
+///
+/// # Errors
+/// Rejects invalid identities, unsupported hosts, duplicate records or launch errors.
+pub async fn run_child(workspace: &Workspace, id: &str, command: &str) -> Result<i32> {
+    validate_id(id)?;
+    let command = validate_command(command)?;
+    #[cfg(target_os = "linux")]
+    {
+        use rustix::process::{Signal, getpid, kill_process_group, setsid};
+        use tokio::signal::unix::{SignalKind, signal};
+        setsid().context("create workspace process session")?;
+        // Register before publishing identity: a cancellation can never arrive
+        // between a visible record and installation of its handler.
+        let mut cancel = signal(SignalKind::user_defined1())?;
+        let pid = getpid();
+        let record = Record {
+            version: 1,
+            pid: pid.as_raw_nonzero().get() as u32,
+            start: identity(pid)?.start,
+        };
+        publish_record(workspace, id, &record)?;
+        if cancelled(workspace, id)? {
+            return Ok(137);
+        }
+        let mut child = tokio::process::Command::new(&command[0])
+            .args(&command[1..])
+            .stdin(Stdio::inherit())
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .spawn()
+            .context("spawn workspace command")?;
+        tokio::select! {
+            biased;
+            _ = cancel.recv() => {
+                // The pinned controller signals its own extant process group.
+                // A separate caller never signals a numeric PGID after a PID race.
+                kill_process_group(pid, Signal::KILL)?;
+                bail!("workspace process group survived cancellation");
+            }
+            result = child.wait() => Ok(exit_code(result?)),
+        }
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = (workspace, command);
+        bail!("workspace process control requires Linux")
+    }
+}
+
+/// Cancel the exact retained controller through a verified Linux pidfd.
+///
+/// # Errors
+/// Rejects forged/stale process identities, unsupported hosts and signal failures.
+pub fn kill(workspace: &Workspace, id: &str) -> Result<()> {
+    validate_id(id)?;
+    let record = match read_record(workspace, id)? {
+        Some(record) => record,
+        None => {
+            // Cancellation may race the launch before a controller exists.
+            // Publish intent before checking again, so either the new controller
+            // sees it or this caller signals the now-published identity.
+            mark_cancelled(workspace, id)?;
+            let Some(record) = read_record(workspace, id)? else {
+                return Ok(());
+            };
+            record
+        }
+    };
+    #[cfg(target_os = "linux")]
+    {
+        use rustix::{
+            io::Errno,
+            process::{Pid, PidfdFlags, Signal, pidfd_open, pidfd_send_signal},
+        };
+        let pid = Pid::from_raw(i32::try_from(record.pid)?)
+            .context("invalid workspace controller PID")?;
+        let descriptor = match pidfd_open(pid, PidfdFlags::empty()) {
+            Ok(value) => value,
+            Err(Errno::SRCH) => return Ok(()),
+            Err(error) => return Err(error.into()),
+        };
+        let observed = match identity(pid) {
+            Ok(value) => value,
+            Err(error) if is_missing(&error) => return Ok(()),
+            Err(error) => return Err(error),
+        };
+        ensure!(
+            record.version == 1 && observed.start == record.start,
+            "workspace process identity changed"
+        );
+        ensure!(
+            observed.group == record.pid && observed.session == record.pid,
+            "workspace process session changed"
+        );
+        let executable = std::fs::read_link(format!("/proc/{}/exe", record.pid))?;
+        ensure!(
+            executable == std::env::current_exe()?,
+            "workspace controller executable changed"
+        );
+        let argv = std::fs::read(format!("/proc/{}/cmdline", record.pid))?;
+        let tokens = argv.split(|byte| *byte == 0).collect::<Vec<_>>();
+        ensure!(
+            tokens
+                .windows(2)
+                .any(|pair| pair[0] == b"__run-child" && pair[1] == id.as_bytes()),
+            "workspace controller operation changed"
+        );
+        match pidfd_send_signal(&descriptor, Signal::USR1) {
+            Ok(()) | Err(Errno::SRCH) => Ok(()),
+            Err(error) => Err(error.into()),
+        }
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = record;
+        bail!("workspace process control requires Linux")
+    }
+}
+
+fn validate_id(id: &str) -> Result<()> {
+    ensure!(
+        Uuid::parse_str(id).is_ok_and(|parsed| parsed.to_string() == id),
+        "canonical workspace process UUID required"
+    );
+    Ok(())
+}
+
+fn validate_command(encoded: &str) -> Result<Vec<String>> {
+    ensure!(
+        encoded.len() <= MAX_COMMAND_BYTES,
+        "workspace command limit exceeded"
+    );
+    let command: Vec<String> =
+        serde_json::from_str(encoded).context("invalid workspace command JSON")?;
+    ensure!(
+        !command.is_empty() && command.len() <= 4096 && !command[0].is_empty(),
+        "invalid workspace command"
+    );
+    ensure!(
+        command.iter().all(|arg| !arg.contains('\0')),
+        "workspace command contains NUL"
+    );
+    Ok(command)
+}
+
+fn process_directory(workspace: &Workspace) -> Result<Dir> {
+    super::files::create_private_directory(&workspace.directory, RECORD_DIRECTORY)?;
+    let directory = workspace.directory.open_dir_nofollow(RECORD_DIRECTORY)?;
+    #[cfg(unix)]
+    {
+        use cap_std::fs::{MetadataExt, PermissionsExt};
+        let metadata = directory.dir_metadata()?;
+        ensure!(
+            metadata.permissions().mode() & 0o077 == 0
+                && metadata.uid() == rustix::process::geteuid().as_raw(),
+            "workspace process directory must be private and owned"
+        );
+    }
+    Ok(directory)
+}
+
+#[cfg(target_os = "linux")]
+fn publish_record(workspace: &Workspace, id: &str, record: &Record) -> Result<()> {
+    let directory = process_directory(workspace)?;
+    let staged = format!(".process-{}", Uuid::new_v4());
+    let mut options = super::files::private_file_options();
+    options.write(true).create_new(true);
+    let result: Result<()> = (|| {
+        let mut file = directory.open_with(&staged, &options)?;
+        file.write_all(&serde_json::to_vec(record)?)?;
+        file.sync_all()?;
+        // A same-directory link publishes a complete record atomically and
+        // refuses an existing UUID; rename would overwrite another controller.
+        directory.hard_link(&staged, &directory, format!("{id}.json"))?;
+        Ok(())
+    })();
+    let cleanup = directory.remove_file(&staged);
+    result?;
+    cleanup?;
+    super::files::sync_directory(&directory)
+}
+
+fn cancelled(workspace: &Workspace, id: &str) -> Result<bool> {
+    let directory = process_directory(workspace)?;
+    match directory.symlink_metadata(format!("{id}.cancelled")) {
+        Ok(metadata) => {
+            ensure!(
+                metadata.is_file() && !metadata.file_type().is_symlink() && metadata.len() == 0,
+                "invalid workspace cancellation marker"
+            );
+            Ok(true)
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(false),
+        Err(error) => Err(error.into()),
+    }
+}
+
+fn mark_cancelled(workspace: &Workspace, id: &str) -> Result<()> {
+    let directory = process_directory(workspace)?;
+    let mut options = super::files::private_file_options();
+    options.write(true).create_new(true);
+    match directory.open_with(format!("{id}.cancelled"), &options) {
+        Ok(file) => {
+            file.sync_all()?;
+            super::files::sync_directory(&directory)
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
+            ensure!(
+                cancelled(workspace, id)?,
+                "workspace cancellation marker disappeared"
+            );
+            Ok(())
+        }
+        Err(error) => Err(error.into()),
+    }
+}
+
+fn read_record(workspace: &Workspace, id: &str) -> Result<Option<Record>> {
+    let directory = process_directory(workspace)?;
+    let mut options = super::files::private_file_options();
+    options.read(true).follow(FollowSymlinks::No);
+    let file = match directory.open_with(format!("{id}.json"), &options) {
+        Ok(value) => value,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(error) => return Err(error.into()),
+    };
+    let metadata = file.metadata()?;
+    ensure!(
+        metadata.is_file() && metadata.len() <= MAX_RECORD_BYTES,
+        "invalid workspace process record"
+    );
+    let mut bytes = Vec::new();
+    file.take(MAX_RECORD_BYTES + 1).read_to_end(&mut bytes)?;
+    ensure!(
+        bytes.len() as u64 <= MAX_RECORD_BYTES,
+        "workspace process record limit exceeded"
+    );
+    Ok(Some(serde_json::from_slice(&bytes)?))
+}
+
+fn cleanup_record(workspace: &Workspace, id: &str, pid: u32) -> Result<()> {
+    if let Some(record) = read_record(workspace, id)? {
+        ensure!(record.pid == pid, "workspace process record was replaced");
+        let directory = process_directory(workspace)?;
+        directory.remove_file(format!("{id}.json"))?;
+        super::files::sync_directory(&directory)?;
+    }
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+struct Identity {
+    start: u64,
+    group: u32,
+    session: u32,
+}
+
+#[cfg(target_os = "linux")]
+fn identity(pid: rustix::process::Pid) -> Result<Identity> {
+    let contents = std::fs::read_to_string(format!("/proc/{}/stat", pid.as_raw_nonzero()))?;
+    let (_, fields) = contents
+        .rsplit_once(')')
+        .context("invalid workspace process stat")?;
+    let parts = fields.split_whitespace().collect::<Vec<_>>();
+    ensure!(parts.len() > 19, "incomplete workspace process stat");
+    Ok(Identity {
+        group: parts[2].parse()?,
+        session: parts[3].parse()?,
+        start: parts[19].parse()?,
+    })
+}
+
+#[cfg(target_os = "linux")]
+fn is_missing(error: &anyhow::Error) -> bool {
+    error
+        .downcast_ref::<std::io::Error>()
+        .is_some_and(|error| error.kind() == std::io::ErrorKind::NotFound)
+}
+
+fn exit_code(status: ExitStatus) -> i32 {
+    use std::os::unix::process::ExitStatusExt;
+    status
+        .code()
+        .unwrap_or_else(|| 128 + status.signal().unwrap_or(1))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn process_argument_validation_rejects_ambiguous_identity_and_commands() {
+        assert!(validate_id("../other").is_err());
+        assert!(validate_id("550E8400-E29B-41D4-A716-446655440000").is_err());
+        for command in ["null", "[]", "[\"\"]", "[\"x\\u0000y\"]"] {
+            assert!(validate_command(command).is_err(), "accepted {command}");
+        }
+        assert_eq!(
+            validate_command("[\"printf\",\"%s\",\"a b\"]").expect("command"),
+            ["printf", "%s", "a b"]
+        );
+    }
+}

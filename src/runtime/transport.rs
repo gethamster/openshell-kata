@@ -289,6 +289,7 @@ mod tests {
             private_key_path: "/private/key".into(),
             known_hosts_path: "/private/hosts".into(),
             enforcement: None,
+            runtime_identity: None,
         }
     }
 

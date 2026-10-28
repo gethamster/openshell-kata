@@ -151,7 +151,14 @@ impl ImportStore {
                 .rename(&staged, &self.root, format!("{id}.tar"))
                 .context("publish transfer")?;
             #[cfg(unix)]
-            self.root.try_clone()?.into_std_file().sync_all()?;
+            // A capability directory can be O_PATH on Linux, which cannot be
+            // fsynced. Open a readable handle relative to the same capability;
+            // reopening the ambient path could sync an unrelated replacement.
+            self.root
+                .open(".")
+                .context("open transfer store for sync")?
+                .sync_all()
+                .context("sync transfer store")?;
             Ok(id)
         })();
         if result.is_err() {

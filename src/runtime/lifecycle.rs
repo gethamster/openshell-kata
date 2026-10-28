@@ -43,6 +43,7 @@ pub struct Settings {
     pub vm: String,
     pub state_dir: PathBuf,
     pub node_binary: PathBuf,
+    pub image: Option<String>,
 }
 
 /// A persistent expiry job, run outside the guest and outside the adapter process.
@@ -119,6 +120,7 @@ pub async fn execute(
             .deadline_from(now()?)?;
         let mut record = Record {
             creation_nonce: nonce.to_owned(),
+            image: model::selected_image(settings.image.as_deref())?,
             route: Route {
                 sandbox_id: id.to_owned(),
                 host: "127.0.0.1".into(),
@@ -174,6 +176,9 @@ pub async fn execute(
     }
     if action == Action::Stop {
         return stop(&node, &state, settings, id, &record).await;
+    }
+    if model::selected_image(settings.image.as_deref())? != record.image {
+        bail!("operator image differs from retained sandbox intent");
     }
     let nonce = nonce.context("verification requires a proof nonce")?;
     model::validate_nonce(nonce)?;
@@ -249,7 +254,7 @@ async fn create(
         "openshell-kata.managed=true",
         "--label",
         &format!("openshell-kata.creation-nonce={}", record.creation_nonce),
-        "docker.io/library/openshell-kata-enforced:local",
+        &record.image,
         id,
     ]))
     .await?;
@@ -341,6 +346,7 @@ async fn start(
 ) -> Result<Record> {
     let native = inspect(node, id).await?;
     owned(&native, &record.creation_nonce)?;
+    model::verify_image(&native, &record.image)?;
     let current = node.node(&args(&["ctr", "tasks", "list"])).await?;
     let running = String::from_utf8(current.stdout)?.lines().any(|line| {
         let fields = line.split_whitespace().collect::<Vec<_>>();
@@ -540,6 +546,7 @@ async fn observe(
     }
     let native = inspect(node, id).await?;
     owned(&native, &record.creation_nonce)?;
+    model::verify_image(&native, &record.image)?;
     if native["SnapshotKey"] != record.storage_id {
         bail!("private snapshot identity changed");
     }

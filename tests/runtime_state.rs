@@ -121,6 +121,29 @@ fn creates_once_and_round_trips_private_metadata() {
 }
 
 #[test]
+fn metadata_publication_sync_uses_the_retained_root_capability_after_rename() {
+    let (_temporary, parent) = root();
+    let original = parent.join("state");
+    let renamed = parent.join("renamed");
+    let directory = StateDirectory::new(&original).expect("state");
+    directory.create("one").expect("sandbox state");
+    fs::rename(&original, &renamed).expect("rename retained root");
+    fs::create_dir(&original).expect("unrelated replacement root");
+    let record = Record {
+        sandbox_id: "one".into(),
+        counter: 1,
+    };
+
+    directory
+        .write("one", &record)
+        .expect("publish and sync metadata through the retained capability");
+
+    assert_eq!(directory.read::<Record>("one").expect("read"), record);
+    assert!(renamed.join("one/metadata.json").is_file());
+    assert_eq!(fs::read_dir(&original).expect("replacement").count(), 0);
+}
+
+#[test]
 fn rejects_unknown_state_and_state_symlinks() {
     let (_temporary, parent) = root();
     let directory = StateDirectory::new(parent.join("state")).expect("state");

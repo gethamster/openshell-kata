@@ -60,6 +60,7 @@ fn setup() -> (tempfile::TempDir, StateDirectory, Settings) {
         vm: "nonexistent-test-node".into(),
         state_dir: state.root().into(),
         node_binary: PathBuf::from("/does/not/exist"),
+        image: None,
     };
     (temp, state, settings)
 }
@@ -77,6 +78,7 @@ fn record(id: &str, nonce: &str, root: &std::path::Path) -> Record {
     .expect("deadline");
     Record {
         creation_nonce: nonce.into(),
+        image: "docker.io/library/openshell-kata-enforced:local".into(),
         route: Route {
             sandbox_id: id.into(),
             host: "127.0.0.1".into(),

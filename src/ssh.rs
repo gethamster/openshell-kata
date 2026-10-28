@@ -68,7 +68,7 @@ impl Handler {
         operation: Operation,
         session: &mut Session,
     ) -> Result<()> {
-        if self.runtime.vm_policy.is_some()
+        if self.runtime.is_enforced()
             && *self.runtime.phase.borrow() != crate::supervisor::Phase::Ready
         {
             session.channel_failure(id)?;
@@ -94,7 +94,7 @@ impl Handler {
                     Ok(child) => bridge(channel, child, runtime).await,
                     Err(error) => Err(error),
                 },
-                Operation::Sftp if runtime.vm_policy.is_some() => Err(anyhow::anyhow!(
+                Operation::Sftp if runtime.is_enforced() => Err(anyhow::anyhow!(
                     "SFTP is unsupported by the enforced transfer profile; use OpenShell upload/download"
                 )),
                 Operation::Sftp => match runtime.guest.sftp(&runtime.config) {

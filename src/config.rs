@@ -1,5 +1,5 @@
 use anyhow::{Result, bail};
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use std::{fmt, path::PathBuf};
 
 /// Validated immutable target identifier used at runtime boundaries.
@@ -31,6 +31,14 @@ impl fmt::Display for SandboxId {
 }
 
 /// Operator configuration; no workload input can select host commands.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, ValueEnum)]
+pub enum RuntimeProfile {
+    #[default]
+    Local,
+    Kubernetes,
+}
+
+/// Operator configuration; no workload input can select host commands.
 #[derive(Clone, Debug, Parser)]
 pub struct Config {
     #[arg(long)]
@@ -48,17 +56,58 @@ pub struct Config {
     /// Explicit local experiment: policies are inspected but not fully enforced.
     #[arg(long)]
     pub prototype_policy_mode: bool,
-    /// Trusted immutable VM policy; required for hardened runtime enforcement.
+    /// Trusted immutable VM policy for the local runtime.
     #[arg(long)]
     pub vm_policy: Option<PathBuf>,
+    #[arg(long, value_enum, default_value = "local")]
+    pub runtime_profile: RuntimeProfile,
+    #[arg(long)]
+    pub guest_image: Option<String>,
+    /// Trusted private Pod network; workload requests cannot select the route.
+    #[arg(long)]
+    pub guest_network_cidr: Option<String>,
+    /// Private durable metadata directory; never stores launch credentials.
+    #[arg(long)]
+    pub recovery_dir: Option<PathBuf>,
 }
 impl Config {
     pub fn validate(&self) -> Result<()> {
         if let Some(path) = &self.vm_policy {
-            if !path.is_absolute() || self.prototype_policy_mode {
-                bail!("VM policy requires an absolute path and cannot use prototype mode");
+            if !path.is_absolute()
+                || self.prototype_policy_mode
+                || self.runtime_profile != RuntimeProfile::Local
+            {
+                bail!(
+                    "VM policy requires the local runtime, an absolute path and no prototype mode"
+                );
             }
             crate::profile::VmPolicy::load(path)?;
+        }
+        if self.runtime_profile == RuntimeProfile::Local
+            && let Some(image) = &self.guest_image
+        {
+            if self.vm_policy.is_none() || self.prototype_policy_mode {
+                bail!("operator image requires the enforced local VM profile");
+            }
+            crate::hosted::validate_image(image)?;
+        }
+        if self.runtime_profile == RuntimeProfile::Kubernetes {
+            if self
+                .recovery_dir
+                .as_ref()
+                .is_none_or(|path| !path.is_absolute())
+            {
+                bail!("hosted runtime requires an absolute recovery directory");
+            }
+            if self.prototype_policy_mode {
+                bail!("prototype mode is prohibited for hosted runtime");
+            }
+            crate::hosted::validate_image(self.guest_image.as_deref().unwrap_or(""))?;
+            crate::hosted::validate_network(
+                self.guest_network_cidr.as_deref().ok_or_else(|| {
+                    anyhow::anyhow!("hosted runtime requires a guest network CIDR")
+                })?,
+            )?;
         }
         for path in [&self.socket, &self.gateway_ca, &self.lifecycle, &self.ssh] {
             if !path.is_absolute() {
@@ -85,6 +134,19 @@ impl Config {
             bail!("prototype policy mode is limited to a loopback gateway");
         }
         Ok(())
+    }
+    pub fn validate_request(
+        &self,
+        sandbox: &crate::proto::openshell::compute::v1::DriverSandbox,
+    ) -> Result<()> {
+        match self.runtime_profile {
+            RuntimeProfile::Local => {
+                crate::admission::validate_request(sandbox, self.prototype_policy_mode)
+            }
+            RuntimeProfile::Kubernetes => {
+                crate::hosted::validate_request(sandbox, self.guest_image.as_deref().unwrap_or(""))
+            }
+        }
     }
 }
 

@@ -15,6 +15,10 @@ fn local_prototype_mode_cannot_be_redirected_by_url_userinfo() {
         ssh: "/usr/bin/ssh".into(),
         prototype_policy_mode: true,
         vm_policy: None,
+        runtime_profile: openshell_kata::config::RuntimeProfile::Local,
+        guest_image: None,
+        guest_network_cidr: None,
+        recovery_dir: None,
     };
     assert!(config.validate().is_ok());
     for endpoint in [
@@ -86,4 +90,33 @@ fn upload_plan_rejects_unknown_fields_control_characters_and_unknown_kinds() {
     ] {
         assert!(UploadPlan::parse(plan.as_bytes()).is_err());
     }
+}
+
+#[test]
+fn hosted_operator_requires_an_explicit_private_guest_network() {
+    let mut config = Config {
+        socket: "/private/adapter.sock".into(),
+        gateway: "https://gateway.example:443".into(),
+        gateway_ca: "/private/ca".into(),
+        lifecycle: "/usr/local/bin/kata-kubernetes".into(),
+        lifecycle_arg: Vec::new(),
+        ssh: "/usr/bin/ssh".into(),
+        prototype_policy_mode: false,
+        vm_policy: None,
+        runtime_profile: openshell_kata::config::RuntimeProfile::Kubernetes,
+        guest_image: Some(format!("registry.example/guest@sha256:{}", "a".repeat(64))),
+        guest_network_cidr: None,
+        recovery_dir: Some("/private/registry".into()),
+    };
+    assert!(config.validate().is_err(), "network cannot be implicit");
+    config.guest_network_cidr = Some("172.20.0.0/16".into());
+    assert!(
+        config.validate().is_ok(),
+        "operator range is not cloud-specific"
+    );
+    config.guest_network_cidr = Some("0.0.0.0/0".into());
+    assert!(
+        config.validate().is_err(),
+        "all-network route is not a guest range"
+    );
 }

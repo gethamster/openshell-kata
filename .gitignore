@@ -6,4 +6,5 @@
 *.pid
 *.pem
 *.key
+*.profraw
 __pycache__/
