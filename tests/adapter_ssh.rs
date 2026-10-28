@@ -9,7 +9,9 @@ use openshell_kata::{
 use russh::{ChannelMsg, client};
 use std::{os::unix::fs::PermissionsExt, sync::Arc, time::Duration};
 
-struct Client;
+struct Client {
+    banner: Arc<std::sync::Mutex<Vec<u8>>>,
+}
 fn upload_tar(body: &[u8], path: &str) -> anyhow::Result<Vec<u8>> {
     upload_tar_kind(body, path, tar::EntryType::Regular)
 }
@@ -29,6 +31,15 @@ fn upload_tar_kind(body: &[u8], path: &str, kind: tar::EntryType) -> anyhow::Res
 }
 impl client::Handler for Client {
     type Error = anyhow::Error;
+    async fn kex_done(
+        &mut self,
+        _: Option<&[u8]>,
+        _: &russh::Names,
+        session: &mut client::Session,
+    ) -> anyhow::Result<()> {
+        *self.banner.lock().expect("fixture banner") = session.remote_sshid().to_vec();
+        Ok(())
+    }
     async fn check_server_key(
         &mut self,
         _: &russh::keys::PublicKeyOrCertificate,
@@ -42,6 +53,7 @@ struct Fixture {
     runtime: Arc<Runtime>,
     listener: tokio::task::JoinHandle<()>,
     client: client::Handle<Client>,
+    banner: Arc<std::sync::Mutex<Vec<u8>>>,
 }
 impl Fixture {
     async fn new() -> anyhow::Result<Self> {
@@ -100,6 +112,20 @@ impl Fixture {
                 quote(&safe.to_string_lossy())
             ),
         )?;
+        let original = std::fs::read_to_string(&executable)?;
+        let prelude = format!(
+            "#!/bin/sh\nfor argument do command=$argument; done\nprintf '%s\\n' \"$command\" >> {}\ncase \"$command\" in\n\"exec /usr/bin/env -u BASH_ENV -u ENV /bin/bash --noprofile --norc\"*) BASH_ENV={} exec /bin/sh -c \"$command\";;\n\"exec /bin/bash -l -c '\"*) command=${{command#\"exec /bin/bash -l -c '\"}}; command=${{command%\"'\"}};;\nesac\n",
+            quote(&files.path().join("shell-commands").to_string_lossy()),
+            quote(&files.path().join("startup-profile").to_string_lossy())
+        );
+        std::fs::write(
+            &executable,
+            original.replacen(
+                "#!/bin/sh\nfor argument do command=$argument; done\n",
+                &prelude,
+                1,
+            ),
+        )?;
         std::fs::set_permissions(&executable, std::fs::Permissions::from_mode(0o700))?;
         let config = Arc::new(Config {
             socket: files.path().join("driver.sock"),
@@ -145,8 +171,15 @@ impl Fixture {
         runtime.phase.send_replace(phase);
         let (socket, listener) = ssh::listen(runtime.clone(), &host_key).await?;
         let stream = tokio::net::UnixStream::connect(socket.path().join("ssh.sock")).await?;
-        let mut client =
-            client::connect_stream(Arc::new(client::Config::default()), stream, Client).await?;
+        let banner = Arc::new(std::sync::Mutex::new(Vec::new()));
+        let mut client = client::connect_stream(
+            Arc::new(client::Config::default()),
+            stream,
+            Client {
+                banner: banner.clone(),
+            },
+        )
+        .await?;
         anyhow::ensure!(
             client.authenticate_none(user).await?.success(),
             "fixture authentication failed"
@@ -157,6 +190,7 @@ impl Fixture {
             runtime,
             listener,
             client,
+            banner,
         })
     }
     async fn close(mut self) {
@@ -673,3 +707,6 @@ async fn hardened_runtime_rejects_exec_until_ready() -> anyhow::Result<()> {
     fixture.close().await;
     Ok(())
 }
+
+#[path = "support/ssh_login_cases.rs"]
+mod ssh_login_cases;

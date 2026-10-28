@@ -138,3 +138,25 @@ that do not download images.
 Run `kata-dev` from the checkout root, or pass global `--root /absolute/checkout`.
 The tool resolves that directory at runtime, so distributed binaries do not depend
 on a build machine's source path.
+
+## OpenShell 0.1.6 shell startup contract
+
+The pinned gateway detects `no_login_shell` support through the private SSH
+server's `SSH-2.0-OpenShell_` identification prefix, then sends
+`OPENSHELL_NO_LOGIN_SHELL=1` as channel metadata before exec. This is separate
+from `SupervisorHello`; see the pinned
+[gateway implementation](https://github.com/NVIDIA/OpenShell/blob/v0.1.6/crates/openshell-server/src/grpc/sandbox.rs#L3314)
+and [supervisor environment handling](https://github.com/NVIDIA/OpenShell/blob/v0.1.6/crates/openshell-supervisor-process/src/ssh.rs#L898).
+
+The adapter identifies as `OpenShell_Kata_<adapter-version>` and implements that
+metadata per channel. Ordinary exec uses Bash as a login shell; opting out uses
+`--noprofile --norc` and clears the `BASH_ENV` and `ENV` startup hooks. The complete
+gateway command remains one shell-quoted `-c` argument. Arbitrary SSH environment
+requests are rejected, and channel metadata is removed on dispatch or close.
+Validated archive transfer and main-process attachment retain their dedicated
+protocol paths. The guest image must contain Bash and `env`, as both supplied
+image recipes do.
+
+The real SSH regressions in `tests/support/ssh_login_cases.rs` cover the banner,
+startup-hook avoidance, literal command arguments, independent channel settings,
+and rejection of arbitrary environment injection.

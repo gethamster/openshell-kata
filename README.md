@@ -108,6 +108,15 @@ profile; the broader production and platform matrix remains in
 [the policy plan](docs/POLICY_PLAN.md). The subsequent shared-runtime and System
 integration gates are tracked separately in [the delivery plan](docs/DELIVERY_PLAN.md).
 
+The [shared-runtime qualification](evidence/integration-qualification.json)
+records 247 macOS test results and 86.80% implementation line coverage. Both the
+stock CLI and the actual System sandbox backend passed file operations, command
+streams, Docker/Compose, preview, restart persistence and verified deletion with
+unmodified OpenShell 0.1.6. The System run used the production access router with
+a scoped local authorization fixture; hosted sign-in, immutable images and
+tenant isolation remain separate deployment gates. Hosted egress is still
+deny-all, so this does not qualify hosted internet-dependent builds.
+
 ## Cleanup and delivery scope
 
 Delete sandboxes through the official CLI, then stop the local services:

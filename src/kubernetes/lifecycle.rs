@@ -4,7 +4,7 @@ use super::{
     client::{Client, command_output},
     lease, manifest,
     model::{Route, State},
-    policy, proof,
+    policy, proof, reaper,
     store::Store,
 };
 use anyhow::{Context, Result, ensure};
@@ -115,7 +115,7 @@ pub(super) async fn create(
         &manifest::labels(&name),
     )?;
     let mut pod = manifest::pod(&name, &namespace, launch.image);
-    pod["metadata"]["annotations"] = json!({"openshell-kata.io/launch-nonce":launch.nonce});
+    pod["metadata"]["annotations"] = lease::annotations(launch.sandbox, launch.nonce, expires);
     pod["spec"]["activeDeadlineSeconds"] = json!(
         expires
             .checked_sub(lease::now()?)
@@ -154,13 +154,13 @@ async fn wait_ready(
         let pod = client
             .required("pod", Some(&state.name), Some(&state.namespace))
             .await?;
+        enforce_lease_at(client, state, &pod, lease::now()?).await?;
         ensure!(pod["status"]["phase"] != "Failed", "guest boot failed");
         if pod["status"]["phase"] == "Running"
             && pod["status"]["containerStatuses"]
                 .as_array()
                 .is_some_and(|v| !v.is_empty() && v.iter().all(|s| s["ready"] == true))
         {
-            tighten_deadline(client, state, &pod).await?;
             return Ok(proof::verify(client, state, storage_class, network)
                 .await?
                 .0);
@@ -282,6 +282,24 @@ async fn tighten_deadline(client: &Client, state: &State, pod: &Value) -> Result
                 None,
             )
             .await?;
+    }
+    Ok(())
+}
+
+pub(super) async fn enforce_lease_at(
+    client: &Client,
+    state: &State,
+    pod: &Value,
+    now: u64,
+) -> Result<()> {
+    require_generation(pod, state)?;
+    let expires = lease::validate_binding(pod, state)?;
+    if now >= expires {
+        reaper::delete_observed(client, pod).await?;
+        anyhow::bail!("sandbox lease expired; runtime deletion requested");
+    }
+    if pod["status"]["startTime"].as_str().is_some() {
+        tighten_deadline(client, state, pod).await?;
     }
     Ok(())
 }

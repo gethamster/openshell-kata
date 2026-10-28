@@ -1,12 +1,15 @@
 //! Cloud-independent Kubernetes launcher for operator-qualified Rust Kata guests.
 
 mod client;
+#[cfg(test)]
+mod expiry_tests;
 mod lease;
 mod lifecycle;
 mod manifest;
 mod model;
 mod policy;
 mod proof;
+mod reaper;
 mod store;
 #[cfg(test)]
 mod tests;
@@ -25,6 +28,7 @@ enum Action {
     Abort,
     EnsureWorkspace,
     DeleteWorkspace,
+    ReapExpired,
 }
 #[derive(Debug, Parser)]
 struct Arguments {
@@ -33,6 +37,9 @@ struct Arguments {
     sandbox: String,
     #[arg(long)]
     proof_nonce: Option<uuid::Uuid>,
+    /// Reconcile one bounded batch instead of running the independent controller.
+    #[arg(long)]
+    once: bool,
 }
 
 /// Execute the trusted launcher's lifecycle contract using operator environment.
@@ -48,6 +55,10 @@ pub async fn run() -> Result<()> {
             .ok()
             .filter(|s| !s.is_empty()),
     };
+    if matches!(arguments.action, Action::ReapExpired) {
+        return reaper::run(&client, &arguments.sandbox, arguments.once).await;
+    }
+    ensure!(!arguments.once, "--once is only valid for reap-expired");
     if matches!(
         arguments.action,
         Action::EnsureWorkspace | Action::DeleteWorkspace
@@ -128,7 +139,7 @@ pub async fn run() -> Result<()> {
             }
             serde_json::json!({})
         }
-        Action::EnsureWorkspace | Action::DeleteWorkspace => {
+        Action::EnsureWorkspace | Action::DeleteWorkspace | Action::ReapExpired => {
             unreachable!("workspace action handled before state access")
         }
     };
@@ -137,7 +148,8 @@ pub async fn run() -> Result<()> {
 }
 
 fn storage_class() -> Result<String> {
-    let value = env::var("OPENSHELL_KATA_STORAGE_CLASS").unwrap_or_else(|_| "standard-rwo".into());
+    let value = env::var("OPENSHELL_KATA_STORAGE_CLASS")
+        .context("explicit operator storage class required")?;
     policy::validate_storage_class(&value)?;
     Ok(value)
 }

@@ -21,7 +21,7 @@ fn state() -> model::State {
         runtime_identity: "93f296f5-c3b3-4599-bede-aaeb88db87b1".into(),
         private_key_path: "/state/key".into(),
         known_hosts_path: "/state/known".into(),
-        launch_nonce: None,
+        launch_nonce: Some(uuid::Uuid::new_v4().to_string()),
         owns_volume_for_launch: false,
         expires_at: Some(lease::now().expect("now") + 3600),
     }
@@ -30,6 +30,11 @@ fn observations(state: &model::State) -> proof::Observations {
     let mut pod = manifest::pod(&state.name, &state.namespace, &state.image);
     pod["metadata"]["uid"] = json!(state.runtime_identity);
     pod["metadata"]["resourceVersion"] = json!("1");
+    pod["metadata"]["annotations"] = lease::annotations(
+        &state.sandbox_id,
+        state.launch_nonce.as_deref().expect("launch nonce"),
+        state.expires_at.expect("lease"),
+    );
     pod["spec"]["activeDeadlineSeconds"] = json!(300);
     pod["spec"]["nodeName"] = json!("worker");
     pod["status"] = json!({"phase":"Running","startTime":chrono::DateTime::from_timestamp(lease::now().expect("now") as i64,0).expect("time").to_rfc3339(),"podIP":"10.176.0.5","containerStatuses":[{"ready":true}]});
@@ -74,8 +79,24 @@ fn only_exact_pinned_guest_images_are_accepted() {
 }
 #[test]
 fn storage_profile_is_operator_selected_and_verified() {
-    policy::validate_storage_class("kata-regional-rwo").expect("regional");
-    assert!(policy::validate_storage_class("foreign").is_err());
+    for name in [
+        "aws-ebs-gp3",
+        "azure-managed-csi",
+        "tenant.fast",
+        "kata-regional-rwo",
+    ] {
+        policy::validate_storage_class(name).expect("operator-selected storage profile");
+    }
+    for name in [
+        "", "Upper", "a/b", "a b", ".bad", "bad.", "a..b", "-bad", "bad-",
+    ] {
+        assert!(
+            policy::validate_storage_class(name).is_err(),
+            "accepted {name:?}"
+        );
+    }
+    assert!(policy::validate_storage_class(&"a".repeat(254)).is_err());
+    assert!(policy::validate_storage_class(&"a".repeat(64)).is_err());
     let state = state();
     let observed = observations(&state);
     assert!(proof::validate(&state, "kata-regional-rwo", &observed, &network()).is_err());
@@ -378,7 +399,8 @@ case "$*" in
   *"apply "*)
     cat > "$root/request.json"
     if grep -q '"kind":"Pod"' "$root/request.json"; then
-      cp "$root/ready-pod.json" "$root/pod.json"
+      annotations=$(sed -n 's/.*"annotations":\({{[^}}]*}}\).*/\1/p' "$root/request.json")
+      sed "s|\"annotations\":{{[^}}]*}}|\"annotations\":$annotations|" "$root/ready-pod.json" > "$root/pod.json"
     elif grep -q '"kind":"PersistentVolumeClaim"' "$root/request.json"; then
       cp "$root/request.json" "$root/pvc.json"
     elif grep -q '"kind":"Secret"' "$root/request.json"; then
@@ -423,7 +445,8 @@ esac
         let state = state();
         let mut pod = observations(&state).pod;
         pod["metadata"]["uid"] = json!(uuid::Uuid::new_v4().to_string());
-        pod["metadata"]["annotations"] = json!({"openshell-kata.io/launch-nonce":nonce});
+        pod["metadata"]["annotations"] =
+            lease::annotations(&state.sandbox_id, nonce, state.expires_at.expect("lease"));
         std::fs::write(
             self.root.join("ready-pod.json"),
             serde_json::to_vec(&pod).expect("pod json"),

@@ -1,0 +1,62 @@
+{
+  "source_commit": "72637d243ff7b7d65b2364fed70f70ccd6c3a68b",
+  "passed": true,
+  "checks": [
+    {
+      "gate": "system-openshell-live",
+      "check": "backend_creation_and_seed",
+      "passed": true
+    },
+    {
+      "gate": "system-openshell-live",
+      "check": "binary_write_read_remove",
+      "passed": true
+    },
+    {
+      "gate": "system-openshell-live",
+      "check": "stdin_stdout_stderr_exit",
+      "passed": true
+    },
+    {
+      "gate": "system-openshell-live",
+      "check": "real_process_group_cancellation",
+      "passed": true
+    },
+    {
+      "gate": "system-openshell-live",
+      "check": "offline_docker_run_build_compose",
+      "passed": true
+    },
+    {
+      "gate": "system-openshell-live",
+      "check": "authorized_gateway_preview",
+      "passed": true
+    },
+    {
+      "gate": "system-openshell-live",
+      "check": "stop_start_fresh_file_persistence",
+      "passed": true
+    },
+    {
+      "gate": "system-openshell-live",
+      "check": "delete_and_gateway_absence",
+      "passed": true
+    }
+  ],
+  "seconds": 169.29,
+  "chain": [
+    "System sandbox backend",
+    "production sandbox-access router",
+    "stock OpenShell 0.1.6",
+    "Rust adapter",
+    "Kata runtime-rs 4.3.1",
+    "Docker 29"
+  ],
+  "authorization": "Scoped local Foundry authorization fixture; does not qualify Google sign-in or a hosted deployment.",
+  "initial_stdin_regression": "512 KiB binary initial payload followed by interactive tail and explicit EOF; ordered exactly once",
+  "cleanup": {
+    "gateway_sandboxes": 0,
+    "node_containers": 0,
+    "node_tasks": 0
+  }
+}

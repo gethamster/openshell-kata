@@ -4,6 +4,14 @@ use serde::Deserialize;
 use std::{net::IpAddr, path::PathBuf, process::Stdio, time::Duration};
 use tokio::process::{Child, Command};
 
+/// Startup behavior for a user command carried over the private SSH relay.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum ShellMode {
+    #[default]
+    Login,
+    NonLogin,
+}
+
 /// Trusted lifecycle output describing a pinned SSH route to one guest.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -111,6 +119,27 @@ impl Guest {
             .arg(command)
             .spawn()
             .context("starting isolated guest SSH execution")
+    }
+    /// Execute the gateway's command as one literal Bash command argument.
+    /// Non-login execution also clears shell startup-file environment hooks.
+    pub fn exec_shell(
+        &self,
+        config: &Config,
+        command: Option<&str>,
+        mode: ShellMode,
+    ) -> Result<Child> {
+        let mut invocation = match mode {
+            ShellMode::Login => "exec /bin/bash -l",
+            ShellMode::NonLogin => {
+                "exec /usr/bin/env -u BASH_ENV -u ENV /bin/bash --noprofile --norc"
+            }
+        }
+        .to_owned();
+        if let Some(command) = command {
+            invocation.push_str(" -c ");
+            invocation.push_str(&crate::config::shell_quote(command));
+        }
+        self.exec(config, &invocation)
     }
     pub fn sftp(&self, config: &Config) -> Result<Child> {
         self.command(config)

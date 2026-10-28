@@ -61,8 +61,24 @@ pub(super) fn validate_image(image: &str) -> Result<()> {
 
 pub(super) fn validate_storage_class(value: &str) -> Result<()> {
     ensure!(
-        matches!(value, "standard-rwo" | "kata-regional-rwo"),
-        "unsupported operator storage profile"
+        !value.is_empty()
+            && value.len() <= 253
+            && value.split('.').all(|label| {
+                !label.is_empty()
+                    && label.len() <= 63
+                    && label
+                        .as_bytes()
+                        .first()
+                        .is_some_and(u8::is_ascii_alphanumeric)
+                    && label
+                        .as_bytes()
+                        .last()
+                        .is_some_and(u8::is_ascii_alphanumeric)
+                    && label
+                        .bytes()
+                        .all(|v| v.is_ascii_lowercase() || v.is_ascii_digit() || v == b'-')
+            }),
+        "invalid operator storage class name"
     );
     Ok(())
 }

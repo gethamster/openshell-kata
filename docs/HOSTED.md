@@ -9,9 +9,12 @@ Select the hosted profile with `--runtime-profile kubernetes`, an immutable
 absolute `--recovery-dir`, and `--lifecycle /usr/local/bin/kata-kubernetes`.
 The adapter passes the exact guest range to the launcher as
 `OPENSHELL_KATA_GUEST_NETWORK_CIDR`; absent or public ranges fail closed.
-The operator may select `OPENSHELL_KATA_KUBE_CONTEXT`,
-`OPENSHELL_KATA_STATE_DIR`, and reviewed `OPENSHELL_KATA_STORAGE_CLASS`
-(`standard-rwo` or `kata-regional-rwo`). Tenants cannot choose these settings.
+The operator may select `OPENSHELL_KATA_KUBE_CONTEXT` and
+`OPENSHELL_KATA_STATE_DIR`. `OPENSHELL_KATA_STORAGE_CLASS` is required: it must
+name an operator-qualified Kubernetes storage class using a legal DNS subdomain
+name. There is no implicit provider default or provider-name allowlist. The live
+PVC must exactly match the selected class and private volume shape. Each provider's
+actual storage behavior still needs qualification. Tenants cannot choose these settings.
 
 The launcher derives `sandbox-<workspace>` from gateway-owned metadata and
 checks existing namespace labels. It never creates namespaces. Each sandbox
@@ -37,14 +40,42 @@ internet-dependent builds require that additional implementation and testing;
 offline Docker tests do not prove internet access.
 
 `OPENSHELL_KATA_LIFETIME_SECS` defaults to 3600 and accepts 60–86400 seconds.
-The original expiry persists across stop/start. The Pod receives a remaining
-`activeDeadlineSeconds`; the launcher binds any tightening patch to UID,
-resource version and creation nonce, and verifies the observed start-time
-relative deadline. Missing legacy deadlines and expired leases fail launch and
-verification; explicit stop/delete remain available. This is kubelet-enforced
-termination with Kubernetes reconciliation timing. It is distinct from the local
-profile's independent node watchdog and does not promise exact deadline timing
-when the node agent is unavailable.
+The original expiry persists across stop/start. Pod `activeDeadlineSeconds` is
+relative to `status.startTime`, so scheduling delay must not be added to the
+original lease. The launcher checks expiry on every boot poll, including Pending,
+and tightens the relative deadline as soon as startTime appears. Patches test UID,
+resource version and launch nonce. Live proof also binds the absolute expiry,
+raw sandbox identity and nonce to retained intent. Missing legacy deadlines and
+expired leases fail launch and verification; explicit stop/delete remain available.
+
+Deploy an **independent trusted controller** with
+`kata-kubernetes reap-expired WORKSPACE`. It reconciles the existing workspace
+namespace even after the adapter exits, tightening newly observed start times
+and requesting deletion of expired Pending or Running Pods. `--once` executes
+one bounded qualification batch and fails if it reports invalid leases or failed
+requests. The controller polls every two seconds, bounds
+each pass to 60 seconds and each resource operation to 10 seconds, and rotates
+batches of 16 with four concurrent operations so persistent errors do not starve
+other guests. It needs namespaced Pod get/list/patch/delete and get access to the
+exact namespace for ownership validation. It never creates namespaces or retries
+with another identity or broader credentials.
+
+Only Pods with the exact managed labels, matching resource/sandbox identity,
+canonical UUID nonce/UID, resource version and canonical absolute expiry are
+eligible. The annotations are `openshell-kata.io/sandbox-id`,
+`openshell-kata.io/launch-nonce` and `openshell-kata.io/expires-at` (Unix seconds).
+Only the trusted runtime may write these Pods. Admission must reject updates that
+change these identity/expiry annotations. Malformed or foreign objects are
+reported and left untouched. Deletes carry UID and resource-version preconditions,
+respect the Pod's normal grace period, and never force deletion or remove finalizers.
+
+Controller output reports deletion **requests**, not confirmed VM termination.
+Kubelet-relative termination and API/controller reconciliation depend on healthy
+control and node agents. A partitioned node can keep running after an API delete;
+this profile does not promise strict wall-clock node termination. The local
+profile's independent node watchdog provides a different boundary. Proving the
+independent hosted controller, admission immutability and failure recovery on a
+real cluster remains part of hosted qualification.
 
 Stop removes the Pod while retaining storage and private metadata. Start makes
 new keys and a new Pod identity without extending the lease. Delete removes the

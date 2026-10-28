@@ -62,6 +62,7 @@ pub(super) fn validate(
     observed: &Observations,
     network: &ipnet::IpNet,
 ) -> Result<(State, Value)> {
+    lease::validate_binding(&observed.pod, state)?;
     let expires = lease::expires_at(Some(state.expires_at), 86400, lease::now()?)?;
     let start = observed.pod["status"]["startTime"]
         .as_str()

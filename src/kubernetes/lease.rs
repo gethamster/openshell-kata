@@ -4,6 +4,30 @@ use anyhow::{Context, Result, ensure};
 use serde_json::{Value, json};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+pub(super) const EXPIRES: &str = "openshell-kata.io/expires-at";
+pub(super) const SANDBOX: &str = "openshell-kata.io/sandbox-id";
+pub(super) const NONCE: &str = "openshell-kata.io/launch-nonce";
+
+pub(super) fn annotations(sandbox: &str, nonce: &str, expires: u64) -> Value {
+    json!({SANDBOX:sandbox,NONCE:nonce,EXPIRES:expires.to_string()})
+}
+
+pub(super) fn validate_binding(pod: &Value, state: &super::model::State) -> Result<u64> {
+    let expires = state.expires_at.context("runtime lease missing")?;
+    let nonce = state
+        .launch_nonce
+        .as_deref()
+        .context("runtime launch nonce missing")?;
+    let expected_expiry = expires.to_string();
+    ensure!(
+        pod["metadata"]["annotations"][SANDBOX] == state.sandbox_id
+            && pod["metadata"]["annotations"][NONCE] == nonce
+            && pod["metadata"]["annotations"][EXPIRES].as_str() == Some(expected_expiry.as_str()),
+        "runtime absolute lease binding changed"
+    );
+    Ok(expires)
+}
+
 pub(super) fn now() -> Result<u64> {
     Ok(SystemTime::now()
         .duration_since(UNIX_EPOCH)
