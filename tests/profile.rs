@@ -177,13 +177,15 @@ fn profile_loading_is_bounded_and_validates_resource_limits() -> anyhow::Result<
 fn evidence_is_bound_to_request_policy_resources_and_live_lease() -> anyhow::Result<()> {
     use openshell_kata::profile::EnforcementEvidence;
     let policy = profile();
+    let nonce = uuid::Uuid::new_v4().to_string();
+    let other_nonce = uuid::Uuid::new_v4().to_string();
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)?
         .as_secs();
     let evidence = EnforcementEvidence {
         sandbox_id: "sandbox-one".into(),
         policy_sha256: policy.digest()?,
-        nonce: "fresh-challenge".into(),
+        nonce: nonce.clone(),
         runtime: "kata-runtime-rs".into(),
         hypervisor_pid: 4,
         resources: policy.resources,
@@ -192,44 +194,82 @@ fn evidence_is_bound_to_request_policy_resources_and_live_lease() -> anyhow::Res
         watchdog_pid: 5,
         expires_at_unix_secs: now + 1800,
     };
-    evidence.validate("sandbox-one", "fresh-challenge", &policy)?;
+    evidence.validate("sandbox-one", &nonce, &policy)?;
+    assert!(evidence.validate("sandbox-two", &nonce, &policy).is_err());
     assert!(
         evidence
-            .validate("sandbox-two", "fresh-challenge", &policy)
-            .is_err()
-    );
-    assert!(
-        evidence
-            .validate("sandbox-one", "new-challenge", &policy)
+            .validate("sandbox-one", &other_nonce, &policy)
             .is_err()
     );
     let mut expired = evidence.clone();
     expired.expires_at_unix_secs = now;
-    assert!(
-        expired
-            .validate("sandbox-one", "fresh-challenge", &policy)
-            .is_err()
-    );
+    assert!(expired.validate("sandbox-one", &nonce, &policy).is_err());
     let mut extended = evidence.clone();
     extended.expires_at_unix_secs = now + policy.resources.lifetime_secs + 60;
-    assert!(
-        extended
-            .validate("sandbox-one", "fresh-challenge", &policy)
-            .is_err()
-    );
+    assert!(extended.validate("sandbox-one", &nonce, &policy).is_err());
     let mut missing = evidence.clone();
     missing.network_fence.clear();
-    assert!(
-        missing
-            .validate("sandbox-one", "fresh-challenge", &policy)
-            .is_err()
-    );
+    assert!(missing.validate("sandbox-one", &nonce, &policy).is_err());
     let mut wrong = evidence.clone();
     wrong.resources.vcpus += 1;
+    assert!(wrong.validate("sandbox-one", &nonce, &policy).is_err());
+    Ok(())
+}
+
+#[test]
+fn local_operator_image_and_resources_are_ceilings_not_request_overrides() -> anyhow::Result<()> {
+    use openshell_kata::{admission, proto::openshell::compute::v1 as c};
+    let image = format!("registry.example/system@sha256:{}", "a".repeat(64));
+    let mut sandbox = c::DriverSandbox {
+        id: "fixture".into(),
+        spec: Some(c::DriverSandboxSpec {
+            policy: Some(SandboxPolicy {
+                version: 1,
+                ..Default::default()
+            }),
+            template: Some(c::DriverSandboxTemplate {
+                image: image.clone(),
+                resources: Some(c::DriverResourceRequirements {
+                    cpu_request: "1".into(),
+                    cpu_limit: "1".into(),
+                    memory_request: "2Gi".into(),
+                    memory_limit: "2048Mi".into(),
+                }),
+                ..Default::default()
+            }),
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+    admission::compile_request_for_image(&sandbox, &profile(), Some(&image))?;
     assert!(
-        wrong
-            .validate("sandbox-one", "fresh-challenge", &policy)
-            .is_err()
+        admission::compile_request_for_image(&sandbox, &profile(), None).is_err(),
+        "caller cannot select an unconfigured image"
+    );
+    let template = sandbox
+        .spec
+        .as_mut()
+        .expect("spec")
+        .template
+        .as_mut()
+        .expect("template");
+    template.image = format!("registry.example/system@sha256:{}", "b".repeat(64));
+    assert!(
+        admission::compile_request_for_image(&sandbox, &profile(), Some(&image)).is_err(),
+        "operator digest must match"
+    );
+    let template = sandbox
+        .spec
+        .as_mut()
+        .expect("spec")
+        .template
+        .as_mut()
+        .expect("template");
+    template.image = image.clone();
+    template.resources.as_mut().expect("limits").cpu_limit = "2".into();
+    assert!(
+        admission::compile_request_for_image(&sandbox, &profile(), Some(&image)).is_err(),
+        "requested CPU cannot exceed actual VM profile"
     );
     Ok(())
 }

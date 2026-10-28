@@ -12,6 +12,7 @@ limactl cp "$here/sshd_config" "$vm:/tmp/openshell-kata.conf"
 limactl shell "$vm" chmod +x /tmp/openshell-kata-init
 run cp /tmp/openshell-kata-init openshell-enforcement-seed:/usr/local/sbin/openshell-kata-init
 run cp /tmp/openshell-kata.conf openshell-enforcement-seed:/etc/ssh/openshell-kata.conf
+run cp /opt/openshell-kata/kata-workspace openshell-enforcement-seed:/usr/local/bin/kata-workspace
 limactl shell "$vm" sudo sh -c 'nerdctl --snapshotter overlayfs export openshell-enforcement-seed > /tmp/openshell-enforced-rootfs.tar'
 # setup-devmapper.sh registers this snapshotter with containerd transfer unpack.
 limactl shell "$vm" sudo nerdctl --snapshotter devmapper import --platform linux/arm64 /tmp/openshell-enforced-rootfs.tar openshell-kata-enforced:local

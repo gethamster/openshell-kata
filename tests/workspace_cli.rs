@@ -1,0 +1,249 @@
+//! Executable guest-helper contract, including real Linux process cancellation.
+
+use sha2::{Digest, Sha256};
+use std::{
+    io::Write,
+    path::Path,
+    process::{Command, Stdio},
+};
+
+fn helper(root: &Path) -> Command {
+    let mut command = Command::new(env!("CARGO_BIN_EXE_kata-workspace"));
+    command.arg("--root").arg(root);
+    command
+}
+
+#[test]
+fn protocol_is_available_without_opening_the_default_workspace() {
+    let output = Command::new(env!("CARGO_BIN_EXE_kata-workspace"))
+        .arg("protocol")
+        .output()
+        .expect("protocol");
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(output.stdout, b"openshell-kata-workspace/1\n");
+}
+
+#[test]
+fn cli_files_preserve_binary_bytes_missing_status_and_removal_flags() {
+    let root = tempfile::tempdir().expect("workspace");
+    let bytes = b"binary\0file\xff";
+    let mut writer = helper(root.path())
+        .args(["write", "/sandbox/tree/file"])
+        .stdin(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("write helper");
+    let mut input = writer.stdin.take().expect("stdin");
+    input
+        .write_all(&(bytes.len() as u32).to_be_bytes())
+        .expect("frame length");
+    input.write_all(bytes).expect("frame bytes");
+    input.write_all(&[0; 4]).expect("terminator");
+    input.write_all(&Sha256::digest(bytes)).expect("digest");
+    drop(input);
+    let written = writer.wait_with_output().expect("writer result");
+    assert!(
+        written.status.success(),
+        "{}",
+        String::from_utf8_lossy(&written.stderr)
+    );
+    let output = helper(root.path())
+        .args(["read", "/sandbox/tree/file"])
+        .output()
+        .expect("read helper");
+    assert!(output.status.success());
+    assert_eq!(output.stdout, bytes);
+    assert!(
+        helper(root.path())
+            .args(["remove", "/sandbox/tree", "true", "false"])
+            .status()
+            .expect("remove helper")
+            .success()
+    );
+    assert_eq!(
+        helper(root.path())
+            .args(["read", "/sandbox/tree/file"])
+            .output()
+            .expect("missing helper")
+            .status
+            .code(),
+        Some(66)
+    );
+    assert!(
+        helper(root.path())
+            .args(["remove", "/sandbox/missing", "false", "true"])
+            .status()
+            .expect("force helper")
+            .success()
+    );
+}
+
+#[cfg(target_os = "linux")]
+mod linux {
+    use super::*;
+    use std::{
+        fs,
+        process::Child,
+        thread,
+        time::{Duration, Instant},
+    };
+    use uuid::Uuid;
+
+    fn wait_for(path: &Path) {
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while !path.exists() {
+            assert!(Instant::now() < deadline, "waiting for {}", path.display());
+            thread::sleep(Duration::from_millis(10));
+        }
+    }
+
+    fn spawn(root: &Path, id: &str, args: &[&str]) -> Child {
+        helper(root)
+            .args([
+                "run",
+                id,
+                &serde_json::to_string(args).expect("encode argv"),
+            ])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("run helper")
+    }
+
+    #[test]
+    fn run_preserves_stdin_stdout_stderr_and_nonzero_exit() {
+        let root = tempfile::tempdir().expect("workspace");
+        let id = Uuid::new_v4().to_string();
+        let mut child = spawn(
+            root.path(),
+            &id,
+            &["sh", "-c", "cat; printf 'diagnostic' >&2; exit 23"],
+        );
+        child
+            .stdin
+            .take()
+            .expect("stdin")
+            .write_all(b"input\0bytes")
+            .expect("send stdin");
+        let output = child.wait_with_output().expect("result");
+        assert_eq!(
+            output.status.code(),
+            Some(23),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert_eq!(output.stdout, b"input\0bytes");
+        assert_eq!(output.stderr, b"diagnostic");
+        assert!(
+            !root
+                .path()
+                .join(format!(".system-processes/{id}.json"))
+                .exists()
+        );
+    }
+
+    #[test]
+    fn cancellation_rejects_modified_identity_then_kills_the_exact_session() {
+        let root = tempfile::tempdir().expect("workspace");
+        let marker = root.path().join("descendant-pid");
+        let id = Uuid::new_v4().to_string();
+        let child = spawn(
+            root.path(),
+            &id,
+            &[
+                "sh",
+                "-c",
+                "sleep 60 & printf '%s' \"$!\" > \"$1\"; wait",
+                "sh",
+                marker.to_str().expect("path"),
+            ],
+        );
+        let record_path = root.path().join(format!(".system-processes/{id}.json"));
+        wait_for(&marker);
+        wait_for(&record_path);
+        let original = fs::read(&record_path).expect("record");
+        let mut forged: serde_json::Value = serde_json::from_slice(&original).expect("record JSON");
+        forged["start"] = (forged["start"].as_u64().expect("start") + 1).into();
+        fs::write(
+            &record_path,
+            serde_json::to_vec(&forged).expect("forged record"),
+        )
+        .expect("tamper");
+        assert!(
+            !helper(root.path())
+                .args(["kill", &id])
+                .output()
+                .expect("reject forged identity")
+                .status
+                .success()
+        );
+        fs::write(&record_path, original).expect("restore record");
+        let killed = helper(root.path())
+            .args(["kill", &id])
+            .output()
+            .expect("kill exact session");
+        assert!(
+            killed.status.success(),
+            "{}",
+            String::from_utf8_lossy(&killed.stderr)
+        );
+        let output = child.wait_with_output().expect("cancelled command");
+        assert_eq!(
+            output.status.code(),
+            Some(137),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(!record_path.exists());
+        let descendant = fs::read_to_string(marker).expect("descendant PID");
+        let stat = fs::read_to_string(format!("/proc/{descendant}/stat"));
+        if let Ok(stat) = stat {
+            assert_eq!(
+                stat.rsplit_once(')')
+                    .expect("stat")
+                    .1
+                    .split_whitespace()
+                    .next(),
+                Some("Z"),
+                "descendant still executing: {stat}"
+            );
+        }
+        assert!(
+            helper(root.path())
+                .args(["kill", &id])
+                .output()
+                .expect("idempotent kill")
+                .status
+                .success()
+        );
+    }
+
+    #[test]
+    fn cancellation_before_record_publication_prevents_later_execution() {
+        let root = tempfile::tempdir().expect("workspace");
+        let id = Uuid::new_v4().to_string();
+        let cancelled = helper(root.path())
+            .args(["kill", &id])
+            .output()
+            .expect("early cancellation");
+        assert!(
+            cancelled.status.success(),
+            "{}",
+            String::from_utf8_lossy(&cancelled.stderr)
+        );
+        let child = spawn(root.path(), &id, &["sh", "-c", "printf 'must not execute'"]);
+        let output = child.wait_with_output().expect("cancelled before start");
+        assert_eq!(
+            output.status.code(),
+            Some(137),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(output.stdout.is_empty(), "command ran after cancellation");
+    }
+}

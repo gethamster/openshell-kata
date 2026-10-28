@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-28",
+  "source_fingerprint": "af7dba20f917239696f63e38c0733d3878baa7f0eea83fbe1c08b6cd190dfb04",
+  "upstream": {
+    "version": "0.1.6",
+    "cli_sha256": "cb584c8d74cd0e73ab9422b37ce536a27fecf1d1c2fa7d4ef10cac7376cd0fb4",
+    "gateway_sha256": "5ad19e6b889daa29e31c933d6ee166bea69ad11934d0af141addb825d10e8887"
+  },
+  "platform": "macOS Apple Silicon; dedicated mount-free Lima Linux node; real Kata runtime-rs/Dragonball",
+  "guest_image": "docker.io/library/openshell-kata-enforced@sha256:7ece87f6aeb33d19e2fe8858da9032929f18b7f9a570ffa9450962fcd80cc037",
+  "guest_helper_protocol": "openshell-kata-workspace/1",
+  "validation": {
+    "macos_tests": 247,
+    "format": "passed",
+    "clippy_all_targets_all_features": "passed with warnings denied",
+    "documentation": "passed",
+    "audit_vulnerabilities": 0,
+    "source_line_coverage_percent": 87.08,
+    "stock_cli": "passed; see integration-cli-summary.json",
+    "system_consumer": "passed all 8 real VM checks; see integration-system-summary.json",
+    "system_component_coverage": {
+      "llvm_file_line_percent": 82.72,
+      "physical_implementation_line_percent": 83.53
+    },
+    "independent_security_review": "No remaining high/critical findings in reviewed admission, transport, migration, lease and reaper changes.",
+    "kubernetes_source_regressions": "35 tests plus explicit-storage CLI regression; real new-artifact hosted qualification remains separate",
+    "linux": "Required GitHub CI on the final PR head; earlier native Linux and operator checks retained as separate milestones.",
+    "physical_implementation_line_coverage": {
+      "covered": 8027,
+      "total": 9248,
+      "percent": 86.79714532871972,
+      "method": "Unique physical source lines from LCOV, excluding only cfg(test) scopes and test-only modules; all 60 production source files retained."
+    }
+  },
+  "receipts": [
+    {
+      "file": "integration-final-all-tests.log",
+      "sha256": "23848aa1ab7ff4396881a42ebc2389478fa532e45c60e038170ac11c95eb9d0f"
+    },
+    {
+      "file": "integration-final-clippy.log",
+      "sha256": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+    },
+    {
+      "file": "integration-final-doc.log",
+      "sha256": "31fc2919fd46b5854be74c25e02dbc66310318288d1267f1aa098b956d9ddd51"
+    },
+    {
+      "file": "integration-final-audit.json",
+      "sha256": "a57c3e246565ec3085ab6bb67ba422a1121b2b686d06e17c8ce86c02072123e2"
+    },
+    {
+      "file": "integration-final-coverage.txt",
+      "sha256": "e238d26638f99ecfe90a424aa06e6395747eb75a32cefdb7d48b52145114567a"
+    },
+    {
+      "file": "lease-reaper-final-tests.log",
+      "sha256": "475e1345c6aa13850f25e88a397c05d47b282bfa07d71947799047ac29139042"
+    },
+    {
+      "file": "no-login-shell-green.log",
+      "sha256": "99b9542e3a3a2802cb3f944115f9e937866f5b0716119a7e7c4c3bda15ed13ab"
+    },
+    {
+      "file": "ssh-stdin-halfclose.log",
+      "sha256": "23c00e98d7a27480d45d6049029061518fa0e10bc650fcbb7e240f6b7b6294aa"
+    }
+  ],
+  "limitations": [
+    "Hosted egress remains deny-all; offline Docker qualification does not qualify hosted dependency downloads.",
+    "The independent hosted lease controller and immutable annotation admission require deployment and real-cluster qualification. API deletion requests do not establish VM termination on a partitioned node.",
+    "Selective guest-native filesystem/process/executable identity policies are rejected with guest root.",
+    "Other desktop platforms, cloud artifacts, real sign-in and tenant cutover are separate qualification gates.",
+    "Local prepared guest and node runtime are separately pinned artifacts; the hosted owner must build and qualify immutable artifacts from the final source."
+  ]
+}

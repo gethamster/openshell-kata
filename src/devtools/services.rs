@@ -25,6 +25,9 @@ pub enum Action {
         adapter: Option<PathBuf>,
         #[arg(long)]
         runtime: Option<PathBuf>,
+        /// Match an operator-owned immutable template to the prepared local image.
+        #[arg(long)]
+        guest_image: Option<String>,
     },
     /// Stop processes whose recorded start identity still matches.
     Stop,
@@ -53,7 +56,8 @@ pub async fn execute(local: &Local, action: Action) -> Result<()> {
             vm_policy,
             adapter,
             runtime,
-        } => start(local, vm_policy, adapter, runtime).await,
+            guest_image,
+        } => start(local, vm_policy, adapter, runtime, guest_image).await,
         Action::Stop => stop(local).await,
     }
 }
@@ -173,9 +177,13 @@ async fn start(
     vm_policy: PathBuf,
     adapter: Option<PathBuf>,
     runtime: Option<PathBuf>,
+    guest_image: Option<String>,
 ) -> Result<()> {
     if !vm_policy.is_absolute() || !vm_policy.is_file() {
         bail!("--vm-policy must name an existing absolute JSON profile");
+    }
+    if let Some(image) = &guest_image {
+        openshell_kata::hosted::validate_image(image)?;
     }
     if local.state.join("processes.json").exists() {
         bail!("process record exists; inspect or stop local services first");
@@ -200,6 +208,9 @@ async fn start(
         .arg(runtime)
         .arg("--vm-policy")
         .arg(vm_policy);
+    if let Some(image) = guest_image {
+        adapter_command.args(["--guest-image", &image]);
+    }
     let mut gateway_command = Command::new(&gateway);
     gateway_command
         .arg("--config")

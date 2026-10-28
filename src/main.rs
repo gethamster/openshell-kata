@@ -4,7 +4,7 @@ use openshell_kata::{
     proto::openshell::compute::v1::compute_driver_server::ComputeDriverServer,
 };
 use std::{
-    os::unix::fs::{DirBuilderExt, PermissionsExt},
+    os::unix::fs::{DirBuilderExt, FileTypeExt, PermissionsExt},
     sync::Arc,
 };
 use tokio::net::UnixListener;
@@ -33,18 +33,36 @@ async fn main() -> anyhow::Result<()> {
         }
     }
     if config.socket.exists() {
-        anyhow::bail!(
-            "driver socket already exists; remove only after verifying no active adapter"
-        );
+        let metadata = std::fs::symlink_metadata(&config.socket)?;
+        use std::os::unix::fs::MetadataExt;
+        if config.runtime_profile != openshell_kata::config::RuntimeProfile::Kubernetes
+            || !metadata.file_type().is_socket()
+            || metadata.uid() != rustix::process::geteuid().as_raw()
+        {
+            anyhow::bail!("driver socket already exists or has an unexpected owner/type");
+        }
+        match tokio::net::UnixStream::connect(&config.socket).await {
+            Err(error) if error.kind() == std::io::ErrorKind::ConnectionRefused => {
+                std::fs::remove_file(&config.socket)?
+            }
+            _ => anyhow::bail!("driver socket is live or its state cannot be verified"),
+        }
     }
+    let driver = Driver::new(config.clone())?;
+    driver.recover().await?;
     let listener = UnixListener::bind(&config.socket)?;
     std::fs::set_permissions(&config.socket, std::fs::Permissions::from_mode(0o600))?;
-    let driver = Driver::new(config.clone())?;
     let shutdown_driver = driver.clone();
     tonic::transport::Server::builder()
         .add_service(ComputeDriverServer::new(driver))
         .serve_with_incoming_shutdown(UnixListenerStream::new(listener), async {
-            let _ = tokio::signal::ctrl_c().await;
+            let mut terminate =
+                tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+                    .expect("SIGTERM handler installation");
+            tokio::select! {
+                _ = tokio::signal::ctrl_c() => {},
+                _ = terminate.recv() => {},
+            }
         })
         .await?;
     shutdown_driver.close().await;

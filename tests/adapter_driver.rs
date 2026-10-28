@@ -17,6 +17,10 @@ fn config(root: &std::path::Path) -> Arc<Config> {
         ssh: "/usr/bin/ssh".into(),
         prototype_policy_mode: true,
         vm_policy: None,
+        runtime_profile: openshell_kata::config::RuntimeProfile::Local,
+        guest_image: None,
+        guest_network_cidr: None,
+        recovery_dir: None,
     })
 }
 fn sandbox(authentication: Vec<u8>) -> c::DriverSandbox {
@@ -107,16 +111,19 @@ async fn deletion_failure_keeps_record_for_retry() -> anyhow::Result<()> {
         }))
         .await;
     assert!(first.is_err());
-    let after_failure = tokio::time::timeout(std::time::Duration::from_secs(2), watch.next())
-        .await?
-        .expect("record retained")?;
-    assert!(
-        matches!(
-            after_failure.payload,
-            Some(c::watch_sandboxes_event::Payload::Sandbox(_))
-        ),
-        "failed deletion must not emit a tombstone"
-    );
+    // Observations are coalesced. A failed deletion may leave the same Failed
+    // state, so no duplicate event is required; any event must retain the sandbox.
+    if let Ok(Some(after_failure)) =
+        tokio::time::timeout(std::time::Duration::from_millis(400), watch.next()).await
+    {
+        assert!(
+            matches!(
+                after_failure?.payload,
+                Some(c::watch_sandboxes_event::Payload::Sandbox(_))
+            ),
+            "failed deletion must not emit a tombstone"
+        );
+    }
     assert!(
         driver
             .get_sandbox(Request::new(c::GetSandboxRequest {
@@ -361,5 +368,88 @@ async fn refused_create_with_noop_abort_does_not_publish_a_false_deletion() -> a
             .is_err(),
         "abort does not prove an existing runtime is absent"
     );
+    Ok(())
+}
+
+#[tokio::test]
+async fn blocked_creation_does_not_delay_another_sandbox_stop() -> anyhow::Result<()> {
+    use std::time::Duration;
+    let root = tempfile::tempdir()?;
+    let key = root.path().join("key");
+    assert!(
+        std::process::Command::new("ssh-keygen")
+            .args(["-q", "-t", "ed25519", "-N", "", "-f"])
+            .arg(&key)
+            .status()?
+            .success()
+    );
+    let route = serde_json::json!({"sandbox_id":"test-sandbox","host":"127.0.0.1","port":12345,"username":"sandbox","private_key_path":key,"known_hosts_path":root.path().join("known-hosts")}).to_string();
+    std::fs::write(
+        root.path().join("lifecycle"),
+        format!(
+            "#!/bin/sh\nif [ \"$1:$2\" = create:blocked ]; then touch '{0}/entered'; while [ ! -f '{0}/release' ]; do sleep 0.02; done; fi\nif [ \"$1\" = create ]; then printf '%s' '{1}' | sed \"s/test-sandbox/$2/\"; fi\n",
+            root.path().display(),
+            route
+        ),
+    )?;
+    std::fs::set_permissions(
+        root.path().join("lifecycle"),
+        std::fs::Permissions::from_mode(0o700),
+    )?;
+    let auth = serde_json::to_vec(
+        &serde_json::json!({"supervisor":{"gateway_token":"test-placeholder","ssh_host_private_key":std::fs::read_to_string(&key)?}}),
+    )?;
+    let driver = Driver::new(config(root.path()))?;
+    driver
+        .create_sandbox(Request::new(c::CreateSandboxRequest {
+            sandbox: Some(sandbox(auth.clone())),
+        }))
+        .await?;
+    let mut blocked = sandbox(auth);
+    blocked.id = "blocked".into();
+    let creating_driver = driver.clone();
+    let creating = tokio::spawn(async move {
+        creating_driver
+            .create_sandbox(Request::new(c::CreateSandboxRequest {
+                sandbox: Some(blocked),
+            }))
+            .await
+    });
+    tokio::time::timeout(Duration::from_secs(2), async {
+        while !root.path().join("entered").exists() {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+    })
+    .await?;
+    let stopping_driver = driver.clone();
+    let same_id = tokio::spawn(async move {
+        stopping_driver
+            .stop_sandbox(Request::new(c::StopSandboxRequest {
+                sandbox_id: "blocked".into(),
+                ..Default::default()
+            }))
+            .await
+    });
+    let other = tokio::time::timeout(
+        Duration::from_millis(300),
+        driver.stop_sandbox(Request::new(c::StopSandboxRequest {
+            sandbox_id: "test-sandbox".into(),
+            ..Default::default()
+        })),
+    )
+    .await;
+    assert!(
+        !same_id.is_finished(),
+        "same-ID operations must remain exclusive"
+    );
+    std::fs::write(root.path().join("release"), b"release")?;
+    creating.await??;
+    same_id.await??;
+    assert!(
+        other.is_ok(),
+        "another sandbox's startup blocked access cancellation"
+    );
+    other??;
+    driver.close().await;
     Ok(())
 }

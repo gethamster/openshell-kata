@@ -236,8 +236,14 @@ pub async fn serve(channel: Channel<Msg>, runtime: Arc<Runtime>) -> Result<()> {
         Ok::<_, std::io::Error>(())
     }));
     let transfer = async {
-        upload.replay_to(stdin).await?;
-        child.wait().await.context("wait for guest extraction")
+        let replay = upload.replay_to(stdin).await;
+        let status = child.wait().await.context("wait for guest extraction")?;
+        // An extractor can reject input before the pipe drains. Reap it and
+        // retain its failure status instead of replacing it with BrokenPipe.
+        if status.success() {
+            replay.context("replay validated upload")?;
+        }
+        Ok::<_, anyhow::Error>(status)
     };
     tokio::pin!(transfer);
     let result = tokio::select! {

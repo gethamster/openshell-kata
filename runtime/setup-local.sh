@@ -19,7 +19,8 @@ for script in bootstrap.sh node-prepare.sh setup-devmapper.sh; do
   limactl cp "$here/$script" "$vm:/tmp/openshell-$script"
   limactl shell "$vm" bash "/tmp/openshell-$script"
 done
-OPENSHELL_KATA_VM="$vm" "$here/prepare-enforcement-image.sh"
 (cd "$root" && tar --exclude='./target' --exclude='./.git' --exclude='./.local' --exclude='./evidence' --exclude='./runtime/.cache' -czf "$cache/node-source.tar.gz" .)
 limactl cp "$cache/node-source.tar.gz" "$vm:/tmp/openshell-kata-source.tar.gz"
 limactl shell "$vm" sh -c 'mkdir -p "$HOME/openshell-kata-build"; tar -xzf /tmp/openshell-kata-source.tar.gz -C "$HOME/openshell-kata-build"; cd "$HOME/openshell-kata-build"; CARGO_INCREMENTAL=0 "$HOME/.cargo/bin/cargo" build --release --bin kata-runtime --bin kata-network -j 2; sudo install -D -m 0755 target/release/kata-runtime /opt/openshell-kata/kata-runtime; sudo install -D -m 0755 target/release/kata-network /opt/openshell-kata/kata-network'
+limactl shell "$vm" sh -c 'cd "$HOME/openshell-kata-build"; "$HOME/.cargo/bin/rustup" target add aarch64-unknown-linux-musl; CC_aarch64_unknown_linux_musl=musl-gcc CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER=musl-gcc CARGO_INCREMENTAL=0 "$HOME/.cargo/bin/cargo" build --release --locked --target aarch64-unknown-linux-musl --bin kata-workspace -j 2; sudo install -D -m 0755 target/aarch64-unknown-linux-musl/release/kata-workspace /opt/openshell-kata/kata-workspace'
+OPENSHELL_KATA_VM="$vm" "$here/prepare-enforcement-image.sh"

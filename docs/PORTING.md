@@ -49,17 +49,24 @@ Landlock, process-identity and executable-specific policies are rejected because
 guest-root Docker can defeat those controls. Readiness requires launch-bound
 host enforcement evidence; passing admission alone does not establish isolation.
 The older `--prototype-policy-mode` remains restricted to a TLS loopback gateway
-and makes no enforcement guarantee. Only the fixed `docker:29-dind` runtime is
-supported; caller environment, resource overrides, custom runtime selections,
-provider credentials and unsupported inspection requests remain rejected.
+and makes no enforcement guarantee. The default local image remains the fixed
+`docker:29-dind` profile. An explicit immutable operator image is admitted only
+when it matches the actual retained containerd image and supported resource
+profile; callers cannot choose arbitrary images or resources. Provider
+credentials and unsupported inspection requests remain rejected.
 
-The adapter currently keeps its registry in memory. Process restart requires
-explicit guest cleanup/recreation. The canonical main command is noninteractive;
+The local profile keeps its adapter registry in memory and requires explicit
+guest cleanup/recreation after process restart. The Kubernetes profile has a
+bounded credential-free recovery registry: restart stops retained guests and
+requires fresh authenticated Start and proof before Ready. See `HOSTED.md`.
+The canonical main command is noninteractive;
 PTY emulation, `--no-login-shell`, main-process exit reconciliation and memory
 suspension are not implemented. The supervisor contract is internal to
 OpenShell, so version compatibility is pinned rather than assumed. Launch-token
-refresh and control-session reconnection are not implemented; live experiments
-must finish within the configured token lifetime or recreate the sandbox.
+renewal occurs after authenticated supervisor connection and before Ready, then
+every five minutes. A read/write gate serializes relay authentication against
+consumption and replacement of the old token. Control-session reconnection is
+still unsupported and fails closed.
 
 ## Test mapping
 
@@ -131,3 +138,25 @@ that do not download images.
 Run `kata-dev` from the checkout root, or pass global `--root /absolute/checkout`.
 The tool resolves that directory at runtime, so distributed binaries do not depend
 on a build machine's source path.
+
+## OpenShell 0.1.6 shell startup contract
+
+The pinned gateway detects `no_login_shell` support through the private SSH
+server's `SSH-2.0-OpenShell_` identification prefix, then sends
+`OPENSHELL_NO_LOGIN_SHELL=1` as channel metadata before exec. This is separate
+from `SupervisorHello`; see the pinned
+[gateway implementation](https://github.com/NVIDIA/OpenShell/blob/v0.1.6/crates/openshell-server/src/grpc/sandbox.rs#L3314)
+and [supervisor environment handling](https://github.com/NVIDIA/OpenShell/blob/v0.1.6/crates/openshell-supervisor-process/src/ssh.rs#L898).
+
+The adapter identifies as `OpenShell_Kata_<adapter-version>` and implements that
+metadata per channel. Ordinary exec uses Bash as a login shell; opting out uses
+`--noprofile --norc` and clears the `BASH_ENV` and `ENV` startup hooks. The complete
+gateway command remains one shell-quoted `-c` argument. Arbitrary SSH environment
+requests are rejected, and channel metadata is removed on dispatch or close.
+Validated archive transfer and main-process attachment retain their dedicated
+protocol paths. The guest image must contain Bash and `env`, as both supplied
+image recipes do.
+
+The real SSH regressions in `tests/support/ssh_login_cases.rs` cover the banner,
+startup-hook avoidance, literal command arguments, independent channel settings,
+and rejection of arbitrary environment injection.

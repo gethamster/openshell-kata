@@ -142,7 +142,13 @@ impl StateDirectory {
             file.write_all(&bytes)?;
             file.sync_all()?;
             directory.rename(&temporary_name, &directory, METADATA_NAME)?;
-            directory.try_clone()?.into_std_file().sync_all()?;
+            // Linux capability directories can be O_PATH handles. Open a
+            // readable handle through the same capability for durable sync.
+            directory
+                .open(".")
+                .context("opening sandbox directory for sync")?
+                .sync_all()
+                .context("syncing sandbox directory")?;
             Ok(())
         })();
         if result.is_err() {

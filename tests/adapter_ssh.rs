@@ -9,7 +9,9 @@ use openshell_kata::{
 use russh::{ChannelMsg, client};
 use std::{os::unix::fs::PermissionsExt, sync::Arc, time::Duration};
 
-struct Client;
+struct Client {
+    banner: Arc<std::sync::Mutex<Vec<u8>>>,
+}
 fn upload_tar(body: &[u8], path: &str) -> anyhow::Result<Vec<u8>> {
     upload_tar_kind(body, path, tar::EntryType::Regular)
 }
@@ -29,6 +31,15 @@ fn upload_tar_kind(body: &[u8], path: &str, kind: tar::EntryType) -> anyhow::Res
 }
 impl client::Handler for Client {
     type Error = anyhow::Error;
+    async fn kex_done(
+        &mut self,
+        _: Option<&[u8]>,
+        _: &russh::Names,
+        session: &mut client::Session,
+    ) -> anyhow::Result<()> {
+        *self.banner.lock().expect("fixture banner") = session.remote_sshid().to_vec();
+        Ok(())
+    }
     async fn check_server_key(
         &mut self,
         _: &russh::keys::PublicKeyOrCertificate,
@@ -42,6 +53,7 @@ struct Fixture {
     runtime: Arc<Runtime>,
     listener: tokio::task::JoinHandle<()>,
     client: client::Handle<Client>,
+    banner: Arc<std::sync::Mutex<Vec<u8>>>,
 }
 impl Fixture {
     async fn new() -> anyhow::Result<Self> {
@@ -100,6 +112,20 @@ impl Fixture {
                 quote(&safe.to_string_lossy())
             ),
         )?;
+        let original = std::fs::read_to_string(&executable)?;
+        let prelude = format!(
+            "#!/bin/sh\nfor argument do command=$argument; done\nprintf '%s\\n' \"$command\" >> {}\ncase \"$command\" in\n\"exec /usr/bin/env -u BASH_ENV -u ENV /bin/bash --noprofile --norc\"*) BASH_ENV={} exec /bin/sh -c \"$command\";;\n\"exec /bin/bash -l -c '\"*) command=${{command#\"exec /bin/bash -l -c '\"}}; command=${{command%\"'\"}};;\nesac\n",
+            quote(&files.path().join("shell-commands").to_string_lossy()),
+            quote(&files.path().join("startup-profile").to_string_lossy())
+        );
+        std::fs::write(
+            &executable,
+            original.replacen(
+                "#!/bin/sh\nfor argument do command=$argument; done\n",
+                &prelude,
+                1,
+            ),
+        )?;
         std::fs::set_permissions(&executable, std::fs::Permissions::from_mode(0o700))?;
         let config = Arc::new(Config {
             socket: files.path().join("driver.sock"),
@@ -110,6 +136,10 @@ impl Fixture {
             ssh: executable,
             prototype_policy_mode: true,
             vm_policy: None,
+            runtime_profile: openshell_kata::config::RuntimeProfile::Local,
+            guest_image: None,
+            guest_network_cidr: None,
+            recovery_dir: None,
         });
         let guest = Guest {
             sandbox_id: "test-id".into(),
@@ -119,6 +149,7 @@ impl Fixture {
             private_key_path: key.clone(),
             known_hosts_path: files.path().join("unused-hosts"),
             enforcement: None,
+            runtime_identity: None,
         };
         let host_key = std::fs::read_to_string(key)?;
         let authentication = serde_json::to_vec(
@@ -140,8 +171,15 @@ impl Fixture {
         runtime.phase.send_replace(phase);
         let (socket, listener) = ssh::listen(runtime.clone(), &host_key).await?;
         let stream = tokio::net::UnixStream::connect(socket.path().join("ssh.sock")).await?;
-        let mut client =
-            client::connect_stream(Arc::new(client::Config::default()), stream, Client).await?;
+        let banner = Arc::new(std::sync::Mutex::new(Vec::new()));
+        let mut client = client::connect_stream(
+            Arc::new(client::Config::default()),
+            stream,
+            Client {
+                banner: banner.clone(),
+            },
+        )
+        .await?;
         anyhow::ensure!(
             client.authenticate_none(user).await?.success(),
             "fixture authentication failed"
@@ -152,6 +190,7 @@ impl Fixture {
             runtime,
             listener,
             client,
+            banner,
         })
     }
     async fn close(mut self) {
@@ -254,6 +293,15 @@ async fn invalid_upload_plan_closes_channel_without_waiting_for_eof() -> anyhow:
 
 #[tokio::test]
 async fn failed_extractor_reports_failure_after_archive_validation() -> anyhow::Result<()> {
+    assert_extractor_failure_without_final_ack(b"source").await
+}
+
+#[tokio::test]
+async fn early_extractor_failure_preserves_status_without_a_final_ack() -> anyhow::Result<()> {
+    assert_extractor_failure_without_final_ack(&vec![0x71; 2 * 1024 * 1024]).await
+}
+
+async fn assert_extractor_failure_without_final_ack(body: &[u8]) -> anyhow::Result<()> {
     let fixture = Fixture::new().await?;
     let mut channel = fixture.client.channel_open_session().await?;
     channel
@@ -262,17 +310,29 @@ async fn failed_extractor_reports_failure_after_archive_validation() -> anyhow::
     channel
         .data(&b"{\"destination_directory\":\"/sandbox/failure\"}\n"[..])
         .await?;
-    channel
-        .data(upload_tar(b"source", "file")?.as_slice())
-        .await?;
+    let bytes = upload_tar(body, "file")?;
+    channel.data(bytes.as_slice()).await?;
     channel.eof().await?;
     let mut exit = None;
+    let mut errors = Vec::new();
+    let mut acknowledgments = Vec::new();
     while let Some(message) = tokio::time::timeout(Duration::from_secs(5), channel.wait()).await? {
-        if let ChannelMsg::ExitStatus { exit_status } = message {
-            exit = Some(exit_status);
+        match message {
+            ChannelMsg::ExitStatus { exit_status } => exit = Some(exit_status),
+            ChannelMsg::ExtendedData { data, .. } => errors.extend_from_slice(&data),
+            ChannelMsg::Data { data } => acknowledgments.extend_from_slice(&data),
+            _ => {}
         }
     }
-    assert_eq!(exit, Some(23));
+    assert_eq!(exit, Some(23), "{}", String::from_utf8_lossy(&errors));
+    assert!(
+        acknowledgments
+            .as_chunks::<8>()
+            .0
+            .iter()
+            .all(|value| { u64::from_be_bytes(*value) != bytes.len() as u64 }),
+        "failed extraction must not acknowledge the final archive total"
+    );
     fixture.close().await;
     Ok(())
 }
@@ -647,3 +707,6 @@ async fn hardened_runtime_rejects_exec_until_ready() -> anyhow::Result<()> {
     fixture.close().await;
     Ok(())
 }
+
+#[path = "support/ssh_login_cases.rs"]
+mod ssh_login_cases;

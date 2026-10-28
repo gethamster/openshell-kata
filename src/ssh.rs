@@ -1,4 +1,5 @@
 use crate::{
+    guest::ShellMode,
     supervisor::{Output, Runtime},
     upload,
 };
@@ -30,6 +31,10 @@ pub async fn listen(
         russh::keys::decode_secret_key(host_key, None).context("invalid gateway SSH host key")?;
     let config = Arc::new(server::Config {
         keys: vec![key],
+        // The pinned gateway gates OPENSHELL_NO_LOGIN_SHELL on this prefix.
+        server_id: russh::SshId::Standard(
+            format!("SSH-2.0-OpenShell_Kata_{}", env!("CARGO_PKG_VERSION")).into(),
+        ),
         inactivity_timeout: None,
         ..Default::default()
     });
@@ -57,9 +62,13 @@ pub async fn listen(
     Ok((directory, task))
 }
 
+struct SessionChannel {
+    channel: Channel<Msg>,
+    shell_mode: ShellMode,
+}
 struct Handler {
     runtime: Arc<Runtime>,
-    channels: HashMap<ChannelId, Channel<Msg>>,
+    channels: HashMap<ChannelId, SessionChannel>,
 }
 impl Handler {
     fn dispatch(
@@ -68,7 +77,7 @@ impl Handler {
         operation: Operation,
         session: &mut Session,
     ) -> Result<()> {
-        if self.runtime.vm_policy.is_some()
+        if self.runtime.is_enforced()
             && *self.runtime.phase.borrow() != crate::supervisor::Phase::Ready
         {
             session.channel_failure(id)?;
@@ -78,9 +87,11 @@ impl Handler {
             session.channel_failure(id)?;
             return Ok(());
         };
-        let Some(channel) = self.channels.remove(&id) else {
+        let Some(state) = self.channels.remove(&id) else {
             bail!("SSH channel was not opened");
         };
+        let channel = state.channel;
+        let shell_mode = state.shell_mode;
         session.channel_success(id)?;
         let handle = session.handle();
         let runtime = self.runtime.clone();
@@ -90,11 +101,22 @@ impl Handler {
                 Operation::Exec(command) if crate::download::is_archive_command(&command) => {
                     crate::download::serve(channel, runtime, &command).await
                 }
-                Operation::Exec(command) => match runtime.guest.exec(&runtime.config, &command) {
-                    Ok(child) => bridge(channel, child, runtime).await,
-                    Err(error) => Err(error),
-                },
-                Operation::Sftp if runtime.vm_policy.is_some() => Err(anyhow::anyhow!(
+                Operation::Exec(command) => {
+                    match runtime
+                        .guest
+                        .exec_shell(&runtime.config, Some(&command), shell_mode)
+                    {
+                        Ok(child) => bridge(channel, child, runtime).await,
+                        Err(error) => Err(error),
+                    }
+                }
+                Operation::Shell => {
+                    match runtime.guest.exec_shell(&runtime.config, None, shell_mode) {
+                        Ok(child) => bridge(channel, child, runtime).await,
+                        Err(error) => Err(error),
+                    }
+                }
+                Operation::Sftp if runtime.is_enforced() => Err(anyhow::anyhow!(
                     "SFTP is unsupported by the enforced transfer profile; use OpenShell upload/download"
                 )),
                 Operation::Sftp => match runtime.guest.sftp(&runtime.config) {
@@ -119,6 +141,7 @@ impl Handler {
 }
 enum Operation {
     Exec(String),
+    Shell,
     Sftp,
     Upload,
     Main,
@@ -149,8 +172,34 @@ impl server::Handler for Handler {
                 .reject(russh::ChannelOpenFailure::ResourceShortage)
                 .await;
         } else {
-            self.channels.insert(channel.id(), channel);
+            self.channels.insert(
+                channel.id(),
+                SessionChannel {
+                    channel,
+                    shell_mode: ShellMode::Login,
+                },
+            );
             reply.accept().await;
+        }
+        Ok(())
+    }
+    async fn env_request(
+        &mut self,
+        channel: ChannelId,
+        name: &str,
+        value: &str,
+        session: &mut Session,
+    ) -> Result<()> {
+        let mode = match (name, value) {
+            ("OPENSHELL_NO_LOGIN_SHELL", "1") => Some(ShellMode::NonLogin),
+            ("OPENSHELL_NO_LOGIN_SHELL", "0") => Some(ShellMode::Login),
+            _ => None,
+        };
+        if let (Some(mode), Some(state)) = (mode, self.channels.get_mut(&channel)) {
+            state.shell_mode = mode;
+            session.channel_success(channel)?;
+        } else {
+            session.channel_failure(channel)?;
         }
         Ok(())
     }
@@ -171,7 +220,7 @@ impl server::Handler for Handler {
         )
     }
     async fn shell_request(&mut self, channel: ChannelId, session: &mut Session) -> Result<()> {
-        self.dispatch(channel, Operation::Exec("sh -l".to_owned()), session)
+        self.dispatch(channel, Operation::Shell, session)
     }
     async fn subsystem_request(
         &mut self,

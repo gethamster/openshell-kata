@@ -22,6 +22,9 @@ struct Arguments {
     state_dir: Option<PathBuf>,
     #[arg(long, default_value = "/opt/openshell-kata/kata-runtime")]
     node_binary: PathBuf,
+    /// Operator-selected immutable guest image; never a workload override.
+    #[arg(long)]
+    image: Option<String>,
 }
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -71,6 +74,9 @@ async fn main() -> Result<()> {
         vm: args.vm,
         state_dir: root,
         node_binary: args.node_binary,
+        image: args
+            .image
+            .or_else(|| std::env::var("OPENSHELL_KATA_GUEST_IMAGE").ok()),
     };
     let action: Action = args.action.parse().context("invalid runtime action")?;
     let value = lifecycle::execute(

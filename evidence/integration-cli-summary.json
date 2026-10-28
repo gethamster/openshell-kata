@@ -1,0 +1,490 @@
+{
+  "passed": true,
+  "records": [
+    {
+      "file": "after-restart.json",
+      "sha256": "808b83478f380426f730e3da9021fc9bc14237eb9e49d62ab93e4c4f6ee9240d",
+      "command": [
+        "openshell",
+        "sandbox",
+        "exec",
+        "rust-upload-check",
+        "--no-tty",
+        "--",
+        "sh",
+        "-ec",
+        "test \"$(cat /sandbox/restart-marker)\" = '4ed7abc8-d64b-4c96-addb-6b62a39953dc'; sha256sum /sandbox/project/upload/large.bin; docker info >/dev/null"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 27.572063667,
+      "timed_out": false,
+      "stdout_sha256": "e9fa52990d0ee251e18068bcb2aa58716849a3d67ce7bed34ce3cc31c52b750e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "compose.json",
+      "sha256": "b766f16bac146c02c3f62d08214b33a2fa2969cf10c7bd55a4d263aef0cf8333",
+      "command": [
+        "openshell",
+        "sandbox",
+        "exec",
+        "rust-upload-check",
+        "--no-tty",
+        "--",
+        "sh",
+        "-ec",
+        "cd /sandbox/project/upload; docker compose up -d --build; docker compose ps; curl --noproxy '*' --fail --silent http://127.0.0.1:18080"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 82.596066125,
+      "timed_out": false,
+      "stdout_sha256": "53c2906a94ef2a133c01116288eadc3a151b59fa5d6a5c64dde95fda96cea834",
+      "stderr_sha256": "441c3b1cacc0f225866b5c9429ef7bd1329ef4c59afbdc4f4238f211f64a0e05"
+    },
+    {
+      "file": "concurrent-1.json",
+      "sha256": "decebd463b2ddf1068a499b87506a16cca8483f59ba4396338dfeedc5d5f0878",
+      "command": [
+        "openshell",
+        "sandbox",
+        "exec",
+        "rust-upload-check",
+        "--no-tty",
+        "--",
+        "sh",
+        "-ec",
+        "printf 'concurrent exec works\\n'; docker ps --format '{{.Names}}'"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.102140125,
+      "timed_out": false,
+      "stdout_sha256": "bfa78923a891b25fe52c2f1e22b51f986c35d9831543e242eee0dab604ac0293",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "concurrent-2.json",
+      "sha256": "7870b72725376efa2600018d5b75ca9766b29f79e9d3686760c54ddc226b2450",
+      "command": [
+        "openshell",
+        "sandbox",
+        "exec",
+        "rust-upload-check",
+        "--no-tty",
+        "--",
+        "sh",
+        "-ec",
+        "printf 'concurrent exec works\\n'; docker ps --format '{{.Names}}'"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.4875673329999999,
+      "timed_out": false,
+      "stdout_sha256": "bfa78923a891b25fe52c2f1e22b51f986c35d9831543e242eee0dab604ac0293",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "concurrent-3.json",
+      "sha256": "2572ede10c25773394f6b8208c5b683890cfe4b4d6704400bed84a2fcb8f4bd4",
+      "command": [
+        "openshell",
+        "sandbox",
+        "exec",
+        "rust-upload-check",
+        "--no-tty",
+        "--",
+        "sh",
+        "-ec",
+        "printf 'concurrent exec works\\n'; docker ps --format '{{.Names}}'"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.132268042,
+      "timed_out": false,
+      "stdout_sha256": "bfa78923a891b25fe52c2f1e22b51f986c35d9831543e242eee0dab604ac0293",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "create.json",
+      "sha256": "7893f101fb32adb5d65fbb72f7a68f6d020ead0539478ab0620cc4e8ccc3cf74",
+      "command": [
+        "openshell",
+        "sandbox",
+        "create",
+        "--name",
+        "rust-upload-check",
+        "--from",
+        "docker:29-dind",
+        "--detach",
+        "--no-auto-providers",
+        "--",
+        "sh",
+        "-c",
+        "sleep 3600"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 37.987735459,
+      "timed_out": false,
+      "stdout_sha256": "e55dfacfd9432bf479eb532c84632fa66c1cb610b0ac508fc07b1fcf277291ea",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "delete.json",
+      "sha256": "2c8ebb035c43cfad8a23047875899ac50cd23e1ac2202b41c6fbd6f7f4650f5a",
+      "command": [
+        "openshell",
+        "sandbox",
+        "delete",
+        "rust-upload-check"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.236137625,
+      "timed_out": false,
+      "stdout_sha256": "d108443e6b92c1abc01d2e3fd363c9c7a3d86bc14b89906ed8df6878ca7d828a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "download-0.json",
+      "sha256": "fcd901de60e08cdd34e765815645457c7f986afe372a93e7e0de0b01ca09be10",
+      "command": [
+        "openshell",
+        "sandbox",
+        "download",
+        "rust-upload-check",
+        "/sandbox/project/upload",
+        "${REPOSITORY}/.local/downloads/0"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.3828772919999999,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "93867953d36eca24705035e314b3a5535be862d65d8463ea0d933dcb6ce79d24"
+    },
+    {
+      "file": "download-1.json",
+      "sha256": "7c312d86812f76d8798969e74d236c4e6651248cb2b3ac748fa07682c36c77a3",
+      "command": [
+        "openshell",
+        "sandbox",
+        "download",
+        "rust-upload-check",
+        "/sandbox/project/upload",
+        "${REPOSITORY}/.local/downloads/1"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.02852,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "5de3bbe38ff9da7e9b26f2f2a866d6f5c3b40c14ebcf10f3d844d5e4f60deade"
+    },
+    {
+      "file": "download-2.json",
+      "sha256": "7fb6ce77c09db9588420fc04e0b0e03b2459a2323b80f46d14a4e827b16ed1bd",
+      "command": [
+        "openshell",
+        "sandbox",
+        "download",
+        "rust-upload-check",
+        "/sandbox/project/upload",
+        "${REPOSITORY}/.local/downloads/2"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.200665833,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "78d472a6558dc0f960e1d6fa4c8d58c112760656470688b5bc0722a770109c11"
+    },
+    {
+      "file": "download-3.json",
+      "sha256": "fcabea09c4e7ecca0e6679687cb217b7991538238c3e7e9daa8eebafb1d6571c",
+      "command": [
+        "openshell",
+        "sandbox",
+        "download",
+        "rust-upload-check",
+        "/sandbox/project/upload",
+        "${REPOSITORY}/.local/downloads/3"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.7821115,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "9cdf94234a9d69a301737081d39377b96aa7cf45edd634e173142bd09098ef2a"
+    },
+    {
+      "file": "download-restart.json",
+      "sha256": "67e2c075d6af256cf58226d1050118563db4c10a55884feabcf6d7ae0926781d",
+      "command": [
+        "openshell",
+        "sandbox",
+        "download",
+        "rust-upload-check",
+        "/sandbox/project/upload",
+        "${REPOSITORY}/.local/downloads/restart"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.6236559160000001,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "31197304b09a5636aeac17ee6c468212a9fae8e38b36944474a9c6ec6639e059"
+    },
+    {
+      "file": "executable-mode.json",
+      "sha256": "8d9c173b0f7a113663eff07f967b4d05114a50ce001de370d468e6ce018c8b47",
+      "command": [
+        "openshell",
+        "sandbox",
+        "exec",
+        "rust-upload-check",
+        "--no-tty",
+        "--",
+        "sh",
+        "-ec",
+        "/sandbox/project/upload/probe.sh"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.2264365,
+      "timed_out": false,
+      "stdout_sha256": "c20463b96f559f71af47b13f9228a50739000c826a9c6d3c18b51e11d37d464b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "fresh-restart-marker.json",
+      "sha256": "dc6c18a3ae06de3f138b891b8f0d29dfb5eb97f9d374dcfcca9bfdf3bc6e5f33",
+      "command": [
+        "openshell",
+        "sandbox",
+        "exec",
+        "rust-upload-check",
+        "--no-tty",
+        "--",
+        "sh",
+        "-ec",
+        "printf '%s' '4ed7abc8-d64b-4c96-addb-6b62a39953dc' > /sandbox/restart-marker"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.095271042,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "hashes-0.json",
+      "sha256": "aa082dbd63512a9c98c8f176a7bcd988c97e817f00c7523b3e341128f821b47c",
+      "result": {
+        "Dockerfile": "81d13e511973a915f602c9144405149b11475c87701de9324281863c50b5bcb6",
+        "binary.dat": "7daca2095d0438260fa849183dfc67faa459fdf4936e1bc91eec6b281b27e4c2",
+        "compose.yaml": "e4eeb9dc484539c2f2dd7c8307055b4dacb27b9bed5e6ef99e9aaa261d192af9",
+        "index.html": "e5e3ea1a022300cdac03783cad291eb4f6b2e7d80124759689d12e7b8fa4f7d3",
+        "large.bin": "01c65c8d6d336a8f1e9acf8bbfe807f7c1d0ec666ff41bc2db9f679849f03c03",
+        "nested/text.txt": "674ebfe34c6d39670f482736a3b4688bfa422c52e4ec2dee556d5d827ace209e",
+        "probe.sh": "49b18090d66bf0e6d46667ec6fdd75e1bfc87024215248dd127c4af9fcfc68e3"
+      }
+    },
+    {
+      "file": "hashes-1.json",
+      "sha256": "aa082dbd63512a9c98c8f176a7bcd988c97e817f00c7523b3e341128f821b47c",
+      "result": {
+        "Dockerfile": "81d13e511973a915f602c9144405149b11475c87701de9324281863c50b5bcb6",
+        "binary.dat": "7daca2095d0438260fa849183dfc67faa459fdf4936e1bc91eec6b281b27e4c2",
+        "compose.yaml": "e4eeb9dc484539c2f2dd7c8307055b4dacb27b9bed5e6ef99e9aaa261d192af9",
+        "index.html": "e5e3ea1a022300cdac03783cad291eb4f6b2e7d80124759689d12e7b8fa4f7d3",
+        "large.bin": "01c65c8d6d336a8f1e9acf8bbfe807f7c1d0ec666ff41bc2db9f679849f03c03",
+        "nested/text.txt": "674ebfe34c6d39670f482736a3b4688bfa422c52e4ec2dee556d5d827ace209e",
+        "probe.sh": "49b18090d66bf0e6d46667ec6fdd75e1bfc87024215248dd127c4af9fcfc68e3"
+      }
+    },
+    {
+      "file": "hashes-2.json",
+      "sha256": "aa082dbd63512a9c98c8f176a7bcd988c97e817f00c7523b3e341128f821b47c",
+      "result": {
+        "Dockerfile": "81d13e511973a915f602c9144405149b11475c87701de9324281863c50b5bcb6",
+        "binary.dat": "7daca2095d0438260fa849183dfc67faa459fdf4936e1bc91eec6b281b27e4c2",
+        "compose.yaml": "e4eeb9dc484539c2f2dd7c8307055b4dacb27b9bed5e6ef99e9aaa261d192af9",
+        "index.html": "e5e3ea1a022300cdac03783cad291eb4f6b2e7d80124759689d12e7b8fa4f7d3",
+        "large.bin": "01c65c8d6d336a8f1e9acf8bbfe807f7c1d0ec666ff41bc2db9f679849f03c03",
+        "nested/text.txt": "674ebfe34c6d39670f482736a3b4688bfa422c52e4ec2dee556d5d827ace209e",
+        "probe.sh": "49b18090d66bf0e6d46667ec6fdd75e1bfc87024215248dd127c4af9fcfc68e3"
+      }
+    },
+    {
+      "file": "hashes-3.json",
+      "sha256": "aa082dbd63512a9c98c8f176a7bcd988c97e817f00c7523b3e341128f821b47c",
+      "result": {
+        "Dockerfile": "81d13e511973a915f602c9144405149b11475c87701de9324281863c50b5bcb6",
+        "binary.dat": "7daca2095d0438260fa849183dfc67faa459fdf4936e1bc91eec6b281b27e4c2",
+        "compose.yaml": "e4eeb9dc484539c2f2dd7c8307055b4dacb27b9bed5e6ef99e9aaa261d192af9",
+        "index.html": "e5e3ea1a022300cdac03783cad291eb4f6b2e7d80124759689d12e7b8fa4f7d3",
+        "large.bin": "01c65c8d6d336a8f1e9acf8bbfe807f7c1d0ec666ff41bc2db9f679849f03c03",
+        "nested/text.txt": "674ebfe34c6d39670f482736a3b4688bfa422c52e4ec2dee556d5d827ace209e",
+        "probe.sh": "49b18090d66bf0e6d46667ec6fdd75e1bfc87024215248dd127c4af9fcfc68e3"
+      }
+    },
+    {
+      "file": "hashes-restart.json",
+      "sha256": "aa082dbd63512a9c98c8f176a7bcd988c97e817f00c7523b3e341128f821b47c",
+      "result": {
+        "Dockerfile": "81d13e511973a915f602c9144405149b11475c87701de9324281863c50b5bcb6",
+        "binary.dat": "7daca2095d0438260fa849183dfc67faa459fdf4936e1bc91eec6b281b27e4c2",
+        "compose.yaml": "e4eeb9dc484539c2f2dd7c8307055b4dacb27b9bed5e6ef99e9aaa261d192af9",
+        "index.html": "e5e3ea1a022300cdac03783cad291eb4f6b2e7d80124759689d12e7b8fa4f7d3",
+        "large.bin": "01c65c8d6d336a8f1e9acf8bbfe807f7c1d0ec666ff41bc2db9f679849f03c03",
+        "nested/text.txt": "674ebfe34c6d39670f482736a3b4688bfa422c52e4ec2dee556d5d827ace209e",
+        "probe.sh": "49b18090d66bf0e6d46667ec6fdd75e1bfc87024215248dd127c4af9fcfc68e3"
+      }
+    },
+    {
+      "file": "identity.json",
+      "sha256": "2fccf243c7d746018747ff86e00cfd5fafd5f2d16a2effc3f043440abe414c0b",
+      "command": [
+        "openshell",
+        "sandbox",
+        "exec",
+        "rust-upload-check",
+        "--no-tty",
+        "--",
+        "sh",
+        "-ec",
+        "id; uname -r; docker version --format '{{.Server.Version}}'"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 6.665188625,
+      "timed_out": false,
+      "stdout_sha256": "0f72d891d8c7deb15fc355e0eb59be85133cee994d89c1f64fb702ae531a3575",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "preview.json",
+      "sha256": "002caa01a9e2c0e35e08b2b5b4a09cefa3cbbbaa2f88c8fe2e5b35a469c2126d",
+      "result": {
+        "response": "HTTP/1.1 200 OK\r\nDate: Wed, 28 Oct 2026 18:01:36 GMT\r\nConnection: close\r\nContent-type: text/html\r\nAccept-Ranges: bytes\r\nLast-Modified: Thu, 01 Jan 1970 00:00:00 GMT\r\nETag: \"0-2b\"\r\nContent-Length: 43\r\n\r\nRust OpenShell + Kata + Docker Compose: OK\n",
+        "status": 200
+      }
+    },
+    {
+      "file": "protocol-fixture.json",
+      "sha256": "b51938692e7c27515f84e123355309e24c1b322548a14a41dd23e85cda78c6f9",
+      "command": [
+        "openshell",
+        "policy",
+        "set",
+        "--global",
+        "--yes",
+        "--policy",
+        "${REPOSITORY}/scripts/e2e-native-policy.yaml"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.028572542,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "77e76388655213837d2b647c8b6851cc88b1f7b010ff18d39cbe2a3f30c0d3e5"
+    },
+    {
+      "file": "runtime-deleted.json",
+      "sha256": "9ab4eadace48206666e1924d3811ebde136c5e3b24e4215c2d4d8b9276300567",
+      "result": {
+        "deleted": true,
+        "sandbox_id": "57ef1e9e-76ca-4df4-9cdc-793e3de3f322"
+      }
+    },
+    {
+      "file": "start.json",
+      "sha256": "dc3df5e92d1e7929b45e6635ab438bf4d7387aed9e4bdcc9387d83b959aa7ed8",
+      "command": [
+        "openshell",
+        "sandbox",
+        "start",
+        "rust-upload-check"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 47.32963075,
+      "timed_out": false,
+      "stdout_sha256": "d5b7b0af5683a640c0312f2e215654ea3b7e53e21db8c2919a296b6890268cd4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "stop.json",
+      "sha256": "80dacd26a1ab73f155c3e81c57f5b788f5e86dfb80a4da7bacf197bc4b6e0cc2",
+      "command": [
+        "openshell",
+        "sandbox",
+        "stop",
+        "rust-upload-check"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.851683292,
+      "timed_out": false,
+      "stdout_sha256": "bf999a6e65c0c4af962eea2ab701d3a387b1244b7380b84210951b95c4d66d63",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "upload-0.json",
+      "sha256": "f76d09e3481c00381c3e433fa5e1d777a9aca84cdbf4a041489467833a7df1a1",
+      "command": [
+        "openshell",
+        "sandbox",
+        "upload",
+        "--no-git-ignore",
+        "rust-upload-check",
+        "${REPOSITORY}/.local/fixtures/upload",
+        "/sandbox/project"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.378897667,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "185aa03fecfa2f486dbb0839593cdb0dd3f3898936b5bff65987192b1a288def"
+    },
+    {
+      "file": "upload-1.json",
+      "sha256": "d306e7c4ceff5c5ec6216ff209baae18878f73662d77433ea2ec9bfd4383de08",
+      "command": [
+        "openshell",
+        "sandbox",
+        "upload",
+        "--no-git-ignore",
+        "rust-upload-check",
+        "${REPOSITORY}/.local/fixtures/upload",
+        "/sandbox/project"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.840571292,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "185aa03fecfa2f486dbb0839593cdb0dd3f3898936b5bff65987192b1a288def"
+    },
+    {
+      "file": "upload-2.json",
+      "sha256": "acdc27a7ee984f7453eb804d3d40e26a87d2ca0a94e4cab85dc1d45fea3999a5",
+      "command": [
+        "openshell",
+        "sandbox",
+        "upload",
+        "--no-git-ignore",
+        "rust-upload-check",
+        "${REPOSITORY}/.local/fixtures/upload",
+        "/sandbox/project"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.519300917,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "185aa03fecfa2f486dbb0839593cdb0dd3f3898936b5bff65987192b1a288def"
+    },
+    {
+      "file": "upload-3.json",
+      "sha256": "60985a3b6ba4e5b4b668e7dad6f3e9b0b203c880253f78685bea76b503ae9dbb",
+      "command": [
+        "openshell",
+        "sandbox",
+        "upload",
+        "--no-git-ignore",
+        "rust-upload-check",
+        "${REPOSITORY}/.local/fixtures/upload",
+        "/sandbox/project"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.9491368329999998,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "185aa03fecfa2f486dbb0839593cdb0dd3f3898936b5bff65987192b1a288def"
+    }
+  ]
+}

@@ -34,11 +34,14 @@ fn minimal_guest_spec_exposes_no_host_files_or_devices() {
 }
 #[test]
 fn interface_names_are_bound_to_the_creation_generation() {
-    let one = Attachment::for_id("same", "nonce-one-0123456789", 24);
-    let two = Attachment::for_id("same", "nonce-two-0123456789", 24);
+    let id = uuid::Uuid::new_v4().to_string();
+    let first_nonce = uuid::Uuid::new_v4().to_string();
+    let second_nonce = uuid::Uuid::new_v4().to_string();
+    let one = Attachment::for_id(&id, &first_nonce, 24);
+    let two = Attachment::for_id(&id, &second_nonce, 24);
     assert_ne!(one.netns, two.netns);
     assert_ne!(one.host_veth, two.host_veth);
-    assert_eq!(one.owner, "nonce-one-0123456789");
+    assert_eq!(one.owner, first_nonce);
     assert!(one.host_veth.len() <= 15);
     assert!(one.guest_ip.is_private());
     assert_ne!(one.guest_ip, one.gateway_ip);
@@ -60,6 +63,7 @@ fn setup() -> (tempfile::TempDir, StateDirectory, Settings) {
         vm: "nonexistent-test-node".into(),
         state_dir: state.root().into(),
         node_binary: PathBuf::from("/does/not/exist"),
+        image: None,
     };
     (temp, state, settings)
 }
@@ -77,6 +81,7 @@ fn record(id: &str, nonce: &str, root: &std::path::Path) -> Record {
     .expect("deadline");
     Record {
         creation_nonce: nonce.into(),
+        image: "docker.io/library/openshell-kata-enforced:local".into(),
         route: Route {
             sandbox_id: id.into(),
             host: "127.0.0.1".into(),
@@ -98,63 +103,57 @@ fn record(id: &str, nonce: &str, root: &std::path::Path) -> Record {
 #[tokio::test]
 async fn mismatched_abort_never_deletes_an_existing_generation() {
     let (_temp, state, settings) = setup();
-    let id = "existing";
-    state.create(id).expect("create");
+    let id = uuid::Uuid::new_v4().to_string();
+    let original_nonce = uuid::Uuid::new_v4().to_string();
+    let other_nonce = uuid::Uuid::new_v4().to_string();
+    state.create(&id).expect("create");
     state
-        .write(id, &record(id, "original-0123456789", state.root()))
+        .write(&id, &record(&id, &original_nonce, state.root()))
         .expect("write");
-    let output = lifecycle::execute(
-        &settings,
-        Action::Abort,
-        id,
-        None,
-        Some("different-0123456789"),
-    )
-    .await
-    .expect("no-op");
+    let output = lifecycle::execute(&settings, Action::Abort, &id, None, Some(&other_nonce))
+        .await
+        .expect("no-op");
     assert_eq!(output, json!({}));
-    assert!(state.path(id).expect("path").exists());
-    let kept: Record = state.read(id).expect("original remains");
-    assert_eq!(kept.creation_nonce, "original-0123456789");
+    assert!(state.path(&id).expect("path").exists());
+    let kept: Record = state.read(&id).expect("original remains");
+    assert_eq!(kept.creation_nonce, original_nonce);
 }
 #[tokio::test]
 async fn abort_missing_state_is_a_noop_without_node_access() {
     let (_temp, _state, settings) = setup();
+    let id = uuid::Uuid::new_v4().to_string();
+    let nonce = uuid::Uuid::new_v4().to_string();
     assert_eq!(
-        lifecycle::execute(
-            &settings,
-            Action::Abort,
-            "missing",
-            None,
-            Some("nonce-0123456789abcdef")
-        )
-        .await
-        .expect("no-op"),
+        lifecycle::execute(&settings, Action::Abort, &id, None, Some(&nonce))
+            .await
+            .expect("no-op"),
         json!({})
     );
 }
 #[tokio::test]
 async fn preexisting_state_refuses_create_before_contacting_the_node() {
     let (temp, state, settings) = setup();
-    state.create("existing").expect("create");
+    let id = uuid::Uuid::new_v4().to_string();
+    let nonce = uuid::Uuid::new_v4().to_string();
+    state.create(&id).expect("create");
     let path = temp.path().join("policy.json");
     std::fs::write(&path, serde_json::to_vec(&policy()).expect("policy bytes")).expect("write");
-    let error = lifecycle::execute(
-        &settings,
-        Action::Create,
-        "existing",
-        Some(&path),
-        Some("nonce-0123456789abcdef"),
-    )
-    .await
-    .expect_err("reject");
+    let error = lifecycle::execute(&settings, Action::Create, &id, Some(&path), Some(&nonce))
+        .await
+        .expect_err("reject");
     assert!(error.to_string().contains("already exists"), "{error}");
-    assert!(state.path("existing").expect("path").exists());
+    assert!(state.path(&id).expect("path").exists());
 }
 #[tokio::test]
 async fn invalid_nonce_refuses_create_before_policy_or_node_access() {
     let (_temp, _state, settings) = setup();
-    let error = lifecycle::execute(&settings, Action::Create, "new", None, Some("bad"))
+    let id = uuid::Uuid::new_v4().to_string();
+    let invalid_nonce = uuid::Uuid::new_v4()
+        .to_string()
+        .chars()
+        .take(8)
+        .collect::<String>();
+    let error = lifecycle::execute(&settings, Action::Create, &id, None, Some(&invalid_nonce))
         .await
         .expect_err("reject");
     assert!(error.to_string().contains("nonce"));
