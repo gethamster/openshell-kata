@@ -20,6 +20,10 @@ enum Operation {
     },
     Prepare {
         #[arg(long)]
+        state_dir: Option<PathBuf>,
+        #[arg(long)]
+        driver_dir: Option<PathBuf>,
+        #[arg(long)]
         registry_dir: PathBuf,
         #[arg(long)]
         system_ca: PathBuf,
@@ -45,11 +49,15 @@ async fn execute(cli: Cli) -> Result<()> {
     match cli.operation {
         Operation::SocketReady { socket } => operator::socket_ready(&socket).await,
         Operation::Prepare {
+            state_dir,
+            driver_dir,
             registry_dir,
             system_ca,
             platform_ca,
             output,
         } => operator::prepare(&Prepare {
+            state_dir,
+            driver_dir,
             registry_dir,
             system_ca,
             platform_ca,

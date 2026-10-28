@@ -59,7 +59,7 @@ async fn default_local_lifecycle_does_not_export_an_empty_image_override() -> an
     cfg.guest_network_cidr = None;
     script(
         &cfg.lifecycle,
-        "[ \"${OPENSHELL_KATA_GUEST_IMAGE+x}\" != x ] || exit 29; printf '{}'",
+        "[ \"$#\" -eq 2 ] || exit 30; [ \"${OPENSHELL_KATA_GUEST_IMAGE+x}\" != x ] || exit 29; printf '{}'",
     )?;
     guest::lifecycle(&cfg, "delete", &SandboxId::parse("fixture")?).await?;
     Ok(())
@@ -198,5 +198,100 @@ async fn ssh_subprocesses_pin_identity_and_confine_preview_destinations() -> any
     assert!(guest.exec(&missing, "anything").is_err());
     assert!(guest.sftp(&missing).is_err());
     assert!(guest.tcp(&missing, "localhost", 80).is_err());
+    Ok(())
+}
+
+#[tokio::test]
+async fn protected_lifecycle_requires_a_challenge_before_backend_effects() -> anyhow::Result<()> {
+    let root = tempfile::tempdir()?;
+    let cfg = config(root.path(), RuntimeProfile::Local);
+    let marker = root.path().join("backend-entered");
+    script(
+        &cfg.lifecycle,
+        &format!("touch '{}'; printf '{{}}'", marker.display()),
+    )?;
+    let policy: openshell_kata::profile::VmPolicy =
+        serde_json::from_str(include_str!("../examples/docker-vm.json"))?;
+    let invalid_nonce = uuid::Uuid::new_v4()
+        .to_string()
+        .chars()
+        .take(8)
+        .collect::<String>();
+    for nonce in [None, Some(invalid_nonce.as_str())] {
+        assert!(
+            guest::lifecycle_with_policy(
+                &cfg,
+                "verify",
+                &SandboxId::parse("fixture")?,
+                Some(&policy),
+                nonce
+            )
+            .await
+            .is_err()
+        );
+    }
+    assert!(
+        !marker.exists(),
+        "missing proof challenge must fail before launching the backend"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn protected_lifecycle_preserves_the_exact_fresh_challenge() -> anyhow::Result<()> {
+    use openshell_kata::profile::{EnforcementEvidence, VmPolicy};
+    let root = tempfile::tempdir()?;
+    let cfg = config(root.path(), RuntimeProfile::Local);
+    let id = SandboxId::parse("fixture")?;
+    let nonce = uuid::Uuid::new_v4().to_string();
+    let wrong_nonce = uuid::Uuid::new_v4().to_string();
+    let policy: VmPolicy = serde_json::from_str(include_str!("../examples/docker-vm.json"))?;
+    let evidence = EnforcementEvidence {
+        sandbox_id: id.to_string(),
+        policy_sha256: policy.digest()?,
+        nonce: nonce.clone(),
+        runtime: "kata-runtime-rs".into(),
+        hypervisor_pid: 1,
+        resources: policy.resources,
+        storage_id: "private-block".into(),
+        network_fence: "checked-rules".into(),
+        watchdog_pid: 2,
+        expires_at_unix_secs: std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)?
+            .as_secs()
+            + 1800,
+    };
+    let mut output = serde_json::json!({"sandbox_id":id.to_string(),"host":"127.0.0.1","port":2222,"username":"sandbox","private_key_path":root.path().join("key"),"known_hosts_path":root.path().join("known"),"enforcement":evidence});
+    let route = root.path().join("route.json");
+    let arguments = root.path().join("arguments");
+    fs::write(&route, serde_json::to_vec(&output)?)?;
+    script(
+        &cfg.lifecycle,
+        &format!(
+            "printf '%s\\n' \"$@\" > '{}'; cat '{}'",
+            arguments.display(),
+            route.display()
+        ),
+    )?;
+    guest::lifecycle_with_policy(&cfg, "verify", &id, Some(&policy), Some(&nonce))
+        .await?
+        .expect("fresh route");
+    let arguments = fs::read_to_string(arguments)?;
+    assert!(
+        arguments
+            .lines()
+            .collect::<Vec<_>>()
+            .windows(2)
+            .any(|pair| pair == ["--proof-nonce", nonce.as_str()]),
+        "backend must receive the generated challenge unchanged"
+    );
+    output["enforcement"]["nonce"] = serde_json::json!(wrong_nonce);
+    fs::write(&route, serde_json::to_vec(&output)?)?;
+    assert!(
+        guest::lifecycle_with_policy(&cfg, "verify", &id, Some(&policy), Some(&nonce))
+            .await
+            .is_err(),
+        "a different proof challenge cannot satisfy this request"
+    );
     Ok(())
 }

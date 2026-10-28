@@ -32,6 +32,8 @@ fn fixture(root: &Path) -> Prepare {
     fs::write(root.join("system-ca"), b"PUBLIC SYSTEM CA").expect("system CA");
     fs::write(root.join("platform-ca"), b"PUBLIC PLATFORM CA").expect("platform CA");
     Prepare {
+        state_dir: None,
+        driver_dir: None,
         registry_dir: registry,
         system_ca: root.join("system-ca"),
         platform_ca: root.join("platform-ca"),

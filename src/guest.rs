@@ -144,7 +144,7 @@ impl Guest {
 }
 
 pub async fn lifecycle(config: &Config, action: &str, id: &SandboxId) -> Result<Option<Guest>> {
-    lifecycle_with_policy(config, action, id, None, "").await
+    lifecycle_with_policy(config, action, id, None, None).await
 }
 
 pub async fn lifecycle_with_policy(
@@ -152,7 +152,7 @@ pub async fn lifecycle_with_policy(
     action: &str,
     id: &SandboxId,
     policy: Option<&crate::profile::VmPolicy>,
-    nonce: &str,
+    nonce: Option<&str>,
 ) -> Result<Option<Guest>> {
     lifecycle_for_policy(config, action, id, None, policy, nonce).await
 }
@@ -163,7 +163,7 @@ pub async fn lifecycle_for(
     id: &SandboxId,
     workspace: Option<&str>,
 ) -> Result<Option<Guest>> {
-    lifecycle_for_policy(config, action, id, workspace, None, "").await
+    lifecycle_for_policy(config, action, id, workspace, None, None).await
 }
 
 pub async fn lifecycle_for_policy(
@@ -172,8 +172,14 @@ pub async fn lifecycle_for_policy(
     id: &SandboxId,
     workspace: Option<&str>,
     policy: Option<&crate::profile::VmPolicy>,
-    nonce: &str,
+    nonce: Option<&str>,
 ) -> Result<Option<Guest>> {
+    if policy.is_some() && nonce.is_none() {
+        bail!("runtime enforcement requires a proof challenge");
+    }
+    if let Some(nonce) = nonce {
+        crate::runtime::model::validate_nonce(nonce)?;
+    }
     let policy_file = policy
         .map(|policy| -> Result<_> {
             let mut file = tempfile::NamedTempFile::new()?;
@@ -206,7 +212,7 @@ pub async fn lifecycle_for_policy(
     if let Some(file) = &policy_file {
         command.arg("--policy-file").arg(file.path());
     }
-    if !nonce.is_empty() {
+    if let Some(nonce) = nonce {
         command.arg("--proof-nonce").arg(nonce);
     }
     let timeout = Duration::from_secs(match (config.runtime_profile, action) {
@@ -248,7 +254,11 @@ pub async fn lifecycle_for_policy(
                 .enforcement
                 .as_ref()
                 .context("runtime enforcement evidence missing")?
-                .validate(id.as_str(), nonce, policy)?;
+                .validate(
+                    id.as_str(),
+                    nonce.context("runtime enforcement requires a proof challenge")?,
+                    policy,
+                )?;
         }
         Ok(Some(guest))
     } else {

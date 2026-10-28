@@ -566,9 +566,11 @@ fn lease_deadline_rounds_start_up_and_never_extends_original_expiry() {
 }
 #[test]
 fn lease_patch_tests_uid_resource_version_and_nonce_and_only_decreases() {
-    let pod = json!({"metadata":{"uid":"uid","resourceVersion":"123","annotations":{"openshell-kata.io/launch-nonce":"nonce"}},
+    let nonce = uuid::Uuid::new_v4().to_string();
+    let wrong_nonce = uuid::Uuid::new_v4().to_string();
+    let pod = json!({"metadata":{"uid":"uid","resourceVersion":"123","annotations":{"openshell-kata.io/launch-nonce":nonce}},
         "spec":{"activeDeadlineSeconds":3600},"status":{"startTime":"1970-01-01T00:01:40Z"}});
-    let patch = lease::patch(&pod, "nonce", 200)
+    let patch = lease::patch(&pod, &nonce, 200)
         .expect("decrease")
         .expect("patch");
     assert_eq!(
@@ -581,7 +583,7 @@ fn lease_patch_tests_uid_resource_version_and_nonce_and_only_decreases() {
     );
     assert_eq!(
         patch[2],
-        json!({"op":"test","path":"/metadata/annotations/openshell-kata.io~1launch-nonce","value":"nonce"})
+        json!({"op":"test","path":"/metadata/annotations/openshell-kata.io~1launch-nonce","value":nonce})
     );
     assert_eq!(
         patch[3],
@@ -590,14 +592,14 @@ fn lease_patch_tests_uid_resource_version_and_nonce_and_only_decreases() {
     let mut already_shorter = pod.clone();
     already_shorter["spec"]["activeDeadlineSeconds"] = json!(50);
     assert!(
-        lease::patch(&already_shorter, "nonce", 200)
+        lease::patch(&already_shorter, &nonce, 200)
             .expect("shorter")
             .is_none()
     );
-    assert!(lease::patch(&pod, "foreign", 200).is_err());
+    assert!(lease::patch(&pod, &wrong_nonce, 200).is_err());
     let mut missing_identity = pod.clone();
     missing_identity["metadata"]["resourceVersion"] = json!(null);
-    assert!(lease::patch(&missing_identity, "nonce", 200).is_err());
+    assert!(lease::patch(&missing_identity, &nonce, 200).is_err());
 }
 #[tokio::test]
 async fn expired_or_legacy_stopped_lease_cannot_restart_and_cleanup_remains_allowed() {

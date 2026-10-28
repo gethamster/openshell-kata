@@ -50,6 +50,41 @@ pub(super) struct Output {
     name: OsString,
 }
 
+fn open_private_directory(path: &Path) -> Result<Dir> {
+    let parent = Dir::open_ambient_dir(
+        path.parent().context("private directory parent required")?,
+        ambient_authority(),
+    )?;
+    let name = path
+        .file_name()
+        .context("private directory name required")?;
+    let mut builder = DirBuilder::new();
+    builder.mode(0o700);
+    match parent.create_dir_with(name, &builder) {
+        Ok(()) => {}
+        Err(error) if error.kind() == ErrorKind::AlreadyExists => {}
+        Err(error) => return Err(error.into()),
+    }
+    let directory = parent.open_dir_nofollow(name)?;
+    let metadata = directory.open(".")?.into_std().metadata()?;
+    ensure!(
+        metadata.uid() == rustix::process::getuid().as_raw()
+            && metadata.gid() == rustix::process::getgid().as_raw()
+            && metadata.mode() & 0o077 == 0,
+        "control directory must be private and owned"
+    );
+    Ok(directory)
+}
+
+pub(super) fn private_directory(path: &Path) -> Result<Dir> {
+    let directory = open_private_directory(path)?;
+    directory
+        .open(".")?
+        .into_std()
+        .set_permissions(Permissions::from_mode(0o700))?;
+    Ok(directory)
+}
+
 impl Output {
     pub(super) fn open(path: &Path) -> Result<Self> {
         let parent_path = path.parent().context("trust output parent required")?;
@@ -57,31 +92,8 @@ impl Output {
             .file_name()
             .context("trust output filename required")?
             .to_owned();
-        let grandparent = Dir::open_ambient_dir(
-            parent_path
-                .parent()
-                .context("private trust parent required")?,
-            ambient_authority(),
-        )?;
-        let parent_name = parent_path
-            .file_name()
-            .context("private trust directory required")?;
-        let mut builder = DirBuilder::new();
-        builder.mode(0o700);
-        match grandparent.create_dir_with(parent_name, &builder) {
-            Ok(()) => {}
-            Err(error) if error.kind() == ErrorKind::AlreadyExists => {}
-            Err(error) => return Err(error.into()),
-        }
-        let directory = grandparent.open_dir_nofollow(parent_name)?;
+        let directory = open_private_directory(parent_path)?;
         let readable = directory.open(".")?.into_std();
-        let metadata = readable.metadata()?;
-        ensure!(
-            metadata.uid() == rustix::process::getuid().as_raw()
-                && metadata.gid() == rustix::process::getgid().as_raw()
-                && metadata.mode() & 0o077 == 0,
-            "trust output directory must be private and owned"
-        );
         match directory.symlink_metadata(&name) {
             Ok(metadata) => {
                 use cap_std::fs::{MetadataExt, PermissionsExt as CapPermissionsExt};

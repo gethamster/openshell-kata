@@ -74,6 +74,33 @@ The `kata-workspace` Rust helper is baked into both guest recipes at
 use. File operations retain the bounded, digest-checked streaming contract.
 The helper is an untrusted guest convenience, not the external security boundary.
 
+Trusted startup can use `kata-operator socket-ready --socket
+/run/openshell-kata/private/driver.sock`. Keep the adapter and gateway configured
+for that same private child; do not weaken the socket parent's permissions to
+accommodate a group-writable Kubernetes mount root.
+
+After quiescing the existing owner and retaining its encrypted backup, restore
+the known retained-state permissions in place with:
+
+```sh
+kata-operator prepare \
+  --state-dir /var/openshell/kata \
+  --registry-dir /var/openshell/kata/registry \
+  --driver-dir /run/openshell-kata/private \
+  --system-ca /etc/ssl/certs/ca-certificates.crt \
+  --platform-ca /etc/internal-ca/ca.crt \
+  --output /var/run/trust/private/ca-bundle.pem
+```
+
+This validates the complete bounded known inventory before changing state
+permissions, including retained lock ownership and quiescence checks. It
+preserves contents, names and inodes, restores directories to 0700/files to
+0600, and invents no metadata or lease deadlines. Unknown entries, links,
+foreign ownership and unsafe private-file permissions fail closed. Only known
+public-key files and empty locks may carry legacy other-read permission.
+Root-owned mount directories remain unchanged; driver/trust use private owned
+children. The gateway's `SSL_CERT_FILE` must select the resulting private bundle.
+
 The SRE deployment owner retains cluster installation, trusted identity/access,
 namespace admission, image promotion and live tenant qualification. The original
 hosted sibling `e2d897e` and its image receipts are separate baseline evidence.

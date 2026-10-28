@@ -257,7 +257,7 @@ impl Driver {
         })
     }
     async fn compensate_create(&self, mut sandbox: c::DriverSandbox, id: &SandboxId, nonce: &str) {
-        match guest::lifecycle_with_policy(&self.config, "abort", id, None, nonce).await {
+        match guest::lifecycle_with_policy(&self.config, "abort", id, None, Some(nonce)).await {
             // An abort may leave a pre-existing, differently owned VM intact.
             // Only an explicit, verified delete may publish an absence event.
             Ok(_) => {

@@ -46,7 +46,7 @@ impl Driver {
             .get(id.as_str())
             .cloned();
         if let Some(previous) = previous {
-            guest::lifecycle_with_policy(&self.config, "abort", &id, None, &previous.nonce)
+            guest::lifecycle_with_policy(&self.config, "abort", &id, None, Some(&previous.nonce))
                 .await
                 .map_err(internal)?;
             self.registry
@@ -75,7 +75,7 @@ impl Driver {
             &id,
             Some(&sandbox.workspace),
             policy.as_ref(),
-            &nonce,
+            Some(&nonce),
         )
         .await;
         let guest = match guest_result {
@@ -195,7 +195,7 @@ impl Driver {
                 &id,
                 Some(&retained.sandbox.workspace),
                 policy.as_ref(),
-                &nonce,
+                Some(&nonce),
             )
             .await
             .map_err(internal)?

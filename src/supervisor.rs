@@ -512,7 +512,7 @@ impl Runtime {
             action,
             &self.id,
             Some(&next),
-            &nonce,
+            Some(&nonce),
         )
         .await?
         .context("missing fresh runtime evidence")?;
