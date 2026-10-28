@@ -1,0 +1,23 @@
+[package]
+name = "openshell-kata-fence-ebpf"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+rust-version = "1.98"
+
+[[bin]]
+name = "openshell-kata-fence"
+path = "src/main.rs"
+test = false
+bench = false
+
+[dependencies]
+aya-ebpf = "0.2"
+
+[profile.release]
+codegen-units = 1
+lto = true
+panic = "abort"
+opt-level = 2
+
+[workspace]

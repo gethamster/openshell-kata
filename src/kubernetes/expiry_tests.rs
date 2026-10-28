@@ -28,6 +28,7 @@ impl Fixture {
             port: 22,
             username: "sandbox".into(),
             runtime_identity: identity.clone(),
+            broker: None,
             launch_nonce: Some(nonce.clone()),
             owns_volume_for_launch: true,
             expires_at: Some(1100),

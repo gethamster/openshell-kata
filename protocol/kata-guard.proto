@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package openshell_kata.guard.v1;
+
+// Read-only host-fence evidence. This service never executes caller commands.
+service NodeFenceProof {
+  rpc Verify(VerifyRequest) returns (VerifyResponse);
+}
+
+message VerifyRequest {
+  string pod_uid = 1;
+  string nonce = 2;
+}
+
+message VerifyResponse {
+  bytes proof_json = 1;
+}

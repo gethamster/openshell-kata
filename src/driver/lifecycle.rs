@@ -69,13 +69,15 @@ impl Driver {
             String::new(),
         ))?;
         let nonce = uuid::Uuid::new_v4().to_string();
-        let guest_result = guest::lifecycle_for_policy(
+        let network = self.hosted_network_for(&sandbox).map_err(internal)?;
+        let guest_result = guest::lifecycle_for_network(
             &self.config,
             "create",
             &id,
             Some(&sandbox.workspace),
             policy.as_ref(),
             Some(&nonce),
+            network.as_ref(),
         )
         .await;
         let guest = match guest_result {
@@ -185,17 +187,21 @@ impl Driver {
             old.close().await;
         }
         let nonce = uuid::Uuid::new_v4().to_string();
+        let network = self
+            .hosted_network_for(&retained.sandbox)
+            .map_err(internal)?;
         let result = async {
             guest::lifecycle(&self.config, "stop", &id)
                 .await
                 .map_err(internal)?;
-            let guest = guest::lifecycle_for_policy(
+            let guest = guest::lifecycle_for_network(
                 &self.config,
                 "start",
                 &id,
                 Some(&retained.sandbox.workspace),
                 policy.as_ref(),
                 Some(&nonce),
+                network.as_ref(),
             )
             .await
             .map_err(internal)?

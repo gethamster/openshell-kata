@@ -87,9 +87,14 @@ pub(super) fn require_owned(resource: &Value, name: &str) -> Result<()> {
     let expected = manifest::labels(name);
     let observed = &resource["metadata"]["labels"];
     ensure!(
-        expected
-            .as_object()
-            .is_some_and(|labels| labels.iter().all(|(k, v)| observed.get(k) == Some(v))),
+        expected.as_object().is_some_and(|labels| labels
+            .iter()
+            .filter(|(k, _)| k.as_str() != "platform.tryhamster.dev/network-profile")
+            .all(|(k, v)| observed.get(k) == Some(v)))
+            && matches!(
+                observed["platform.tryhamster.dev/network-profile"].as_str(),
+                Some("isolated" | "brokered-public-tcp-v1")
+            ),
         "existing resource belongs to another owner"
     );
     Ok(())
@@ -105,7 +110,7 @@ pub(super) fn check_namespace(observed: &Value, workspace: &str) -> Result<()> {
     Ok(())
 }
 
-fn selected(selector: &Value, labels: &Value) -> Result<bool> {
+pub(super) fn selected(selector: &Value, labels: &Value) -> Result<bool> {
     ensure!(
         selector
             .get("matchExpressions")

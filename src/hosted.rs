@@ -35,6 +35,18 @@ pub struct RuntimeProof {
     pub policy_sha256: String,
     pub expires_at_unix: u64,
     pub deadline_enforcement: String,
+    #[serde(default)]
+    pub proof_nonce: Option<String>,
+    #[serde(default)]
+    pub source_namespace_uid: Option<String>,
+    #[serde(default)]
+    pub broker_pod_uid: Option<String>,
+    #[serde(default)]
+    pub broker_ip: Option<std::net::Ipv4Addr>,
+    #[serde(default)]
+    pub broker: Option<crate::network::HostedControlResponse>,
+    #[serde(default)]
+    pub fence: Option<crate::network::hosted_fence::HostedFenceProof>,
 }
 
 /// Derive the only permitted namespace for a platform-owned workspace.
@@ -86,6 +98,32 @@ pub fn validate_image(image: &str) -> Result<()> {
 
 /// Admit only VM-wide isolation without native guest filesystem/process claims.
 pub fn validate_request(sandbox: &DriverSandbox, image: &str) -> Result<()> {
+    validate_resources(sandbox, image)?;
+    let native = sandbox
+        .spec
+        .as_ref()
+        .and_then(|spec| spec.policy.as_ref())
+        .ok_or_else(|| anyhow::anyhow!("explicit VM policy required"))?;
+    let _validated_intent = crate::policy::validate_policy(native)?;
+    Ok(())
+}
+
+/// Admit hosted TCP intent under an explicit immutable operator ceiling.
+pub fn validate_brokered_request(
+    sandbox: &DriverSandbox,
+    image: &str,
+    ceiling: &crate::network::NetworkPolicy,
+) -> Result<crate::network::NetworkPolicy> {
+    validate_resources(sandbox, image)?;
+    let native = sandbox
+        .spec
+        .as_ref()
+        .and_then(|spec| spec.policy.as_ref())
+        .ok_or_else(|| anyhow::anyhow!("explicit VM policy required"))?;
+    crate::network::compile_native(native, ceiling)
+}
+
+fn validate_resources(sandbox: &DriverSandbox, image: &str) -> Result<()> {
     namespace(&sandbox.workspace)?;
     validate_image(image)?;
     let spec = sandbox
@@ -134,11 +172,6 @@ pub fn validate_request(sandbox: &DriverSandbox, image: &str) -> Result<()> {
             "resource override differs from qualified limits"
         );
     }
-    let policy = spec
-        .policy
-        .as_ref()
-        .ok_or_else(|| anyhow::anyhow!("explicit VM policy required"))?;
-    let _validated_intent = crate::policy::validate_policy(policy)?;
     ensure!(
         template.user_namespaces.is_none(),
         "user namespace override unsupported"
@@ -153,6 +186,168 @@ pub fn validate_request(sandbox: &DriverSandbox, image: &str) -> Result<()> {
 }
 
 impl RuntimeProof {
+    /// Verify explicit hosted capability and fresh broker/fence generation evidence.
+    pub fn validate_for_profile(
+        &self,
+        sandbox: &DriverSandbox,
+        image: &str,
+        runtime_identity: &str,
+        operator_path: Option<&std::path::Path>,
+        nonce: &str,
+        expected_policy: Option<&crate::network::NetworkPolicy>,
+    ) -> Result<()> {
+        let Some(path) = operator_path else {
+            return self.validate(sandbox, image, runtime_identity);
+        };
+        let operator = crate::kubernetes::HostedNetworkConfig::load(path)?;
+        let challenge = uuid::Uuid::parse_str(nonce)?;
+        ensure!(
+            !challenge.is_nil() && challenge.to_string() == nonce,
+            "invalid runtime proof challenge"
+        );
+        let initial_ceiling =
+            validate_brokered_request(sandbox, image, &operator.operator_ceiling)?;
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)?
+            .as_secs();
+        self.validate_identity(sandbox, image, runtime_identity, now, 2)?;
+        ensure!(
+            self.network == "brokered-public-tcp-v1" && self.proof_nonce.as_deref() == Some(nonce),
+            "hosted network profile or proof challenge differs"
+        );
+        let broker = self
+            .broker
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("broker proof missing"))?;
+        let fence = self
+            .fence
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("host packet fence proof missing"))?;
+        fence.validate(now)?;
+        let source_uid = self
+            .source_namespace_uid
+            .as_deref()
+            .ok_or_else(|| anyhow::anyhow!("source namespace UID missing"))?;
+        let broker_uid = self
+            .broker_pod_uid
+            .as_deref()
+            .ok_or_else(|| anyhow::anyhow!("broker Pod UID missing"))?;
+        ensure!(
+            broker.nonce == nonce
+                && !broker.stopping
+                && broker.generation > 0
+                && uuid::Uuid::parse_str(&broker.startup_epoch).is_ok()
+                && broker.binding.workspace == sandbox.workspace
+                && broker.binding.sandbox_id == sandbox.id
+                && broker.binding.namespace_uid == source_uid
+                && broker.binding.expires_at_unix == self.expires_at_unix,
+            "broker proof belongs to another launch or namespace"
+        );
+        let expected_config = crate::network::HostedBrokerConfig {
+            version: 1,
+            operator_ceiling: operator.operator_ceiling,
+            initial_ceiling,
+            binding: broker.binding.clone(),
+            protected_hostname_suffixes: operator.protected_hostname_suffixes,
+            baseline_denied_cidrs: operator.baseline_denied_cidrs,
+            authorization_lease_secs: operator.authorization_lease_secs,
+        };
+        ensure!(
+            broker.config_sha256 == expected_config.digest()?
+                && broker.policy_sha256 == broker.policy.digest()?
+                && broker
+                    .policy
+                    .is_subset_of(&expected_config.initial_ceiling)?,
+            "broker policy or immutable ceiling differs"
+        );
+        let binding = &fence.binding;
+        ensure!(
+            binding.workspace == sandbox.workspace
+                && binding.namespace_uid == source_uid
+                && binding.sandbox_id == sandbox.id
+                && binding.pod_uid == runtime_identity
+                && binding.launch_nonce == broker.binding.launch_nonce
+                && binding.expires_at_unix == self.expires_at_unix
+                && binding.broker_pod_uid == broker_uid
+                && Some(binding.broker_ip) == self.broker_ip
+                && binding.broker_config_sha256 == broker.config_sha256,
+            "host packet fence belongs to another runtime or broker"
+        );
+        if let Some(expected) = expected_policy {
+            ensure!(
+                broker.policy.normalized()? == expected.normalized()?,
+                "broker did not enforce requested policy"
+            );
+        }
+        let startup = broker.generation == 1
+            && broker.policy.tcp_allow.is_empty()
+            && broker.authorization_expires_at_unix == 0
+            && broker.active_connections == 0
+            && expected_policy.is_none();
+        ensure!(
+            startup
+                || (broker.authorization_expires_at_unix > now
+                    && broker.authorization_expires_at_unix
+                        <= now.saturating_add(expected_config.authorization_lease_secs)
+                    && broker.authorization_expires_at_unix <= self.expires_at_unix),
+            "broker authorization has expired or exceeds its immutable lease"
+        );
+        for digest in [&broker.inventory_sha256, &broker.effective_denied_sha256] {
+            ensure!(
+                digest.len() == 64
+                    && digest
+                        .bytes()
+                        .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
+                "invalid broker inventory digest"
+            );
+        }
+        ensure!(
+            broker.inventory_generation > 0,
+            "broker inventory revision missing"
+        );
+        Ok(())
+    }
+
+    fn validate_identity(
+        &self,
+        sandbox: &DriverSandbox,
+        image: &str,
+        runtime_identity: &str,
+        now: u64,
+        version: u32,
+    ) -> Result<()> {
+        ensure!(
+            self.version == version
+                && self.sandbox_id == sandbox.id
+                && self.workspace == sandbox.workspace
+                && self.namespace == namespace(&sandbox.workspace)?
+                && self.runtime_identity == runtime_identity
+                && uuid::Uuid::parse_str(runtime_identity).is_ok(),
+            "runtime proof identity differs from sandbox generation"
+        );
+        ensure!(
+            self.expires_at_unix > now
+                && self.expires_at_unix <= now.saturating_add(86400)
+                && self.deadline_enforcement == "kubelet-active-deadline",
+            "runtime proof has no bounded independent lifetime"
+        );
+        let runtime_class = if version == 2 {
+            "kata-qemu-runtime-rs-guarded"
+        } else {
+            "kata-qemu-runtime-rs"
+        };
+        ensure!(
+            self.runtime_class == runtime_class
+                && self.image == image
+                && self.cpu == "2"
+                && self.memory == "4Gi"
+                && self.policy_sha256.len() == 64
+                && self.policy_sha256.bytes().all(|b| b.is_ascii_hexdigit()),
+            "runtime proof is missing qualified fences"
+        );
+        Ok(())
+    }
+
     /// Bind observed fences to this exact sandbox, workspace, image, and Pod generation.
     pub fn validate(
         &self,
@@ -161,6 +356,15 @@ impl RuntimeProof {
         runtime_identity: &str,
     ) -> Result<()> {
         validate_request(sandbox, image)?;
+        ensure!(
+            self.proof_nonce.is_none()
+                && self.source_namespace_uid.is_none()
+                && self.broker_pod_uid.is_none()
+                && self.broker_ip.is_none()
+                && self.broker.is_none()
+                && self.fence.is_none(),
+            "legacy isolated profile cannot carry broker authority"
+        );
         ensure!(
             self.version == 1
                 && self.sandbox_id == sandbox.id

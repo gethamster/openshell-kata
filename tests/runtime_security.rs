@@ -100,6 +100,60 @@ fn record(id: &str, nonce: &str, root: &std::path::Path) -> Record {
         cgroup_path: String::new(),
     }
 }
+
+#[tokio::test]
+async fn unusable_socket_path_is_rejected_before_node_operations_or_state_record() {
+    let temp = tempfile::tempdir().expect("private fixture");
+    let root = std::fs::canonicalize(temp.path())
+        .expect("canonical fixture")
+        .join("x".repeat(100));
+    let settings = Settings {
+        vm: "unused-test-node".into(),
+        state_dir: root.clone(),
+        node_binary: "/unused".into(),
+        image: None,
+    };
+    let id = uuid::Uuid::new_v4().to_string();
+    let policy_file = temp.path().join("policy.json");
+    std::fs::write(
+        &policy_file,
+        serde_json::to_vec(&policy()).expect("policy JSON"),
+    )
+    .expect("operator policy");
+    let nonce = uuid::Uuid::new_v4().to_string();
+    let error = lifecycle::execute(
+        &settings,
+        Action::Create,
+        &id,
+        Some(&policy_file),
+        Some(&nonce),
+    )
+    .await
+    .expect_err("unusable operator state path");
+    assert!(
+        error
+            .to_string()
+            .contains("too long for an SSH control socket"),
+        "path preflight must precede node operations: {error:#}"
+    );
+    assert!(!root.join(&id).exists(), "no guest intent may be created");
+}
+
+#[tokio::test]
+async fn missing_tunnel_cleanup_remains_available_for_an_overlong_state_path() {
+    let temp = tempfile::tempdir().expect("private fixture");
+    let root = std::fs::canonicalize(temp.path())
+        .expect("canonical fixture")
+        .join("x".repeat(100));
+    let state = StateDirectory::new(root).expect("owned state");
+    let id = uuid::Uuid::new_v4().to_string();
+    assert!(state.control_path(&id).is_err());
+    let node =
+        openshell_kata::runtime::command::Node::new("unused-test-node").expect("node identity");
+    openshell_kata::runtime::transport::close_tunnel(&node, &state, &id)
+        .await
+        .expect("absent tunnel must not block cleanup of node resources");
+}
 #[tokio::test]
 async fn mismatched_abort_never_deletes_an_existing_generation() {
     let (_temp, state, settings) = setup();

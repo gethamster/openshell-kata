@@ -82,7 +82,7 @@ impl Store {
             Err(error) => Err(error.into()),
             Ok(metadata) => {
                 ensure!(
-                    metadata.len() <= 64 * 1024,
+                    metadata.len() <= 1024 * 1024,
                     "retained runtime metadata too large"
                 );
                 let state: State = self.state.read(&name)?;

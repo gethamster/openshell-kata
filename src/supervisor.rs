@@ -204,6 +204,7 @@ pub struct Runtime {
     pub transfer_slots: Arc<tokio::sync::Semaphore>,
     pub operation_slots: Arc<tokio::sync::Semaphore>,
     operator_policy: Option<crate::profile::VmPolicy>,
+    hosted_network: Option<crate::hosted_network::RuntimeNetwork>,
     pub cancel: CancellationToken,
     pub phase: watch::Sender<Phase>,
     pub output: broadcast::Sender<Output>,
@@ -249,6 +250,17 @@ impl Runtime {
             .runtime_identity
             .clone()
             .unwrap_or_else(|| Uuid::new_v4().to_string());
+        let hosted_network = config
+            .hosted_network_config
+            .as_deref()
+            .map(|path| {
+                crate::hosted_network::RuntimeNetwork::new(
+                    path,
+                    &spec,
+                    config.guest_image.as_deref().unwrap_or(""),
+                )
+            })
+            .transpose()?;
         Ok(Arc::new(Self {
             spec,
             id,
@@ -257,6 +269,7 @@ impl Runtime {
             guest,
             vm_policy,
             operator_policy,
+            hosted_network,
             transfer_slots: Arc::new(tokio::sync::Semaphore::new(2)),
             operation_slots: Arc::new(tokio::sync::Semaphore::new(32)),
             cancel: CancellationToken::new(),
@@ -389,9 +402,11 @@ impl Runtime {
             }
         };
         let mut applied = self.vm_policy.clone();
-        self.enforce_snapshot(&snapshot, &mut applied).await?;
         self.check_providers(&mut client, &snapshot).await?;
-        if self.config.runtime_profile == RuntimeProfile::Kubernetes {
+        self.enforce_snapshot(&snapshot, &mut applied).await?;
+        if self.config.runtime_profile == RuntimeProfile::Kubernetes
+            && self.hosted_network.is_none()
+        {
             let _validated = crate::policy::validate_policy(
                 snapshot
                     .policy
@@ -450,14 +465,14 @@ impl Runtime {
                                 let mut request = self.request(s::GetSandboxConfigRequest { name:self.spec.name.clone(), ..Default::default() })?;
                                 request.set_timeout(Duration::from_secs(10));
                                 let effective = client.get_sandbox_config(request).await?.into_inner();
+                                self.check_providers(&mut client,&effective).await?;
                                 self.enforce_snapshot(&effective,&mut applied).await?;
-                                if self.config.runtime_profile == RuntimeProfile::Kubernetes {
-                                    if effective.version!=last_snapshot.version || effective.config_revision!=last_snapshot.config_revision { bail!("effective policy changed; hosted runtime must be reprovisioned"); }
-                                    let _validated = crate::policy::validate_policy(effective.policy.as_ref().context("effective hosted policy required")?)?;
-                                    crate::guest::verify_runtime(&self.config,&self.spec,&self.instance).await?;
+                                if self.config.runtime_profile == RuntimeProfile::Kubernetes && self.hosted_network.is_none() {
+                                        if effective.version!=last_snapshot.version || effective.config_revision!=last_snapshot.config_revision { bail!("effective policy changed; hosted runtime must be reprovisioned"); }
+                                        let _validated = crate::policy::validate_policy(effective.policy.as_ref().context("effective hosted policy required")?)?;
+                                        crate::guest::verify_runtime(&self.config,&self.spec,&self.instance).await?;
                                 }
                                 if effective != last_snapshot {
-                                    self.check_providers(&mut client,&effective).await?;
                                     self.report_accepted(&mut client,&effective).await?;
                                     last_snapshot = effective;
                                 }
@@ -490,6 +505,16 @@ impl Runtime {
         snapshot: &s::GetSandboxConfigResponse,
         applied: &mut Option<crate::profile::VmPolicy>,
     ) -> Result<()> {
+        if let Some(network) = &self.hosted_network {
+            let policy = network.compile(snapshot)?;
+            return crate::guest::enforce_hosted_network(
+                &self.config,
+                &self.spec,
+                &self.instance,
+                &policy,
+            )
+            .await;
+        }
         let Some(operator) = &self.operator_policy else {
             return admission::validate_snapshot(snapshot);
         };

@@ -14,6 +14,8 @@ clap = { version = "4", features = ["derive"] }
 futures = "0.3"
 flate2 = "1"
 httparse = "1"
+hickory-net = { version = "0.26.3", default-features = false, features = ["tokio"] }
+hickory-proto = { version = "0.26.3", default-features = false }
 hyper-util = { version = "0.1", features = ["tokio"] }
 if-addrs = "0.14"
 ipnet = "2"
@@ -35,6 +37,9 @@ tower = { version = "0.5", features = ["util"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1", features = ["v4"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+aya = "0.14"
 
 [build-dependencies]
 protoc-bin-vendored = "3"

@@ -4,12 +4,17 @@ WORKDIR /src
 COPY Cargo.toml Cargo.lock build.rs ./
 COPY src ./src
 COPY proto ./proto
+COPY protocol ./protocol
 RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
     --mount=type=cache,target=/src/target,sharing=locked \
-    cargo build --release --locked --bin openshell-kata --bin kata-kubernetes --bin kata-operator \
+    cargo build --release --locked --bin openshell-kata --bin kata-kubernetes --bin kata-operator --bin kata-network --bin kata-runtime-guard --bin kata-node-intent --bin kata-network-inventory \
     && install -D target/release/openshell-kata /out/openshell-kata \
     && install -D target/release/kata-kubernetes /out/kata-kubernetes \
-    && install -D target/release/kata-operator /out/kata-operator
+    && install -D target/release/kata-operator /out/kata-operator \
+    && install -D target/release/kata-network /out/kata-network \
+    && install -D target/release/kata-runtime-guard /out/kata-runtime-guard \
+    && install -D target/release/kata-node-intent /out/kata-node-intent \
+    && install -D target/release/kata-network-inventory /out/kata-network-inventory
 
 FROM registry.k8s.io/kubectl@sha256:63e5e76b746bb8b891a94968d380736c035e768dab0d56ddad1f50c750a4be39 AS kubectl
 FROM debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251

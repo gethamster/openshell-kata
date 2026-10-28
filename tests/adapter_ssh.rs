@@ -140,6 +140,7 @@ impl Fixture {
             guest_image: None,
             guest_network_cidr: None,
             recovery_dir: None,
+            hosted_network_config: None,
         });
         let guest = Guest {
             sandbox_id: "test-id".into(),

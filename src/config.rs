@@ -69,9 +69,18 @@ pub struct Config {
     /// Private durable metadata directory; never stores launch credentials.
     #[arg(long)]
     pub recovery_dir: Option<PathBuf>,
+    /// Explicit operator profile for brokered hosted TCP; absent means deny-all.
+    #[arg(long)]
+    pub hosted_network_config: Option<PathBuf>,
 }
 impl Config {
     pub fn validate(&self) -> Result<()> {
+        if let Some(path) = &self.hosted_network_config {
+            if self.runtime_profile != RuntimeProfile::Kubernetes || !path.is_absolute() {
+                bail!("hosted network configuration requires Kubernetes and an absolute path");
+            }
+            crate::kubernetes::HostedNetworkConfig::load(path)?;
+        }
         if let Some(path) = &self.vm_policy {
             if !path.is_absolute()
                 || self.prototype_policy_mode
@@ -144,7 +153,20 @@ impl Config {
                 crate::admission::validate_request(sandbox, self.prototype_policy_mode)
             }
             RuntimeProfile::Kubernetes => {
-                crate::hosted::validate_request(sandbox, self.guest_image.as_deref().unwrap_or(""))
+                if let Some(path) = &self.hosted_network_config {
+                    let operator = crate::kubernetes::HostedNetworkConfig::load(path)?;
+                    crate::hosted::validate_brokered_request(
+                        sandbox,
+                        self.guest_image.as_deref().unwrap_or(""),
+                        &operator.operator_ceiling,
+                    )
+                    .map(|_| ())
+                } else {
+                    crate::hosted::validate_request(
+                        sandbox,
+                        self.guest_image.as_deref().unwrap_or(""),
+                    )
+                }
             }
         }
     }
