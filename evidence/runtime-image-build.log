@@ -1,0 +1,1342 @@
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.0 s	total:   0.0 B	(0.0 B/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.0 s	total:   0.0 B	(0.0 B/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	waiting    	|[32m[0m--------------------------------------|	
+   └──manifest-sha256:cb160a57fcb936668f	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.7 s	total:   0.0 B	(0.0 B/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	waiting    	|[32m[0m--------------------------------------|	
+   └──manifest-sha256:cb160a57fcb936668f	waiting    	|[32m[0m--------------------------------------|	
+      └──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.8 s	total:   0.0 B	(0.0 B/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	waiting    	|[32m[0m--------------------------------------|	
+      └──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  5.0 Ki	(2.7 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.8 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 1.9 s	total:  9.0 Ki	(4.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 2.2 s	total:  9.5 Ki	(4.3 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 2.2 s	total:  10.5 K	(4.8 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 2.2 s	total:  22.4 K	(10.3 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 2.2 s	total:  25.7 K	(11.8 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+[0m-------------------------------------|	 1.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 2.5 s	total:  1.0 Mi	(422.6 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	downloading	|[32m+++++++++++++++++[0m---------------------|	 8.0 MiB/17.8 MiB	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+[0m-------------------------------------|	 1.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 2.5 s	total:  9.0 Mi	(3.6 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+[0m-------------------------------------|	 1.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 2.8 s	total:  18.8 M	(6.8 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+[0m-------------------------------------|	 1.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	downloading	|[32m+++[0m-----------------------------------|	 1.0 MiB/9.8 MiB	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 2.8 s	total:  19.8 M	(7.1 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+++++[0m---------------------------------|	 3.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	downloading	|[32m+++[0m-----------------------------------|	 1.0 MiB/9.8 MiB	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 2.8 s	total:  21.8 M	(7.8 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+++++++++[0m-----------------------------|	 5.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	downloading	|[32m+++[0m-----------------------------------|	 1.0 MiB/9.8 MiB	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.1 s	total:  23.8 M	(7.7 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+++++++++[0m-----------------------------|	 5.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.1 s	total:  32.6 M	(10.6 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+++++++++[0m-----------------------------|	 5.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracting 	|[32m++++++++[0m------------------------------|	896.0 Ki/4.0 MiB	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.4 s	total:  33.5 M	(9.9 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+++++++++[0m-----------------------------|	 5.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracting 	|[32m++++++++[0m------------------------------|	896.0 Ki/4.0 MiB	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.4 s	total:  33.6 M	(9.9 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+++++++++[0m-----------------------------|	 5.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracting 	|[32m++++++++[0m------------------------------|	896.0 Ki/4.0 MiB	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.4 s	total:  33.6 M	(9.9 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+++++++++[0m-----------------------------|	 5.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracting 	|[32m++++++++[0m------------------------------|	896.0 Ki/4.0 MiB	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.4 s	total:  33.6 M	(9.9 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++[0m------------------------|	 8.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracting 	|[32m++++++++[0m------------------------------|	896.0 Ki/4.0 MiB	
+      ├──layer-sha256:250627d8c012ac494a	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.4 s	total:  36.6 M	(10.8 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++[0m------------------------|	 8.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracting 	|[32m++++++++[0m------------------------------|	896.0 Ki/4.0 MiB	
+      ├──layer-sha256:250627d8c012ac494a	extracting 	|[32m+++++++++++++[0m-------------------------|	 2.8 MiB/7.9 MiB	
+      ├──layer-sha256:9c6139c9221e4099dd	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.7 s	total:  39.4 M	(10.7 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++[0m------------------------|	 8.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracting 	|[32m++++++++[0m------------------------------|	896.0 Ki/4.0 MiB	
+      ├──layer-sha256:250627d8c012ac494a	extracting 	|[32m+++++++++++++[0m-------------------------|	 2.8 MiB/7.9 MiB	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.7 s	total:  39.4 M	(10.7 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++++++++[0m------------------|	11.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracting 	|[32m++++++++[0m------------------------------|	896.0 Ki/4.0 MiB	
+      ├──layer-sha256:250627d8c012ac494a	extracting 	|[32m+++++++++++++[0m-------------------------|	 2.8 MiB/7.9 MiB	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.7 s	total:  42.4 M	(11.5 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++++++++[0m------------------|	11.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracting 	|[32m++++++++[0m------------------------------|	896.0 Ki/4.0 MiB	
+      ├──layer-sha256:250627d8c012ac494a	extracting 	|[32m+++++++++++++[0m-------------------------|	 2.8 MiB/7.9 MiB	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.7 s	total:  42.4 M	(11.5 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++++++++[0m------------------|	11.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracting 	|[32m+++++++++++++[0m-------------------------|	 2.8 MiB/7.9 MiB	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 3.7 s	total:  45.6 M	(12.4 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++++++++[0m------------------|	11.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracting 	|[32m+++++++++++++[0m-------------------------|	 2.8 MiB/7.9 MiB	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.0 s	total:  45.6 M	(11.4 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++++++++[0m------------------|	11.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracting 	|[32m+++++++++++++[0m-------------------------|	 2.8 MiB/7.9 MiB	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++[0m----------------------------------|	 5.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.0 s	total:  50.6 M	(12.7 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++++++++[0m------------------|	11.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracting 	|[32m+++++++++++++[0m-------------------------|	 2.8 MiB/7.9 MiB	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++[0m----------------------------------|	 5.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.0 s	total:  50.6 M	(12.7 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++++++++[0m------------------|	11.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracting 	|[32m+++++++++++++[0m-------------------------|	 2.8 MiB/7.9 MiB	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++[0m----------------------------------|	 5.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.0 s	total:  50.6 M	(12.7 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++++++++[0m------------------|	11.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	waiting    	|[32m[0m--------------------------------------|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++[0m----------------------------------|	 5.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.0 s	total:  55.6 M	(14.0 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++++++++[0m------------------|	11.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++[0m----------------------------------|	 5.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.0 s	total:  57.3 M	(14.4 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+++++++++++++++++++++++++++[0m-----------|	15.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++[0m----------------------------------|	 5.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	waiting    	|[32m[0m--------------------------------------|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.0 s	total:  61.3 M	(15.4 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m+++++++++++++++++++++++++++[0m-----------|	15.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++[0m----------------------------------|	 5.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.3 s	total:  61.3 M	(14.3 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++++++++++++++++++++++++[0m--|	20.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++[0m----------------------------------|	 5.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.3 s	total:  66.3 M	(15.5 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	downloading	|[32m++++++++++++++++++++++++++++++++++++[0m--|	20.0 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m+++++++++++[0m---------------------------|	14.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.3 s	total:  75.3 M	(17.6 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracting 	|[32m++++++++++++++++++++++++++++++++++[0m----|	18.5 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m+++++++++++[0m---------------------------|	14.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.6 s	total:  73.8 M	(16.1 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracting 	|[32m++++++++++++++++++++++++++++++++++[0m----|	18.5 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m+++++++++++++++++++[0m-------------------|	24.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.6 s	total:  83.8 M	(18.3 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracting 	|[32m++++++++++++++++++++++++++++++++++[0m----|	18.5 MiB/20.6 MiB	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m+++++++++++++++++++[0m-------------------|	24.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.9 s	total:  83.8 M	(17.2 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m+++++++++++++++++++[0m-------------------|	24.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.9 s	total:  85.8 M	(17.6 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++++++++++++++++++++++++++++[0m--------|	37.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.9 s	total:  98.8 M	(20.2 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++++++++++++++++++++++++++++[0m--------|	37.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.9 s	total:  98.8 M	(20.2 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++++++++++++++++++++++++++++[0m--------|	37.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.9 s	total:  98.8 M	(20.2 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++++++++++++++++++++++++++++[0m--------|	37.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.9 s	total:  98.8 M	(20.2 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++++++++++++++++++++++++++++[0m--------|	37.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.9 s	total:  98.8 M	(20.2 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++++++++++++++++++++++++++++[0m--------|	37.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.9 s	total:  98.8 M	(20.2 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	downloading	|[32m++++++++++++++++++++++++++++++[0m--------|	37.0 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 4.9 s	total:  98.8 M	(20.2 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	extracting 	|[32m++++[0m----------------------------------|	 5.7 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 5.2 s	total:  67.5 M	(13.0 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	extracting 	|[32m++++++++++++++++++++++[0m----------------|	27.3 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 5.5 s	total:  89.2 M	(16.3 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	saved	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	extracting 	|[32m++++++++++++++++++++++[0m----------------|	27.3 MiB/45.8 MiB	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 5.8 s	total:  89.2 M	(15.5 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	saved	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Completed pull from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 5.8 s	total:  107.6 	(18.7 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	saved	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:dab0eedb503a4aac92	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Completed pull from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 5.8 s	total:  107.6 	(18.7 MiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	saved	
+└──index-sha256:9e79b879b177fbd72c34376a	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+   └──manifest-sha256:cb160a57fcb936668f	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──config-sha256:5cf57822adc8ffa16	complete   	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:c4c05dc2e87fbbea04	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d0a9e20a1b0f937200	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:189e736d95c8020a97	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:8e17af739909bebee4	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:45ff200f185da8a444	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:b382108e49e6222d8a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:24e03c50592fc34331	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:0b845bf8973f8a9b96	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:d3531b7a4f217bdc34	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:250627d8c012ac494a	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:9c6139c9221e4099dd	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:4f4fb700ef54461cfa	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:a96bffce6c38d552c6	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:bb02c9e184dcf891ce	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      ├──layer-sha256:dab0eedb503a4aac92	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+      └──layer-sha256:fc345138e05c4930c9	extracted  	|[32m++++++++++++++++++++++++++++++++++++++[0m|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Completed pull from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 5.8 s	total:  107.6 	(18.7 MiB/s)	
+time="2026-10-28T00:04:08-07:00" level=warning msg="cannot set cgroup manager to \"systemd\" for runtime \"io.containerd.kata.v2\""
+( 1/17) Installing readline (8.3.3-r1)
+( 2/17) Installing bash (5.3.9-r1)
+  Executing bash-5.3.9-r1.post-install
+( 3/17) Installing openssh-server-common (10.3_p1-r1)
+( 4/17) Installing openssh-server (10.3_p1-r1)
+( 5/17) Installing openssh-sftp-server (10.3_p1-r1)
+( 6/17) Installing libbz2 (1.0.8-r6)
+( 7/17) Installing libffi (3.5.2-r1)
+( 8/17) Installing gdbm (1.26-r0)
+( 9/17) Installing libgcc (15.2.0-r5)
+(10/17) Installing libstdc++ (15.2.0-r5)
+(11/17) Installing mpdecimal (4.0.1-r0)
+(12/17) Installing libpanelw (6.6_p20260516-r0)
+(13/17) Installing sqlite-libs (3.53.4-r0)
+(14/17) Installing python3 (3.14.10-r1)
+(15/17) Installing python3-pycache-pyc0 (3.14.10-r1)
+(16/17) Installing pyc (3.14.10-r1)
+(17/17) Installing python3-pyc (3.14.10-r1)
+Executing busybox-1.37.0-r31.trigger
+OK: 86.0 MiB in 70 packages
+passwd: password for sandbox changed by root
+sha256:96d04230f4202bc03aa28ada008f17a4434b4ebc653fec8a717b5828cf44c48f
+openshell-kata-seed

@@ -1,0 +1,98 @@
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling openshell-kata v0.1.0 (/Users/andrew/code/openshell-kata)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.06s
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/openshell_kata-245da35391a0acc9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/llvm-cov-target/debug/deps/openshell_kata-a89b107805d09f4e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/adapter_admission.rs (target/llvm-cov-target/debug/deps/adapter_admission-04c9c0a4a3e8f474)
+
+running 4 tests
+test gateway_snapshot_must_be_admitted_before_activation ... ok
+test unsupported_image_environment_resources_and_network_are_rejected ... ok
+test strict_mode_validates_intent_but_never_admits_without_runtime_fences ... ok
+test unqualified_policy_mode_fails_closed_before_provisioning ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/adapter_boundaries.rs (target/llvm-cov-target/debug/deps/adapter_boundaries-a7b56c93fd80ad8e)
+
+running 4 tests
+test sandbox_identifiers_cannot_change_runner_targets ... ok
+test uploads_confine_destination_to_workspace ... ok
+test guest_metadata_requires_loopback_and_safe_identity ... ok
+test local_prototype_mode_cannot_be_redirected_by_url_userinfo ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/adapter_driver.rs (target/llvm-cov-target/debug/deps/adapter_driver-faa80ecf2879c541)
+
+running 4 tests
+test unsupported_contract_major_is_rejected ... ok
+test stopping_an_unknown_registry_entry_fails_without_claiming_backend_success ... ok
+test invalid_launch_authentication_never_calls_lifecycle ... ok
+test deletion_failure_keeps_record_for_retry ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.41s
+
+     Running tests/adapter_ssh.rs (target/llvm-cov-target/debug/deps/adapter_ssh-9b0a0fa7bef03409)
+
+running 6 tests
+test invalid_upload_plan_closes_channel_without_waiting_for_eof ... ok
+test cancellation_closes_an_upload_with_an_incomplete_plan ... ok
+test gateway_relayed_system_ssh_username_does_not_select_guest_identity ... ok
+test forwards_stdout_stderr_and_exit_status ... ok
+test failed_extractor_closes_channel_while_client_keeps_input_open ... ok
+test ssh_upload_reports_final_total_for_multi_megabyte_input ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/adapter_upload.rs (target/llvm-cov-target/debug/deps/adapter_upload-a334e42ea89eb936)
+
+running 2 tests
+test closed_extractor_fails_promptly_instead_of_waiting_for_upload_eof ... ok
+test streams_large_upload_through_small_buffers_without_losing_credit ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+
+     Running tests/policy.rs (target/llvm-cov-target/debug/deps/policy-0658fe3c5149be0d)
+
+running 13 tests
+test include_workdir_is_an_unsupported_filesystem_promise ... ok
+test does_not_report_guest_landlock_as_honored ... ok
+test credential_and_l7_fields_never_get_silently_accepted_or_logged ... ok
+test absent_version_and_future_versions_are_rejected ... ok
+test all_executables_does_not_enable_unimplemented_network_enforcement ... ok
+test rejects_middleware_without_claiming_to_execute_it ... ok
+test does_not_treat_guest_binary_identity_as_authoritative ... ok
+test rejects_even_empty_network_rules_instead_of_silently_dropping_them ... ok
+test rejects_unimplemented_identity_selectors_and_invalid_identities ... ok
+test validates_every_path_before_reporting_unsupported_filesystem_semantics ... ok
+test rejects_guest_filesystem_promises_that_rootful_docker_can_bypass ... ok
+test rejects_path_ambiguity_without_returning_the_supplied_path ... ok
+test validates_intent_without_claiming_runtime_enforcement ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+warning: 10 functions have mismatched data
+Filename                      Regions    Missed Regions     Cover   Functions  Missed Functions  Executed       Lines      Missed Lines     Cover    Branches   Missed Branches     Cover
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+admission.rs                       85                 9    89.41%          11                 4    63.64%          74                 5    93.24%           0                 0         -
+config.rs                          70                 2    97.14%           9                 0   100.00%          48                 1    97.92%           0                 0         -
+driver.rs                         215                63    70.70%          45                20    55.56%         170                46    72.94%           0                 0         -
+guest.rs                          127                18    85.83%          10                 1    90.00%         113                14    87.61%           0                 0         -
+main.rs                            56                 8    85.71%           3                 0   100.00%          29                 2    93.10%           0                 0         -
+policy.rs                         224                36    83.93%          21                 1    95.24%         158                18    88.61%           0                 0         -
+ssh.rs                            399               158    60.40%          29                10    65.52%         199                61    69.35%           0                 0         -
+supervisor.rs                     561               110    80.39%          28                 2    92.86%         314                35    88.85%           0                 0         -
+upload.rs                         245                46    81.22%           9                 0   100.00%         114                 8    92.98%           0                 0         -
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                            1982               450    77.30%         165                38    76.97%        1219               190    84.41%           0                 0         -

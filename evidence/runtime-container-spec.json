@@ -1,0 +1,573 @@
+[
+    {
+        "ID": "71a9882e3bf6427d7aa733ec5d4de4097dfdf2253a75e2e479868a2080fdd352",
+        "Labels": {
+            "containerd.io/restart.explicitly-stopped": "false",
+            "io.containerd.image.config.stop-signal": "SIGTERM",
+            "nerdctl/auto-remove": "false",
+            "nerdctl/dns": "{\"DNSServers\":null,\"DNSResolvConfOptions\":null,\"DNSSearchDomains\":null}",
+            "nerdctl/extraHosts": "[]",
+            "nerdctl/host-config": "{\"BlkioWeight\":0,\"CidFile\":\"\",\"Devices\":null}",
+            "nerdctl/hostname": "71a9882e3bf6",
+            "nerdctl/ipc": "{\"mode\":\"private\"}",
+            "nerdctl/log-config": "{\"driver\":\"json-file\",\"address\":\"/run/containerd/containerd.sock\"}",
+            "nerdctl/log-uri": "binary:///usr/local/bin/nerdctl?_NERDCTL_INTERNAL_LOGGING=%2Fvar%2Flib%2Fnerdctl%2F1935db59",
+            "nerdctl/mounts.0": "{\"Type\":\"tmpfs\",\"Source\":\"tmpfs\",\"Destination\":\"/var/lib/docker\",\"Mode\":\"noexec,nosuid,nodev,rw,size=2147483648\",\"RW\":true,\"Propagation\":\"\"}",
+            "nerdctl/name": "runtime-final-check",
+            "nerdctl/namespace": "default",
+            "nerdctl/networks": "[\"okata-1\"]",
+            "nerdctl/platform": "linux/arm64/v8",
+            "nerdctl/state-dir": "/var/lib/nerdctl/1935db59/containers/default/71a9882e3bf6427d7aa733ec5d4de4097dfdf2253a75e2e479868a2080fdd352",
+            "openshell-kata.managed": "true"
+        },
+        "Image": "docker.io/library/openshell-kata-guest:local",
+        "Runtime": {
+            "Name": "io.containerd.kata.v2",
+            "Options": null
+        },
+        "SnapshotKey": "71a9882e3bf6427d7aa733ec5d4de4097dfdf2253a75e2e479868a2080fdd352",
+        "Snapshotter": "overlayfs",
+        "CreatedAt": "2026-10-28T07:07:18.075260496Z",
+        "UpdatedAt": "2026-10-28T07:07:38.10268074Z",
+        "Extensions": {},
+        "SandboxID": "",
+        "Spec": {
+            "ociVersion": "1.3.0",
+            "process": {
+                "user": {
+                    "uid": 0,
+                    "gid": 0,
+                    "additionalGids": [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        6,
+                        10,
+                        11,
+                        20,
+                        26,
+                        27
+                    ]
+                },
+                "args": [
+                    "dockerd-entrypoint.sh",
+                    "/usr/local/sbin/openshell-kata-init"
+                ],
+                "env": [
+                    "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                    "DOCKER_VERSION=29.9.2",
+                    "DOCKER_BUILDX_VERSION=0.38.1",
+                    "DOCKER_COMPOSE_VERSION=5.6.1",
+                    "DOCKER_TLS_CERTDIR=",
+                    "DIND_COMMIT=8d9e3502aba39127e4d12196dae16d306f76993d",
+                    "HOSTNAME=71a9882e3bf6"
+                ],
+                "cwd": "/",
+                "capabilities": {
+                    "bounding": [
+                        "CAP_CHOWN",
+                        "CAP_DAC_OVERRIDE",
+                        "CAP_DAC_READ_SEARCH",
+                        "CAP_FOWNER",
+                        "CAP_FSETID",
+                        "CAP_KILL",
+                        "CAP_SETGID",
+                        "CAP_SETUID",
+                        "CAP_SETPCAP",
+                        "CAP_LINUX_IMMUTABLE",
+                        "CAP_NET_BIND_SERVICE",
+                        "CAP_NET_BROADCAST",
+                        "CAP_NET_ADMIN",
+                        "CAP_NET_RAW",
+                        "CAP_IPC_LOCK",
+                        "CAP_IPC_OWNER",
+                        "CAP_SYS_MODULE",
+                        "CAP_SYS_RAWIO",
+                        "CAP_SYS_CHROOT",
+                        "CAP_SYS_PTRACE",
+                        "CAP_SYS_PACCT",
+                        "CAP_SYS_ADMIN",
+                        "CAP_SYS_BOOT",
+                        "CAP_SYS_NICE",
+                        "CAP_SYS_RESOURCE",
+                        "CAP_SYS_TIME",
+                        "CAP_SYS_TTY_CONFIG",
+                        "CAP_MKNOD",
+                        "CAP_LEASE",
+                        "CAP_AUDIT_WRITE",
+                        "CAP_AUDIT_CONTROL",
+                        "CAP_SETFCAP",
+                        "CAP_MAC_OVERRIDE",
+                        "CAP_MAC_ADMIN",
+                        "CAP_SYSLOG",
+                        "CAP_WAKE_ALARM",
+                        "CAP_BLOCK_SUSPEND",
+                        "CAP_AUDIT_READ",
+                        "CAP_PERFMON",
+                        "CAP_BPF",
+                        "CAP_CHECKPOINT_RESTORE"
+                    ],
+                    "effective": [
+                        "CAP_CHOWN",
+                        "CAP_DAC_OVERRIDE",
+                        "CAP_DAC_READ_SEARCH",
+                        "CAP_FOWNER",
+                        "CAP_FSETID",
+                        "CAP_KILL",
+                        "CAP_SETGID",
+                        "CAP_SETUID",
+                        "CAP_SETPCAP",
+                        "CAP_LINUX_IMMUTABLE",
+                        "CAP_NET_BIND_SERVICE",
+                        "CAP_NET_BROADCAST",
+                        "CAP_NET_ADMIN",
+                        "CAP_NET_RAW",
+                        "CAP_IPC_LOCK",
+                        "CAP_IPC_OWNER",
+                        "CAP_SYS_MODULE",
+                        "CAP_SYS_RAWIO",
+                        "CAP_SYS_CHROOT",
+                        "CAP_SYS_PTRACE",
+                        "CAP_SYS_PACCT",
+                        "CAP_SYS_ADMIN",
+                        "CAP_SYS_BOOT",
+                        "CAP_SYS_NICE",
+                        "CAP_SYS_RESOURCE",
+                        "CAP_SYS_TIME",
+                        "CAP_SYS_TTY_CONFIG",
+                        "CAP_MKNOD",
+                        "CAP_LEASE",
+                        "CAP_AUDIT_WRITE",
+                        "CAP_AUDIT_CONTROL",
+                        "CAP_SETFCAP",
+                        "CAP_MAC_OVERRIDE",
+                        "CAP_MAC_ADMIN",
+                        "CAP_SYSLOG",
+                        "CAP_WAKE_ALARM",
+                        "CAP_BLOCK_SUSPEND",
+                        "CAP_AUDIT_READ",
+                        "CAP_PERFMON",
+                        "CAP_BPF",
+                        "CAP_CHECKPOINT_RESTORE"
+                    ],
+                    "permitted": [
+                        "CAP_CHOWN",
+                        "CAP_DAC_OVERRIDE",
+                        "CAP_DAC_READ_SEARCH",
+                        "CAP_FOWNER",
+                        "CAP_FSETID",
+                        "CAP_KILL",
+                        "CAP_SETGID",
+                        "CAP_SETUID",
+                        "CAP_SETPCAP",
+                        "CAP_LINUX_IMMUTABLE",
+                        "CAP_NET_BIND_SERVICE",
+                        "CAP_NET_BROADCAST",
+                        "CAP_NET_ADMIN",
+                        "CAP_NET_RAW",
+                        "CAP_IPC_LOCK",
+                        "CAP_IPC_OWNER",
+                        "CAP_SYS_MODULE",
+                        "CAP_SYS_RAWIO",
+                        "CAP_SYS_CHROOT",
+                        "CAP_SYS_PTRACE",
+                        "CAP_SYS_PACCT",
+                        "CAP_SYS_ADMIN",
+                        "CAP_SYS_BOOT",
+                        "CAP_SYS_NICE",
+                        "CAP_SYS_RESOURCE",
+                        "CAP_SYS_TIME",
+                        "CAP_SYS_TTY_CONFIG",
+                        "CAP_MKNOD",
+                        "CAP_LEASE",
+                        "CAP_AUDIT_WRITE",
+                        "CAP_AUDIT_CONTROL",
+                        "CAP_SETFCAP",
+                        "CAP_MAC_OVERRIDE",
+                        "CAP_MAC_ADMIN",
+                        "CAP_SYSLOG",
+                        "CAP_WAKE_ALARM",
+                        "CAP_BLOCK_SUSPEND",
+                        "CAP_AUDIT_READ",
+                        "CAP_PERFMON",
+                        "CAP_BPF",
+                        "CAP_CHECKPOINT_RESTORE"
+                    ]
+                }
+            },
+            "root": {
+                "path": "rootfs"
+            },
+            "hostname": "71a9882e3bf6",
+            "mounts": [
+                {
+                    "destination": "/proc",
+                    "type": "proc",
+                    "source": "proc",
+                    "options": [
+                        "nosuid",
+                        "noexec",
+                        "nodev"
+                    ]
+                },
+                {
+                    "destination": "/dev",
+                    "type": "tmpfs",
+                    "source": "tmpfs",
+                    "options": [
+                        "nosuid",
+                        "strictatime",
+                        "mode=755",
+                        "size=65536k"
+                    ]
+                },
+                {
+                    "destination": "/sys",
+                    "type": "sysfs",
+                    "source": "sysfs",
+                    "options": [
+                        "nosuid",
+                        "noexec",
+                        "nodev",
+                        "ro"
+                    ]
+                },
+                {
+                    "destination": "/dev/pts",
+                    "type": "devpts",
+                    "source": "devpts",
+                    "options": [
+                        "nosuid",
+                        "noexec",
+                        "newinstance",
+                        "ptmxmode=0666",
+                        "mode=0620",
+                        "gid=5"
+                    ]
+                },
+                {
+                    "destination": "/dev/shm",
+                    "type": "tmpfs",
+                    "source": "shm",
+                    "options": [
+                        "nosuid",
+                        "noexec",
+                        "nodev",
+                        "mode=1777",
+                        "size=65536k"
+                    ]
+                },
+                {
+                    "destination": "/dev/mqueue",
+                    "type": "mqueue",
+                    "source": "mqueue",
+                    "options": [
+                        "nosuid",
+                        "noexec",
+                        "nodev"
+                    ]
+                },
+                {
+                    "destination": "/sys/fs/cgroup",
+                    "type": "cgroup",
+                    "source": "cgroup",
+                    "options": [
+                        "ro",
+                        "nosuid",
+                        "noexec",
+                        "nodev"
+                    ]
+                },
+                {
+                    "destination": "/var/lib/docker",
+                    "type": "tmpfs",
+                    "source": "tmpfs",
+                    "options": [
+                        "noexec",
+                        "nosuid",
+                        "nodev",
+                        "rw",
+                        "size=2147483648"
+                    ]
+                },
+                {
+                    "destination": "/etc/resolv.conf",
+                    "type": "bind",
+                    "source": "/var/lib/nerdctl/1935db59/containers/default/71a9882e3bf6427d7aa733ec5d4de4097dfdf2253a75e2e479868a2080fdd352/resolv.conf",
+                    "options": [
+                        "bind",
+                        "rprivate"
+                    ]
+                },
+                {
+                    "destination": "/etc/hosts",
+                    "type": "bind",
+                    "source": "/var/lib/nerdctl/1935db59/etchosts/default/71a9882e3bf6427d7aa733ec5d4de4097dfdf2253a75e2e479868a2080fdd352/hosts",
+                    "options": [
+                        "bind",
+                        "rprivate"
+                    ]
+                },
+                {
+                    "destination": "/etc/hostname",
+                    "type": "bind",
+                    "source": "/var/lib/nerdctl/1935db59/containers/default/71a9882e3bf6427d7aa733ec5d4de4097dfdf2253a75e2e479868a2080fdd352/hostname",
+                    "options": [
+                        "bind",
+                        "rprivate"
+                    ]
+                }
+            ],
+            "hooks": {
+                "createRuntime": [
+                    {
+                        "path": "/usr/local/bin/nerdctl",
+                        "args": [
+                            "/usr/local/bin/nerdctl",
+                            "internal",
+                            "oci-hook",
+                            "createRuntime"
+                        ],
+                        "env": [
+                            "LANG=C.UTF-8",
+                            "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin",
+                            "MAIL=/var/mail/root",
+                            "LOGNAME=root",
+                            "USER=root",
+                            "HOME=/root",
+                            "SHELL=/bin/bash",
+                            "TERM=unknown",
+                            "SUDO_COMMAND=/usr/bin/timeout 90 nerdctl create --runtime io.containerd.kata.v2 --name runtime-final-check --network okata-1 --label openshell-kata.managed=true --cap-add ALL --security-opt seccomp=unconfined --security-opt apparmor=unconfined --tmpfs /var/lib/docker:rw,size=2147483648 --env DOCKER_TLS_CERTDIR= openshell-kata-guest:local /usr/local/sbin/openshell-kata-init",
+                            "SUDO_USER=andrew",
+                            "SUDO_UID=501",
+                            "SUDO_GID=1000",
+                            "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/usr/sbin:/sbin"
+                        ]
+                    }
+                ],
+                "poststop": [
+                    {
+                        "path": "/usr/local/bin/nerdctl",
+                        "args": [
+                            "/usr/local/bin/nerdctl",
+                            "internal",
+                            "oci-hook",
+                            "postStop"
+                        ],
+                        "env": [
+                            "LANG=C.UTF-8",
+                            "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin",
+                            "MAIL=/var/mail/root",
+                            "LOGNAME=root",
+                            "USER=root",
+                            "HOME=/root",
+                            "SHELL=/bin/bash",
+                            "TERM=unknown",
+                            "SUDO_COMMAND=/usr/bin/timeout 90 nerdctl create --runtime io.containerd.kata.v2 --name runtime-final-check --network okata-1 --label openshell-kata.managed=true --cap-add ALL --security-opt seccomp=unconfined --security-opt apparmor=unconfined --tmpfs /var/lib/docker:rw,size=2147483648 --env DOCKER_TLS_CERTDIR= openshell-kata-guest:local /usr/local/sbin/openshell-kata-init",
+                            "SUDO_USER=andrew",
+                            "SUDO_UID=501",
+                            "SUDO_GID=1000",
+                            "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/usr/sbin:/sbin"
+                        ]
+                    }
+                ]
+            },
+            "annotations": {
+                "nerdctl/auto-remove": "false",
+                "nerdctl/dns": "{\"DNSServers\":null,\"DNSResolvConfOptions\":null,\"DNSSearchDomains\":null}",
+                "nerdctl/domainname": "",
+                "nerdctl/extraHosts": "[]",
+                "nerdctl/host-config": "{\"BlkioWeight\":0,\"CidFile\":\"\",\"Devices\":null}",
+                "nerdctl/hostname": "71a9882e3bf6",
+                "nerdctl/ipc": "{\"mode\":\"private\"}",
+                "nerdctl/log-config": "{\"driver\":\"json-file\",\"address\":\"/run/containerd/containerd.sock\"}",
+                "nerdctl/log-uri": "binary:///usr/local/bin/nerdctl?_NERDCTL_INTERNAL_LOGGING=%2Fvar%2Flib%2Fnerdctl%2F1935db59",
+                "nerdctl/mounts.0": "{\"Type\":\"tmpfs\",\"Source\":\"tmpfs\",\"Destination\":\"/var/lib/docker\",\"Mode\":\"noexec,nosuid,nodev,rw,size=2147483648\",\"RW\":true,\"Propagation\":\"\"}",
+                "nerdctl/name": "runtime-final-check",
+                "nerdctl/namespace": "default",
+                "nerdctl/networks": "[\"okata-1\"]",
+                "nerdctl/platform": "linux/arm64/v8",
+                "nerdctl/state-dir": "/var/lib/nerdctl/1935db59/containers/default/71a9882e3bf6427d7aa733ec5d4de4097dfdf2253a75e2e479868a2080fdd352"
+            },
+            "linux": {
+                "sysctl": {
+                    "net.ipv4.ip_unprivileged_port_start": "0"
+                },
+                "resources": {
+                    "devices": [
+                        {
+                            "allow": false,
+                            "access": "rwm"
+                        },
+                        {
+                            "allow": true,
+                            "type": "c",
+                            "major": 1,
+                            "minor": 3,
+                            "access": "rwm"
+                        },
+                        {
+                            "allow": true,
+                            "type": "c",
+                            "major": 1,
+                            "minor": 8,
+                            "access": "rwm"
+                        },
+                        {
+                            "allow": true,
+                            "type": "c",
+                            "major": 1,
+                            "minor": 7,
+                            "access": "rwm"
+                        },
+                        {
+                            "allow": true,
+                            "type": "c",
+                            "major": 5,
+                            "minor": 0,
+                            "access": "rwm"
+                        },
+                        {
+                            "allow": true,
+                            "type": "c",
+                            "major": 1,
+                            "minor": 5,
+                            "access": "rwm"
+                        },
+                        {
+                            "allow": true,
+                            "type": "c",
+                            "major": 1,
+                            "minor": 9,
+                            "access": "rwm"
+                        },
+                        {
+                            "allow": true,
+                            "type": "c",
+                            "major": 5,
+                            "minor": 1,
+                            "access": "rwm"
+                        },
+                        {
+                            "allow": true,
+                            "type": "c",
+                            "major": 136,
+                            "access": "rwm"
+                        },
+                        {
+                            "allow": true,
+                            "type": "c",
+                            "major": 5,
+                            "minor": 2,
+                            "access": "rwm"
+                        }
+                    ],
+                    "memory": {},
+                    "cpu": {
+                        "realtimeRuntime": 0,
+                        "realtimePeriod": 0
+                    }
+                },
+                "cgroupsPath": "system.slice:nerdctl:71a9882e3bf6427d7aa733ec5d4de4097dfdf2253a75e2e479868a2080fdd352",
+                "namespaces": [
+                    {
+                        "type": "pid"
+                    },
+                    {
+                        "type": "ipc"
+                    },
+                    {
+                        "type": "uts"
+                    },
+                    {
+                        "type": "mount"
+                    },
+                    {
+                        "type": "network"
+                    },
+                    {
+                        "type": "cgroup"
+                    }
+                ],
+                "maskedPaths": [
+                    "/proc/acpi",
+                    "/proc/asound",
+                    "/proc/kcore",
+                    "/proc/keys",
+                    "/proc/latency_stats",
+                    "/proc/timer_list",
+                    "/proc/timer_stats",
+                    "/proc/sched_debug",
+                    "/sys/firmware",
+                    "/sys/devices/virtual/powercap",
+                    "/proc/scsi"
+                ],
+                "readonlyPaths": [
+                    "/proc/bus",
+                    "/proc/fs",
+                    "/proc/irq",
+                    "/proc/sys",
+                    "/proc/sysrq-trigger"
+                ]
+            }
+        },
+        "Process": {
+            "Pid": 4874,
+            "Status": {
+                "Status": "running",
+                "ExitStatus": 0,
+                "ExitTime": "0001-01-01T00:00:00Z"
+            },
+            "NetNS": {
+                "PrimaryInterface": 2,
+                "Interfaces": [
+                    {
+                        "Index": 1,
+                        "MTU": 65536,
+                        "Name": "lo",
+                        "HardwareAddr": "",
+                        "Flags": [
+                            "loopback"
+                        ],
+                        "Addrs": []
+                    },
+                    {
+                        "Index": 2,
+                        "MTU": 1500,
+                        "Name": "eth0",
+                        "HardwareAddr": "5a:0b:01:f3:2e:10",
+                        "Flags": [
+                            "up",
+                            "broadcast",
+                            "multicast",
+                            "running"
+                        ],
+                        "Addrs": [
+                            "10.202.1.5/24",
+                            "fe80::580b:1ff:fef3:2e10/64"
+                        ]
+                    },
+                    {
+                        "Index": 3,
+                        "MTU": 1500,
+                        "Name": "tap0_kata",
+                        "HardwareAddr": "7e:bb:ff:63:d6:e7",
+                        "Flags": [
+                            "up",
+                            "broadcast",
+                            "multicast",
+                            "running"
+                        ],
+                        "Addrs": [
+                            "fe80::7cbb:ffff:fe63:d6e7/64"
+                        ]
+                    }
+                ],
+                "PortMappings": null
+            }
+        }
+    }
+]
+

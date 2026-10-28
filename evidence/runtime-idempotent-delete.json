@@ -1,0 +1,14 @@
+{
+  "sandbox_id": "99999999-9999-4999-8999-999999999999",
+  "precondition": "No metadata directory and native nerdctl inspect reported no such object for this exact ID",
+  "attempts": [
+    {
+      "returncode": 0,
+      "stdout": "{}\n"
+    },
+    {
+      "returncode": 0,
+      "stdout": "{}\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "upstream": "https://github.com/NVIDIA/OpenShell",
+  "version": "v0.1.6",
+  "executables": {
+    "openshell": {
+      "sha256": "cb584c8d74cd0e73ab9422b37ce536a27fecf1d1c2fa7d4ef10cac7376cd0fb4"
+    },
+    "openshell-gateway": {
+      "sha256": "5ad19e6b889daa29e31c933d6ee166bea69ad11934d0af141addb825d10e8887"
+    }
+  }
+}

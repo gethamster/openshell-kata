@@ -1,0 +1,192 @@
+{
+  "Id": "c1f468fd7656a579fe62ccb2136e6707853deda3fbc4c2975a07ae4d7c87e280",
+  "Created": "2026-10-28T07:46:03.948095889Z",
+  "Path": "dockerd-entrypoint.sh",
+  "Args": [
+    "/usr/local/sbin/openshell-kata-init"
+  ],
+  "State": {
+    "Status": "running",
+    "Running": true,
+    "Paused": false,
+    "Restarting": false,
+    "Pid": 12921,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2026-10-28T07:48:13.040893846Z",
+    "FinishedAt": ""
+  },
+  "Image": "docker.io/library/openshell-kata-guest:local",
+  "ResolvConfPath": "/var/lib/nerdctl/1935db59/containers/default/c1f468fd7656a579fe62ccb2136e6707853deda3fbc4c2975a07ae4d7c87e280/resolv.conf",
+  "HostnamePath": "/var/lib/nerdctl/1935db59/containers/default/c1f468fd7656a579fe62ccb2136e6707853deda3fbc4c2975a07ae4d7c87e280/hostname",
+  "HostsPath": "/var/lib/nerdctl/1935db59/etchosts/default/c1f468fd7656a579fe62ccb2136e6707853deda3fbc4c2975a07ae4d7c87e280/hosts",
+  "LogPath": "/var/lib/nerdctl/1935db59/containers/default/c1f468fd7656a579fe62ccb2136e6707853deda3fbc4c2975a07ae4d7c87e280/c1f468fd7656a579fe62ccb2136e6707853deda3fbc4c2975a07ae4d7c87e280-json.log",
+  "Name": "18121c61-1112-45c7-a0ec-bb930b7cf7e2",
+  "RestartCount": 0,
+  "Driver": "overlayfs",
+  "Platform": "linux",
+  "AppArmorProfile": "",
+  "HostConfig": {
+    "ContainerIDFile": "",
+    "LogConfig": {
+      "driver": "json-file",
+      "address": "/run/containerd/containerd.sock"
+    },
+    "NetworkMode": "okata-1",
+    "PortBindings": {},
+    "RestartPolicy": {
+      "Name": "",
+      "MaximumRetryCount": 0
+    },
+    "AutoRemove": false,
+    "CapAdd": [
+      "CAP_DAC_READ_SEARCH",
+      "CAP_LINUX_IMMUTABLE",
+      "CAP_NET_BROADCAST",
+      "CAP_NET_ADMIN",
+      "CAP_IPC_LOCK",
+      "CAP_IPC_OWNER",
+      "CAP_SYS_MODULE",
+      "CAP_SYS_RAWIO",
+      "CAP_SYS_PTRACE",
+      "CAP_SYS_PACCT",
+      "CAP_SYS_ADMIN",
+      "CAP_SYS_BOOT",
+      "CAP_SYS_NICE",
+      "CAP_SYS_RESOURCE",
+      "CAP_SYS_TIME",
+      "CAP_SYS_TTY_CONFIG",
+      "CAP_LEASE",
+      "CAP_AUDIT_CONTROL",
+      "CAP_MAC_OVERRIDE",
+      "CAP_MAC_ADMIN",
+      "CAP_SYSLOG",
+      "CAP_WAKE_ALARM",
+      "CAP_BLOCK_SUSPEND",
+      "CAP_AUDIT_READ",
+      "CAP_PERFMON",
+      "CAP_BPF",
+      "CAP_CHECKPOINT_RESTORE"
+    ],
+    "CapDrop": [],
+    "CgroupnsMode": "private",
+    "Dns": null,
+    "DnsOptions": null,
+    "DnsSearch": null,
+    "ExtraHosts": [],
+    "GroupAdd": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "6",
+      "10",
+      "11",
+      "20",
+      "26",
+      "27"
+    ],
+    "IpcMode": "private",
+    "OomScoreAdj": 0,
+    "PidMode": "",
+    "Privileged": false,
+    "ReadonlyRootfs": false,
+    "Tmpfs": {
+      "/var/lib/docker": "noexec,nosuid,nodev,rw,size=2147483648"
+    },
+    "UTSMode": "",
+    "ShmSize": 0,
+    "Sysctls": {
+      "net.ipv4.ip_unprivileged_port_start": "0"
+    },
+    "Runtime": "io.containerd.kata.v2",
+    "CpusetMems": "",
+    "CpusetCpus": "",
+    "CpuQuota": 0,
+    "CpuShares": 0,
+    "CpuPeriod": 0,
+    "CpuRealtimePeriod": 0,
+    "CpuRealtimeRuntime": 0,
+    "Memory": 0,
+    "MemorySwap": 0,
+    "MemoryReservation": 0,
+    "MemorySwappiness": null,
+    "PidsLimit": 0,
+    "Ulimits": null,
+    "OomKillDisable": false,
+    "Devices": null,
+    "BlkioWeight": 0,
+    "BlkioWeightDevice": [],
+    "BlkioDeviceReadBps": [],
+    "BlkioDeviceWriteBps": [],
+    "BlkioDeviceReadIOps": [],
+    "BlkioDeviceWriteIOps": []
+  },
+  "Mounts": [
+    {
+      "Type": "tmpfs",
+      "Source": "tmpfs",
+      "Destination": "/var/lib/docker",
+      "Mode": "noexec,nosuid,nodev,rw,size=2147483648",
+      "RW": true,
+      "Propagation": ""
+    }
+  ],
+  "Config": {
+    "Hostname": "c1f468fd7656",
+    "AttachStdin": false,
+    "Env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "DOCKER_VERSION=29.9.2",
+      "DOCKER_BUILDX_VERSION=0.38.1",
+      "DOCKER_COMPOSE_VERSION=5.6.1",
+      "DOCKER_TLS_CERTDIR=",
+      "DIND_COMMIT=8d9e3502aba39127e4d12196dae16d306f76993d",
+      "HOSTNAME=c1f468fd7656"
+    ],
+    "Image": "docker.io/library/openshell-kata-guest:local",
+    "Labels": {
+      "containerd.io/restart.explicitly-stopped": "false",
+      "io.containerd.image.config.stop-signal": "SIGTERM",
+      "nerdctl/auto-remove": "false",
+      "nerdctl/dns": "{\"DNSServers\":null,\"DNSResolvConfOptions\":null,\"DNSSearchDomains\":null}",
+      "nerdctl/extraHosts": "[]",
+      "nerdctl/host-config": "{\"BlkioWeight\":0,\"CidFile\":\"\",\"Devices\":null}",
+      "nerdctl/hostname": "c1f468fd7656",
+      "nerdctl/ipc": "{\"mode\":\"private\"}",
+      "nerdctl/log-config": "{\"driver\":\"json-file\",\"address\":\"/run/containerd/containerd.sock\"}",
+      "nerdctl/log-uri": "binary:///usr/local/bin/nerdctl?_NERDCTL_INTERNAL_LOGGING=%2Fvar%2Flib%2Fnerdctl%2F1935db59",
+      "nerdctl/mounts.0": "{\"Type\":\"tmpfs\",\"Source\":\"tmpfs\",\"Destination\":\"/var/lib/docker\",\"Mode\":\"noexec,nosuid,nodev,rw,size=2147483648\",\"RW\":true,\"Propagation\":\"\"}",
+      "nerdctl/name": "18121c61-1112-45c7-a0ec-bb930b7cf7e2",
+      "nerdctl/namespace": "default",
+      "nerdctl/networks": "[\"okata-1\"]",
+      "nerdctl/platform": "linux/arm64/v8",
+      "nerdctl/state-dir": "/var/lib/nerdctl/1935db59/containers/default/c1f468fd7656a579fe62ccb2136e6707853deda3fbc4c2975a07ae4d7c87e280",
+      "openshell-kata.managed": "true"
+    }
+  },
+  "NetworkSettings": {
+    "Ports": {},
+    "GlobalIPv6Address": "",
+    "GlobalIPv6PrefixLen": 0,
+    "IPAddress": "10.202.1.16",
+    "IPPrefixLen": 24,
+    "MacAddress": "be:cb:68:ef:58:a2",
+    "Networks": {
+      "unknown-eth0": {
+        "IPAddress": "10.202.1.16",
+        "IPPrefixLen": 24,
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "MacAddress": "be:cb:68:ef:58:a2"
+      },
+      "unknown-tap0_kata": {
+        "IPAddress": "",
+        "IPPrefixLen": 0,
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "MacAddress": "e2:3f:8c:39:33:31"
+      }
+    }
+  }
+}

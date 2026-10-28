@@ -1,0 +1,15 @@
+{
+  "command": [
+    "openshell",
+    "policy",
+    "set",
+    "--global",
+    "--yes",
+    "--policy",
+    "/Users/andrew/code/openshell-kata/scripts/protocol-fixture.yaml"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 0.031,
+  "stdout": "",
+  "stderr": "\u2713 Global policy configured (hash: 099884f18c38, settings revision: 1)\n"
+}

@@ -1,0 +1,17 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "exec",
+    "rust-upload-check",
+    "--no-tty",
+    "--",
+    "sh",
+    "-ec",
+    "cd /sandbox/project/upload; docker compose up -d --build; docker compose ps; wget -qO- http://127.0.0.1:18080"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 47.131,
+  "stdout": "#1 [internal] load local bake definitions\n#1 reading from stdin 484B 0.1s done\n#1 DONE 0.1s\n\n#2 [internal] load build definition from Dockerfile\n#2 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile:\n#2 transferring dockerfile: 134B 0.7s done\n#2 DONE 1.1s\n\n#3 [internal] load metadata for docker.io/library/busybox:1.37\n#3 DONE 0.1s\n\n#4 [internal] load .dockerignore\n#4 transferring context: 2B 0.1s done\n#4 DONE 0.2s\n\n#5 [1/3] FROM docker.io/library/busybox:1.37\n#5 DONE 0.2s\n\n#6 [internal] load build context\n#6 ...\n\n#5 [1/3] FROM docker.io/library/busybox:1.37\n#5 DONE 0.3s\n\n#6 [internal] load build context\n#6 transferring context: 80B 0.5s done\n#6 DONE 0.7s\n\n#7 [2/3] WORKDIR /www\n#7 DONE 0.4s\n\n#8 [3/3] COPY index.html .\n#8 DONE 0.2s\n\n#9 exporting to image\n#9 exporting layers\n#9 exporting layers 0.7s done\n#9 writing image sha256:6f94993e710196fbb48bf39770c95d26b7c678c5b9725571c3fcefe3e071c5a0\n#9 writing image sha256:6f94993e710196fbb48bf39770c95d26b7c678c5b9725571c3fcefe3e071c5a0 0.0s done\n#9 naming to docker.io/library/upload-web done\n#9 DONE 0.9s\n\n#10 resolving provenance for metadata file\n#10 DONE 0.3s\nNAME              IMAGE          COMMAND                  SERVICE   CREATED          STATUS          PORTS\nupload-web-1      upload-web     \"httpd -f -p 8080 -h\u2026\"   web       14 seconds ago   Up 12 seconds   127.0.0.1:18080->8080/tcp\nupload-worker-1   busybox:1.37   \"sleep 1800\"             worker    14 seconds ago   Up 7 seconds    \nRust OpenShell + Kata + Docker Compose: OK\n",
+  "stderr": " Image busybox:1.37 Pulling \n af820adcc158 Pulling fs layer 0B\n af820adcc158 Downloading 32.16kB\n af820adcc158 Verifying Checksum 0B\n af820adcc158 Download complete 0B\n af820adcc158 Extracting 32.77kB\n af820adcc158 Extracting 131.1kB\n af820adcc158 Extracting 196.6kB\n af820adcc158 Extracting 786.4kB\n af820adcc158 Extracting 1.049MB\n af820adcc158 Extracting 1.901MB\n af820adcc158 Pull complete 0B\n Image busybox:1.37 Pulled \n Image upload-web Building \n Image upload-web Built \n Network upload_default Creating \n Network upload_default Creating \n Network upload_default Created \n Network upload_default Created \n Container upload-worker-1 Creating \n Container upload-web-1 Creating \n Container upload-worker-1 Created \n Container upload-web-1 Created \n Container upload-web-1 Starting \n Container upload-worker-1 Starting \n Container upload-web-1 Started \n Container upload-worker-1 Started \n"
+}

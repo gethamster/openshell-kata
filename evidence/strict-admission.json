@@ -1,0 +1,20 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "create",
+    "--name",
+    "must-deny",
+    "--from",
+    "docker:29-dind",
+    "--detach",
+    "--no-auto-providers",
+    "--",
+    "sleep",
+    "60"
+  ],
+  "exit_code": 1,
+  "duration_seconds": 0.028,
+  "stdout": "",
+  "stderr": "Error:   \u00d7 code: 'The system is not in a state required for the operation's\n  \u2502 execution', message: \"unsupported policy requirement:\n  \u2502 filesystem.include_workdir guest-path enforcement\"\n\n"
+}

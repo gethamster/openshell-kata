@@ -1,0 +1,68 @@
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 0.5 s	total:   0.0 B	(0.0 B/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 0.5 s	total:   0.0 B	(0.0 B/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	already exists	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 0.5 s	total:  5.0 Ki	(9.3 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	already exists	
+   └──manifest-sha256:cb160a57fcb936668f	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 0.5 s	total:  5.0 Ki	(9.3 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	already exists	
+   └──manifest-sha256:cb160a57fcb936668f8ab8e4a9d73c66b7975226aa87e466233734edbcd83ccc	already exists	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 0.5 s	total:  9.0 Ki	(16.5 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	already exists	
+   └──manifest-sha256:cb160a57fcb936668f8ab8e4a9d73c66b7975226aa87e466233734edbcd83ccc	already exists	
+      └──config-sha256:5cf57822adc8ffa16	waiting    	|[32m[0m--------------------------------------|	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 0.5 s	total:  9.0 Ki	(16.5 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	fetching image content	
+└──index-sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	already exists	
+   └──manifest-sha256:cb160a57fcb936668f8ab8e4a9d73c66b7975226aa87e466233734edbcd83ccc	already exists	
+      └──config-sha256:5cf57822adc8ffa163e9bde0c3f854957785e201b043528cc36e98c2c3533944	already exists	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 0.5 s	total:  20.9 K	(38.5 KiB/s)	
+docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	saved	
+└──index-sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977	already exists	
+   └──manifest-sha256:cb160a57fcb936668f8ab8e4a9d73c66b7975226aa87e466233734edbcd83ccc	already exists	
+      └──config-sha256:5cf57822adc8ffa163e9bde0c3f854957785e201b043528cc36e98c2c3533944	already exists	
+application/vnd.oci.image.index.v1+json sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+Pulling from OCI Registry (docker.io/library/docker@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977)	elapsed: 0.6 s	total:  20.9 K	(37.9 KiB/s)	
+( 1/23) Installing readline (8.3.3-r1)
+( 2/23) Installing bash (5.3.9-r1)
+  Executing bash-5.3.9-r1.post-install
+( 3/23) Installing coreutils-env (9.11-r0)
+( 4/23) Installing coreutils-fmt (9.11-r0)
+( 5/23) Installing coreutils-sha512sum (9.11-r0)
+( 6/23) Installing acl-libs (2.3.2-r1)
+( 7/23) Installing libattr (2.5.2-r2)
+( 8/23) Installing coreutils (9.11-r0)
+( 9/23) Installing openssh-server-common (10.3_p1-r1)
+(10/23) Installing openssh-server (10.3_p1-r1)
+(11/23) Installing openssh-sftp-server (10.3_p1-r1)
+(12/23) Installing libbz2 (1.0.8-r6)
+(13/23) Installing libffi (3.5.2-r1)
+(14/23) Installing gdbm (1.26-r0)
+(15/23) Installing libgcc (15.2.0-r5)
+(16/23) Installing libstdc++ (15.2.0-r5)
+(17/23) Installing mpdecimal (4.0.1-r0)
+(18/23) Installing libpanelw (6.6_p20260516-r0)
+(19/23) Installing sqlite-libs (3.53.4-r0)
+(20/23) Installing python3 (3.14.10-r1)
+(21/23) Installing python3-pycache-pyc0 (3.14.10-r1)
+(22/23) Installing pyc (3.14.10-r1)
+(23/23) Installing python3-pyc (3.14.10-r1)
+Executing busybox-1.37.0-r31.trigger
+OK: 87.6 MiB in 76 packages
+passwd: password for sandbox changed by root
+sha256:172153580eac3ae682708e72339dd4d219ea3b23bcce1ce9a0b018ab5b90300d
+openshell-kata-seed

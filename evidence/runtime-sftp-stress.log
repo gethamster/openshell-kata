@@ -1,0 +1,4 @@
+uid=1000(sandbox) gid=1000(sandbox) groups=1000(sandbox),1000(sandbox)
+6.18.56
+29.9.2
+{"uploads_and_downloads": [{"index": 0, "bytes": 16777216, "sha256": "341aacac661ccb210720bedaa9ead5d668fe5ea41a73532fc147c71e34040df1"}, {"index": 1, "bytes": 16777216, "sha256": "341aacac661ccb210720bedaa9ead5d668fe5ea41a73532fc147c71e34040df1"}, {"index": 2, "bytes": 16777216, "sha256": "341aacac661ccb210720bedaa9ead5d668fe5ea41a73532fc147c71e34040df1"}, {"index": 3, "bytes": 16777216, "sha256": "341aacac661ccb210720bedaa9ead5d668fe5ea41a73532fc147c71e34040df1"}], "main_command_still_alive": true}

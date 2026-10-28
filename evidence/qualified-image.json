@@ -1,0 +1,10 @@
+{
+  "Id": "sha256:172153580eac3ae682708e72339dd4d219ea3b23bcce1ce9a0b018ab5b90300d",
+  "RepoTags": [
+    "openshell-kata-guest:local"
+  ],
+  "RepoDigests": [
+    "openshell-kata-guest@sha256:550e35886c98508587fefc0fa23a56b5ab3a7f55bcf84d67e61f60e45ffd06a8"
+  ],
+  "Created": "2026-10-28T00:29:53.455933656-07:00"
+}

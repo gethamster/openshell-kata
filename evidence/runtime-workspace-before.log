@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/andrew/code/openshell-kata/runtime/test_workspace.py", line 24, in <module>
+    main()
+  File "/Users/andrew/code/openshell-kata/runtime/test_workspace.py", line 15, in main
+    probe = lifecycle.guest_ssh(metadata, 'pwd -P && realpath -e -- /sandbox/project/upload')
+  File "/Users/andrew/code/openshell-kata/runtime/lifecycle.py", line 99, in guest_ssh
+    return command(['ssh', '-F', '/dev/null', '-i', state['private_key_path'],
+  File "/Users/andrew/code/openshell-kata/runtime/lifecycle.py", line 56, in command
+    raise RuntimeError(f'{Path(argv[0]).name} failed: {result.stderr.decode(errors="replace")[-1500:]}')
+RuntimeError: ssh failed: realpath: -e: No such file or directory
+realpath: --: No such file or directory
+

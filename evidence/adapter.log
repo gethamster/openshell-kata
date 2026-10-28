@@ -1,0 +1,5 @@
+Error: driver socket already exists; remove only after verifying no active adapter
+[2m2026-10-28T07:08:25.596444Z[0m [31mERROR[0m [2mopenshell_kata::driver[0m[2m:[0m adapter operation failed [3merror[0m[2m=[0mguest lifecycle create failed with status exit status: 1
+[2m2026-10-28T07:30:31.700682Z[0m [31mERROR[0m [2mopenshell_kata::guest[0m[2m:[0m guest lifecycle failed [3maction[0m[2m=[0m"start" [3msandbox[0m[2m=[0m7f620593-1d3c-4693-9833-eac5006b1e98 [3mstderr[0m[2m=[0mguest SSH or Docker did not become ready within 180 seconds
+
+[2m2026-10-28T07:30:31.700843Z[0m [31mERROR[0m [2mopenshell_kata::driver[0m[2m:[0m adapter operation failed [3merror[0m[2m=[0mguest lifecycle start failed with status exit status: 1

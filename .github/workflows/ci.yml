@@ -1,0 +1,35 @@
+name: Rust
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Rust toolchain
+        run: rustup toolchain install 1.98.0 --profile minimal --component rustfmt --component clippy
+      - name: Format
+        run: cargo +1.98.0 fmt --check
+      - name: Lint
+        run: cargo +1.98.0 clippy --locked --all-targets --all-features -- -D warnings
+      - name: Test
+        run: cargo +1.98.0 test --locked --all-targets --all-features
+      - name: Documentation
+        run: cargo +1.98.0 doc --locked --no-deps
+      - name: Runtime contract tests
+        run: python3 -m unittest discover -s runtime -p 'test_*.py'
+      - name: Local harness tests
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - name: Vendored protocol checksums
+        run: python3 scripts/verify_upstream.py

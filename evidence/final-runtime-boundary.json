@@ -1,0 +1,17 @@
+{
+  "sandbox_id": "18121c61-1112-45c7-a0ec-bb930b7cf7e2",
+  "runtime": "io.containerd.kata.v2",
+  "privileged": false,
+  "devices": null,
+  "mounts": [
+    {
+      "Type": "tmpfs",
+      "Source": "tmpfs",
+      "Destination": "/var/lib/docker",
+      "Mode": "noexec,nosuid,nodev,rw,size=2147483648",
+      "RW": true,
+      "Propagation": ""
+    }
+  ],
+  "image": "docker.io/library/openshell-kata-guest:local"
+}

@@ -1,0 +1,1 @@
+{"returncode": 0, "stdout": "{\"sandbox_id\": \"runtime-env-check\", \"host\": \"127.0.0.1\", \"port\": 56765, \"username\": \"sandbox\", \"private_key_path\": \"/Users/andrew/code/openshell-kata/.local/runtime/runtime-env-check/client_key\", \"known_hosts_path\": \"/Users/andrew/code/openshell-kata/.local/runtime/runtime-env-check/known_hosts\"}\n", "stderr": ""}

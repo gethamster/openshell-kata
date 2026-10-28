@@ -1,0 +1,3 @@
+# Preserve vendored source and captured diagnostic bytes without whitespace lint.
+proto/** -whitespace
+evidence/** -whitespace

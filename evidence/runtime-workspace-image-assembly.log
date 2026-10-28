@@ -1,0 +1,10 @@
+(1/6) Installing coreutils-env (9.11-r0)
+(2/6) Installing coreutils-fmt (9.11-r0)
+(3/6) Installing coreutils-sha512sum (9.11-r0)
+(4/6) Installing acl-libs (2.3.2-r1)
+(5/6) Installing libattr (2.5.2-r2)
+(6/6) Installing coreutils (9.11-r0)
+Executing busybox-1.37.0-r31.trigger
+OK: 87.6 MiB in 76 packages
+realpath (GNU coreutils) 9.11
+sandbox:x:1000:1000::/sandbox:/bin/sh

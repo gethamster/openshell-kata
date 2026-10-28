@@ -1,0 +1,13 @@
+{
+  "command": [
+    "openshell",
+    "sandbox",
+    "list",
+    "--output",
+    "json"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 0.03,
+  "stdout": "{\n  \"next_page_token\": \"\",\n  \"sandboxes\": [\n    {\n      \"annotations\": {\n        \"internal.openshell.ai/auth-epoch\": \"1\",\n        \"internal.openshell.ai/gateway-token-id\": \"93ad7551-b98a-4c21-a22c-fab598dd51d2\",\n        \"internal.openshell.ai/isolation-backend\": \"openshell-sandbox\",\n        \"internal.openshell.ai/runtime-generation\": \"c01ddc38-3a18-4022-beef-4cd5a1a6567a\"\n      },\n      \"conditions\": [\n        {\n          \"last_transition_time\": \"\",\n          \"message\": \"Supervisor session connected\",\n          \"reason\": \"DependenciesReady\",\n          \"status\": \"True\",\n          \"type\": \"Ready\"\n        },\n        {\n          \"last_transition_time\": \"\",\n          \"message\": \"\",\n          \"reason\": \"ConfigurationAccepted\",\n          \"status\": \"True\",\n          \"type\": \"ConfigurationReady\"\n        }\n      ],\n      \"configuration_admission\": {\n        \"config_revision\": 8403403348217532693,\n        \"error\": \"\",\n        \"policy_hash\": \"099884f18c38a6a594850dee294f33a6f1041228a1d3b93c442e5f5f2a050f45\",\n        \"policy_version\": 1,\n        \"provider_env_revision\": 5359292480931766102,\n        \"state\": \"accepted\"\n      },\n      \"created_at\": \"2026-10-28 07:46:03\",\n      \"created_from_workload_template\": null,\n      \"current_policy_version\": 0,\n      \"endpoint_statuses\": [],\n      \"exit_code\": null,\n      \"host_key_fingerprint\": \"SHA256:pjUdBZkxvpIJYm/JQ7Gv+VHB0IKXbl3LiCiq56oOIoc\",\n      \"id\": \"18121c61-1112-45c7-a0ec-bb930b7cf7e2\",\n      \"labels\": {},\n      \"last_token_grant_failure\": null,\n      \"name\": \"rust-upload-check\",\n      \"phase\": \"Ready\",\n      \"provisioning\": {\n        \"admission_start_time\": \"2026-10-28T07:46:51.049Z\",\n        \"attempt_id\": \"41bdd5e6-3f19-4bdd-8849-5cdd6163a84a\",\n        \"cleanup_completed_time\": null,\n        \"cleanup_error\": \"\",\n        \"cleanup_retry_time\": null,\n        \"configuration_change_id\": \"43b3cd103037af59b60d64bff986a78282cceb2c544f0c72fd910ab0806e06a3\",\n        \"configuration_change_time\": \"2026-10-28T07:46:03.627Z\",\n        \"deadline\": null,\n        \"driver_operation_id\": \"72a576ea-c38e-4421-8537-d82ae1ef3712\",\n        \"driver_operation_pending\": false,\n        \"first_rejection_time\": null,\n        \"phase\": \"ready\",\n        \"preparation_deadline\": \"2026-10-28T08:16:03.627Z\",\n        \"timeout_time\": null\n      },\n      \"resource_version\": 8,\n      \"workspace\": \"default\"\n    }\n  ]\n}\n",
+  "stderr": ""
+}
