@@ -1,6 +1,6 @@
 use super::{
     server::{ProofServer, router, tls},
-    tests::{NODE, NONCE, POD},
+    tests::{NODE, POD, nonce},
     *,
 };
 use crate::network::hosted_fence::{HostedFenceIntent, HostedFenceProof, HostedFenceResponse};
@@ -271,15 +271,15 @@ impl Drop for Fixture {
 #[tokio::test]
 async fn mtls_and_leaf_identity_protect_read_only_proofs() -> Result<()> {
     let f = Fixture::new(proof).await?;
-    let response = client::request(f.address, NODE, &f.config, POD, NONCE).await?;
-    assert_eq!(response.nonce, NONCE);
+    let response = client::request(f.address, NODE, &f.config, POD, nonce()).await?;
+    assert_eq!(response.nonce, nonce());
     assert_eq!(f.calls.load(Ordering::SeqCst), 1);
     assert!(
         f.client(None, NODE).await.is_err() || {
             let mut c = f.client(None, NODE).await?;
             c.verify(wire::VerifyRequest {
                 pod_uid: POD.into(),
-                nonce: NONCE.into(),
+                nonce: nonce().into(),
             })
             .await
             .is_err()
@@ -290,7 +290,7 @@ async fn mtls_and_leaf_identity_protect_read_only_proofs() -> Result<()> {
         other
             .verify(wire::VerifyRequest {
                 pod_uid: POD.into(),
-                nonce: NONCE.into()
+                nonce: nonce().into()
             })
             .await
             .expect_err("wrong role")
@@ -298,7 +298,7 @@ async fn mtls_and_leaf_identity_protect_read_only_proofs() -> Result<()> {
         tonic::Code::PermissionDenied
     );
     assert!(
-        client::request(f.address, POD, &f.config, POD, NONCE)
+        client::request(f.address, POD, &f.config, POD, nonce())
             .await
             .is_err(),
         "the response must still bind the expected node"
@@ -308,7 +308,7 @@ async fn mtls_and_leaf_identity_protect_read_only_proofs() -> Result<()> {
         client
             .verify(wire::VerifyRequest {
                 pod_uid: "../host".into(),
-                nonce: NONCE.into()
+                nonce: nonce().into()
             })
             .await
             .expect_err("invalid Pod")
@@ -341,7 +341,7 @@ async fn stale_or_failed_proofs_never_return_success() -> Result<()> {
     })
     .await?;
     assert!(
-        client::request(f.address, NODE, &f.config, POD, NONCE)
+        client::request(f.address, NODE, &f.config, POD, nonce())
             .await
             .is_err()
     );
@@ -350,7 +350,7 @@ async fn stale_or_failed_proofs_never_return_success() -> Result<()> {
     let error = client
         .verify(wire::VerifyRequest {
             pod_uid: POD.into(),
-            nonce: NONCE.into(),
+            nonce: nonce().into(),
         })
         .await
         .expect_err("failed host readback");
@@ -385,7 +385,7 @@ async fn another_ca_and_plaintext_cannot_reach_host_verification() -> Result<()>
         ..f.config.clone()
     };
     assert!(
-        client::request(f.address, NODE, &wrong, POD, NONCE)
+        client::request(f.address, NODE, &wrong, POD, nonce())
             .await
             .is_err()
     );
@@ -398,7 +398,7 @@ async fn another_ca_and_plaintext_cannot_reach_host_verification() -> Result<()>
             plaintext
                 .verify(wire::VerifyRequest {
                     pod_uid: POD.into(),
-                    nonce: NONCE.into()
+                    nonce: nonce().into()
                 })
                 .await
                 .is_err()
@@ -416,7 +416,7 @@ async fn another_ca_and_plaintext_cannot_reach_host_verification() -> Result<()>
 async fn a_different_service_san_cannot_impersonate_the_guard_role() -> Result<()> {
     let f = Fixture::with_server_name(proof, "unrelated-role.kata-system.internal").await?;
     assert!(
-        client::request(f.address, NODE, &f.config, POD, NONCE)
+        client::request(f.address, NODE, &f.config, POD, nonce())
             .await
             .is_err()
     );
@@ -458,7 +458,7 @@ async fn cancelled_clients_do_not_release_running_host_verification_capacity() -
             client
                 .verify(wire::VerifyRequest {
                     pod_uid: POD.into(),
-                    nonce: NONCE.into(),
+                    nonce: nonce().into(),
                 })
                 .await
         }));
@@ -478,7 +478,7 @@ async fn cancelled_clients_do_not_release_running_host_verification_capacity() -
     let status = client
         .verify(wire::VerifyRequest {
             pod_uid: POD.into(),
-            nonce: NONCE.into(),
+            nonce: nonce().into(),
         })
         .await
         .expect_err("capacity remains reserved until host work stops");

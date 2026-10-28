@@ -3,7 +3,6 @@ use std::os::unix::fs::{PermissionsExt, symlink};
 
 pub(super) const NODE: &str = "74ad2dbf-d87c-4dcc-96cc-b5ad5f3b324b";
 pub(super) const POD: &str = "19de80e8-f423-4317-97c5-f16ee0949568";
-pub(super) const NONCE: &str = "186b7d1b-cf08-45b6-b194-08affbedb23c";
 
 #[test]
 fn routing_and_challenges_are_closed() {
@@ -107,21 +106,28 @@ fn transport_files_and_config_cannot_select_unsafe_authority() -> anyhow::Result
 
 #[test]
 fn untrusted_proof_bytes_cannot_retarget_or_replay_identity() -> anyhow::Result<()> {
-    let response = super::tls_tests::proof(POD, NONCE)?;
+    let response = super::tls_tests::proof(POD, nonce())?;
     let mut value = serde_json::to_value(&response)?;
-    client::decode(&serde_json::to_vec(&value)?, NODE, POD, NONCE)?;
-    assert!(client::decode(&vec![b'x'; MAX_PROOF + 1], NODE, POD, NONCE).is_err());
-    assert!(client::decode(b"invalid", NODE, POD, NONCE).is_err());
+    client::decode(&serde_json::to_vec(&value)?, NODE, POD, nonce())?;
+    assert!(client::decode(&vec![b'x'; MAX_PROOF + 1], NODE, POD, nonce()).is_err());
+    assert!(client::decode(b"invalid", NODE, POD, nonce()).is_err());
     value["nonce"] = serde_json::json!(POD);
-    assert!(client::decode(&serde_json::to_vec(&value)?, NODE, POD, NONCE).is_err());
+    assert!(client::decode(&serde_json::to_vec(&value)?, NODE, POD, nonce()).is_err());
     value = serde_json::to_value(&response)?;
-    value["proof"]["binding"]["pod_uid"] = serde_json::json!(NONCE);
-    assert!(client::decode(&serde_json::to_vec(&value)?, NODE, POD, NONCE).is_err());
+    value["proof"]["binding"]["pod_uid"] = serde_json::json!(nonce());
+    assert!(client::decode(&serde_json::to_vec(&value)?, NODE, POD, nonce()).is_err());
     value = serde_json::to_value(&response)?;
     value["proof"]["binding"]["node_uid"] = serde_json::json!(POD);
-    assert!(client::decode(&serde_json::to_vec(&value)?, NODE, POD, NONCE).is_err());
+    assert!(client::decode(&serde_json::to_vec(&value)?, NODE, POD, nonce()).is_err());
     value = serde_json::to_value(&response)?;
     value["proof"]["binding"]["expires_at_unix"] = serde_json::json!(0);
-    assert!(client::decode(&serde_json::to_vec(&value)?, NODE, POD, NONCE).is_err());
+    assert!(client::decode(&serde_json::to_vec(&value)?, NODE, POD, nonce()).is_err());
     Ok(())
+}
+
+pub(super) fn nonce() -> &'static str {
+    static VALUE: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    VALUE
+        .get_or_init(|| uuid::Uuid::new_v4().to_string())
+        .as_str()
 }

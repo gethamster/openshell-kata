@@ -10,7 +10,6 @@ use serde_json::{Value, json};
 const POD: &str = "9eab8e3a-4b95-4cc0-9b86-9cbd97433d32";
 const NS: &str = "0dd39c8f-5a6d-461c-84c8-c3e3ff987aec";
 const BROKER: &str = "7a1b6d63-dc7d-46c1-8a40-d6ae7ed9cf51";
-const NONCE: &str = "9b11fab6-bbdd-46e2-8ad0-369b6e3876a7";
 const IMAGE: &str = "registry.example/guest@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
 fn fixture() -> anyhow::Result<(tempfile::TempDir, c::DriverSandbox, NetworkPolicy, Value)> {
@@ -59,7 +58,7 @@ fn fixture() -> anyhow::Result<(tempfile::TempDir, c::DriverSandbox, NetworkPoli
         workspace: sandbox.workspace.clone(),
         namespace_uid: NS.into(),
         sandbox_id: sandbox.id.clone(),
-        launch_nonce: NONCE.into(),
+        launch_nonce: nonce().into(),
         expires_at_unix: now + 3600,
     };
     let config = HostedBrokerConfig {
@@ -83,7 +82,7 @@ fn fixture() -> anyhow::Result<(tempfile::TempDir, c::DriverSandbox, NetworkPoli
         namespace_uid: NS.into(),
         sandbox_id: sandbox.id.clone(),
         pod_uid: POD.into(),
-        launch_nonce: NONCE.into(),
+        launch_nonce: nonce().into(),
         expires_at_unix: binding.expires_at_unix,
         broker_pod_uid: BROKER.into(),
         broker_ip: "10.1.2.3".parse()?,
@@ -98,8 +97,8 @@ fn fixture() -> anyhow::Result<(tempfile::TempDir, c::DriverSandbox, NetworkPoli
         node_uid: "6aff11e4-6309-46f9-9fc1-7ff7368a5b5b".into(),
         boot_id: "79bd5c89-d496-419d-893d-75fdce8acbb5".into(),
     };
-    let value = json!({"version":2,"sandbox_id":sandbox.id,"workspace":sandbox.workspace,"namespace":"sandbox-tenant-proof","runtime_identity":POD,"runtime_class":"kata-qemu-runtime-rs-guarded","image":IMAGE,"network":"brokered-public-tcp-v1","cpu":"2","memory":"4Gi","policy_sha256":"a".repeat(64),"expires_at_unix":binding.expires_at_unix,"deadline_enforcement":"kubelet-active-deadline","proof_nonce":NONCE,"source_namespace_uid":NS,"broker_pod_uid":BROKER,"broker_ip":"10.1.2.3",
-        "broker":{"nonce":NONCE,"binding":binding,"startup_epoch":"abf8756b-d208-43f7-9ffd-e2fe82c57532","generation":2,"policy":policy,"policy_sha256":policy.digest()?,"config_sha256":config.digest()?,"inventory_generation":1,"inventory_sha256":"b".repeat(64),"effective_denied_sha256":"c".repeat(64),"authorization_expires_at_unix":now+20,"active_connections":0,"stopping":false},
+    let value = json!({"version":2,"sandbox_id":sandbox.id,"workspace":sandbox.workspace,"namespace":"sandbox-tenant-proof","runtime_identity":POD,"runtime_class":"kata-qemu-runtime-rs-guarded","image":IMAGE,"network":"brokered-public-tcp-v1","cpu":"2","memory":"4Gi","policy_sha256":"a".repeat(64),"expires_at_unix":binding.expires_at_unix,"deadline_enforcement":"kubelet-active-deadline","proof_nonce":nonce(),"source_namespace_uid":NS,"broker_pod_uid":BROKER,"broker_ip":"10.1.2.3",
+        "broker":{"nonce":nonce(),"binding":binding,"startup_epoch":"abf8756b-d208-43f7-9ffd-e2fe82c57532","generation":2,"policy":policy,"policy_sha256":policy.digest()?,"config_sha256":config.digest()?,"inventory_generation":1,"inventory_sha256":"b".repeat(64),"effective_denied_sha256":"c".repeat(64),"authorization_expires_at_unix":now+20,"active_connections":0,"stopping":false},
         "fence":{"version":1,"binding":fence,"netns_device":1,"netns_inode":2,"ifindex":3,"ingress_link_id":4,"egress_link_id":5,"ingress_program_id":6,"egress_program_id":7,"object_sha256":"d".repeat(64),"intent_sha256":fence.sha256()?,"installed_at_unix":now}});
     Ok((root, sandbox, policy, value))
 }
@@ -114,7 +113,7 @@ fn brokered_proofs_pin_policy_launch_process_and_external_fence() -> anyhow::Res
             IMAGE,
             POD,
             Some(&path),
-            NONCE,
+            nonce(),
             Some(&policy),
         )
     };
@@ -177,11 +176,18 @@ fn startup_deny_all_is_not_a_successful_authorization() -> anyhow::Result<()> {
     value["broker"]["authorization_expires_at_unix"] = json!(0);
     let proof: RuntimeProof = serde_json::from_value(value)?;
     let path = root.path().join("operator.json");
-    proof.validate_for_profile(&sandbox, IMAGE, POD, Some(&path), NONCE, None)?;
+    proof.validate_for_profile(&sandbox, IMAGE, POD, Some(&path), nonce(), None)?;
     assert!(
         proof
-            .validate_for_profile(&sandbox, IMAGE, POD, Some(&path), NONCE, Some(&policy))
+            .validate_for_profile(&sandbox, IMAGE, POD, Some(&path), nonce(), Some(&policy))
             .is_err()
     );
     Ok(())
+}
+
+fn nonce() -> &'static str {
+    static VALUE: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    VALUE
+        .get_or_init(|| uuid::Uuid::new_v4().to_string())
+        .as_str()
 }

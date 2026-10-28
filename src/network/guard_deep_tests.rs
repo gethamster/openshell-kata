@@ -444,7 +444,12 @@ async fn invalid_identity_and_nonce_cannot_change_authorization() -> Result<()> 
         binding.launch_nonce = uuid::Uuid::new_v4().to_string();
     }
     assert!(broker.request(wrong).await.is_err());
-    assert!(broker.snapshot("noncanonical-nonce").await.is_err());
+    assert!(
+        broker
+            .snapshot(&format!("invalid-{}", uuid::Uuid::new_v4()))
+            .await
+            .is_err()
+    );
     assert!(
         broker
             .request(HostedControlRequest::Ready {
