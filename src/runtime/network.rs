@@ -9,7 +9,6 @@ use std::{
     ffi::OsString,
     net::Ipv4Addr,
     path::{Path, PathBuf},
-    time::Duration,
 };
 
 fn args(values: &[&str]) -> Vec<OsString> {
@@ -346,27 +345,10 @@ pub async fn create_attachment(
 pub async fn put_json<T: Serialize>(node: &Node, value: &T, destination: &str) -> Result<()> {
     let temporary = tempfile::NamedTempFile::new()?;
     std::fs::write(temporary.path(), serde_json::to_vec(value)?)?;
-    let stage = node
-        .command(
-            "limactl",
-            &args(&["shell", node.vm(), "mktemp", "/tmp/osk-transfer.XXXXXXXX"]),
-            Duration::from_secs(15),
-        )
-        .await?;
-    let stage = String::from_utf8(stage.stdout)?.trim().to_owned();
-    node.command(
-        "limactl",
-        &[
-            OsString::from("cp"),
-            temporary.path().as_os_str().to_owned(),
-            OsString::from(format!("{}:{stage}", node.vm())),
-        ],
-        Duration::from_secs(30),
-    )
-    .await?;
+    let stage = node.stage(temporary.path()).await?;
     node.node(&args(&["install", "-D", "-m", "0644", &stage, destination]))
         .await?;
-    node.node(&args(&["rm", "--", &stage])).await?;
+    node.unstage(&stage).await?;
     Ok(())
 }
 
@@ -664,6 +646,16 @@ pub async fn stop_unit(node: &Node, name: &str) -> Result<()> {
         bail!("owned service process remains");
     }
     Ok(())
+}
+
+/// Confirm both volatile attachment objects are absent; partial loss fails closed.
+pub async fn attachment_absent(node: &Node, attachment: &Attachment) -> Result<bool> {
+    let namespace = exists(node, &attachment.namespace_path()).await?;
+    let link = exists(node, &format!("/sys/class/net/{}", attachment.host_veth)).await?;
+    if namespace != link {
+        bail!("runtime network attachment is partially missing");
+    }
+    Ok(!namespace)
 }
 
 async fn exists(node: &Node, path: &str) -> Result<bool> {

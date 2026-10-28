@@ -61,6 +61,8 @@ fn setup() -> (tempfile::TempDir, StateDirectory, Settings) {
     let state = StateDirectory::new(root.join("state")).expect("state");
     let settings = Settings {
         vm: "nonexistent-test-node".into(),
+        node_transport: Default::default(),
+        resource_profile: Default::default(),
         state_dir: state.root().into(),
         node_binary: PathBuf::from("/does/not/exist"),
         image: None,
@@ -81,6 +83,7 @@ fn record(id: &str, nonce: &str, root: &std::path::Path) -> Record {
     .expect("deadline");
     Record {
         creation_nonce: nonce.into(),
+        node_boot_id: None,
         image: "docker.io/library/openshell-kata-enforced:local".into(),
         route: Route {
             sandbox_id: id.into(),
@@ -199,4 +202,60 @@ fn shim_socket_uses_pinned_kata_address_hash_and_rejects_paths() {
         Some("/run/containerd/s/4619A0CC99A2AB91E212F74127CC7AE9AF3D08D00864B44DFFF1AB5FCCD5F059")
     );
     assert!(shim_socket("../other").is_err());
+}
+
+#[test]
+fn foundry_profile_is_explicit_and_drives_exact_guest_resources() {
+    use openshell_kata::runtime::model::ResourceProfile;
+    use openshell_kata::runtime::spec::guest_spec_for;
+    let mut p = policy();
+    p.resources.vcpus = 32;
+    p.resources.memory_mib = 131072;
+    p.resources.disk_mib = 262144;
+    assert!(ResourceProfile::Local.validate(&p).is_err());
+    ResourceProfile::FoundryBuild
+        .validate(&p)
+        .expect("explicit build profile");
+    let spec = guest_spec_for(
+        "sample",
+        "/run/netns/sample",
+        "http://10.205.0.1:38080",
+        &p.resources,
+    );
+    assert_eq!(
+        spec["linux"]["resources"]["memory"]["limit"],
+        137438953472u64
+    );
+    assert_eq!(spec["linux"]["resources"]["cpu"]["quota"], 3200000);
+    assert_eq!(
+        spec["annotations"]["io.katacontainers.config.hypervisor.default_vcpus"],
+        "32"
+    );
+    p.resources.disk_mib += 1;
+    assert!(ResourceProfile::FoundryBuild.validate(&p).is_err());
+}
+
+#[tokio::test]
+async fn foundry_inventory_limit_rejects_fifth_retained_disk_before_node_access() {
+    let (temp, state, mut settings) = setup();
+    settings.resource_profile = openshell_kata::runtime::model::ResourceProfile::FoundryBuild;
+    for id in ["one", "two", "three", "four"] {
+        state.create(id).expect("retained guest");
+    }
+    let mut p = policy();
+    p.resources.vcpus = 32;
+    p.resources.memory_mib = 131072;
+    p.resources.disk_mib = 262144;
+    let path = temp.path().join("policy.json");
+    std::fs::write(&path, serde_json::to_vec(&p).expect("policy bytes")).expect("write");
+    let error = lifecycle::execute(
+        &settings,
+        Action::Create,
+        "five",
+        Some(&path),
+        Some("creation-nonce-0123456789"),
+    )
+    .await
+    .expect_err("bounded retained inventory");
+    assert!(error.to_string().contains("four retained"), "{error:#}");
 }

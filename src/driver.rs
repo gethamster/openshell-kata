@@ -114,11 +114,11 @@ impl Driver {
             .as_deref()
             .map(crate::profile::VmPolicy::load)
             .transpose()?;
-        let recovery = if config.runtime_profile == crate::config::RuntimeProfile::Kubernetes {
-            config.recovery_dir.clone().map(Store::new)
-        } else {
-            None
-        };
+        let recovery = config
+            .recovery_dir
+            .as_ref()
+            .map(|_| Store::for_config(&config))
+            .transpose()?;
         Ok(Self {
             config,
             registry: Arc::default(),

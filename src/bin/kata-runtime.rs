@@ -1,8 +1,10 @@
 use anyhow::{Context, Result, bail};
 use clap::Parser;
 use openshell_kata::runtime::{
+    command::NodeTransport,
     lifecycle::{self, Settings, WatchJob},
     model::Action,
+    model::ResourceProfile,
     watchdog,
 };
 use std::path::PathBuf;
@@ -18,6 +20,10 @@ struct Arguments {
     proof_nonce: Option<String>,
     #[arg(long, default_value = "openshell-kata-enforcement")]
     vm: String,
+    #[arg(long, value_enum, default_value = "lima")]
+    node_transport: NodeTransport,
+    #[arg(long, value_enum, default_value = "local")]
+    resource_profile: ResourceProfile,
     #[arg(long)]
     state_dir: Option<PathBuf>,
     #[arg(long, default_value = "/opt/openshell-kata/kata-runtime")]
@@ -28,7 +34,15 @@ struct Arguments {
 }
 #[tokio::main]
 async fn main() -> Result<()> {
-    let args = Arguments::parse();
+    let mut args = Arguments::parse();
+    use clap::ValueEnum;
+    if let Ok(value) = std::env::var("OPENSHELL_KATA_NODE_TRANSPORT") {
+        args.node_transport = NodeTransport::from_str(&value, false).map_err(anyhow::Error::msg)?;
+    }
+    if let Ok(value) = std::env::var("OPENSHELL_KATA_RESOURCE_PROFILE") {
+        args.resource_profile =
+            ResourceProfile::from_str(&value, false).map_err(anyhow::Error::msg)?;
+    }
     if args.action == "reap-shim" {
         let count = openshell_kata::runtime::containerd::reap_shim(
             &args.id,
@@ -72,6 +86,8 @@ async fn main() -> Result<()> {
     };
     let settings = Settings {
         vm: args.vm,
+        node_transport: args.node_transport,
+        resource_profile: args.resource_profile,
         state_dir: root,
         node_binary: args.node_binary,
         image: args

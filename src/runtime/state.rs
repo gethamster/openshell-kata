@@ -87,6 +87,26 @@ impl StateDirectory {
         Ok(self.root.join(id))
     }
 
+    /// Count retained guest directories under the held private root capability.
+    ///
+    /// # Errors
+    /// Rejects unexpected entries, links and directories with unsafe ownership or modes.
+    pub fn retained_count(&self) -> Result<usize> {
+        self.check_root()?;
+        let mut count = 0;
+        for entry in self.directory.entries()? {
+            let entry = entry?;
+            let name = entry.file_name();
+            if name == ".lock" || name == ".t" {
+                continue;
+            }
+            let name = name.to_str().context("non-UTF8 runtime state entry")?;
+            self.open_state(name)?;
+            count += 1;
+        }
+        Ok(count)
+    }
+
     /// Exclusively create one private sandbox directory.
     ///
     /// # Errors

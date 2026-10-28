@@ -75,6 +75,9 @@ impl Route {
 #[serde(deny_unknown_fields)]
 pub struct Record {
     pub creation_nonce: String,
+    /// Linux boot identity binds volatile namespace and fence observations.
+    #[serde(default)]
+    pub node_boot_id: Option<String>,
     /// Trusted image reference retained across restarts, never selected by tenant input.
     #[serde(default = "default_image")]
     pub image: String,
@@ -124,16 +127,38 @@ pub fn validate_nonce(value: &str) -> Result<()> {
     Ok(())
 }
 
-/// This local profile has one fixed, independently verified hardware/disk size.
-pub fn validate_supported_profile(policy: &VmPolicy) -> Result<()> {
-    policy.validate()?;
-    if policy.resources.vcpus != 1
-        || policy.resources.memory_mib != 2048
-        || policy.resources.disk_mib != 2048
-    {
-        bail!("local runtime supports exactly one vCPU, 2048 MiB RAM and 2048 MiB disk");
+/// Fixed hardware contracts selected by the operator, never by workload input.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, clap::ValueEnum)]
+pub enum ResourceProfile {
+    /// Development profile with one CPU and 2 GiB RAM/disk.
+    #[default]
+    Local,
+    /// Foundry builder with 32 CPUs, 128 GiB RAM and 256 GiB private disk.
+    FoundryBuild,
+}
+impl ResourceProfile {
+    /// Require exact admission and storage sizes for the selected node profile.
+    pub fn validate(self, policy: &VmPolicy) -> Result<()> {
+        policy.validate()?;
+        let expected = match self {
+            Self::Local => (1, 2048, 2048),
+            Self::FoundryBuild => (32, 131072, 262144),
+        };
+        if (
+            policy.resources.vcpus,
+            policy.resources.memory_mib,
+            policy.resources.disk_mib,
+        ) != expected
+        {
+            bail!("runtime resources differ from selected operator profile");
+        }
+        Ok(())
     }
-    Ok(())
+}
+
+/// Validate the original development contract.
+pub fn validate_supported_profile(policy: &VmPolicy) -> Result<()> {
+    ResourceProfile::Local.validate(policy)
 }
 
 /// Select the actual IPv4 NIC, ignoring Kata's addressless tap helper.
