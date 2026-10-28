@@ -24,6 +24,40 @@ pub struct NetworkCli {
 }
 #[derive(Debug, Subcommand)]
 enum Command {
+    BrokerHosted {
+        #[arg(long)]
+        bind: SocketAddr,
+        #[arg(long)]
+        config: PathBuf,
+        #[arg(long)]
+        inventory: PathBuf,
+        #[arg(long)]
+        control: PathBuf,
+    },
+    HostedAuthorize {
+        #[arg(long)]
+        control: PathBuf,
+        #[arg(long)]
+        request: PathBuf,
+    },
+    HostedInspect {
+        #[arg(long)]
+        control: PathBuf,
+        #[arg(long)]
+        request: PathBuf,
+    },
+    HostedStop {
+        #[arg(long)]
+        control: PathBuf,
+        #[arg(long)]
+        request: PathBuf,
+    },
+    HostedReady {
+        #[arg(long)]
+        control: PathBuf,
+        #[arg(long)]
+        nonce: String,
+    },
     Broker {
         #[arg(long)]
         bind: SocketAddr,
@@ -153,6 +187,9 @@ async fn control_connection(stream: UnixStream, broker: &BrokerHandle) -> Result
         bail!("invalid broker request nonce");
     }
     let stopping = matches!(request, ControlRequest::Stop { .. });
+    if stopping {
+        broker.deny_and_drain().await?;
+    }
     if let ControlRequest::Update { policy, .. } = &request {
         broker.replace_policy(policy.clone()).await?;
     }
@@ -213,6 +250,28 @@ async fn run_broker(address: SocketAddr, policy_path: &Path, control: &Path) -> 
 /// Execute one host-side operation; structured output goes to stdout.
 pub async fn run_network(cli: NetworkCli) -> Result<()> {
     match cli.command {
+        Command::BrokerHosted {
+            bind,
+            config,
+            inventory,
+            control,
+        } => super::guard::cli::serve(bind, &config, &inventory, &control).await,
+        Command::HostedAuthorize { control, request } => {
+            super::guard::cli::from_path(&control, &request, "authorize").await
+        }
+        Command::HostedInspect { control, request } => {
+            super::guard::cli::from_path(&control, &request, "inspect").await
+        }
+        Command::HostedStop { control, request } => {
+            super::guard::cli::from_path(&control, &request, "stop").await
+        }
+        Command::HostedReady { control, nonce } => {
+            super::guard::cli::send(
+                &control,
+                super::guard::HostedControlRequest::Ready { nonce },
+            )
+            .await
+        }
         Command::Broker {
             bind,
             policy,

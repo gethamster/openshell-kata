@@ -19,6 +19,7 @@ fn state() -> model::State {
         port: 22,
         username: "sandbox".into(),
         runtime_identity: "93f296f5-c3b3-4599-bede-aaeb88db87b1".into(),
+        broker: None,
         private_key_path: "/state/key".into(),
         known_hosts_path: "/state/known".into(),
         launch_nonce: Some(uuid::Uuid::new_v4().to_string()),

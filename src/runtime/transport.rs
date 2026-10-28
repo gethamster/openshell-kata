@@ -115,10 +115,11 @@ pub async fn open_tunnel(
 /// # Errors
 /// Rejects non-socket entries and live tunnels that cannot be closed cleanly.
 pub async fn close_tunnel(node: &Node, state: &StateDirectory, id: &str) -> Result<()> {
-    let socket = state.control_path(id)?;
+    let socket = state.control_path_for_cleanup(id)?;
     if !check_socket_entry(&socket)? {
         return Ok(());
     }
+    state.control_path(id)?;
     let config = node_ssh_config(node)?;
     let output = node
         .raw_command(

@@ -56,6 +56,42 @@ Do not claim internet-dependent hosted builds or all-platform equivalence from
 an offline Docker test. Selective native guest filesystem/process identity
 restrictions remain unsupported with guest root.
 
+## Hosted dependency and build delivery
+
+The next capability is explicit `brokered-public-tcp-v1`. Keep the existing
+`isolated` profile unchanged. Extract the local native TCP compiler and reuse
+the broker with an immutable operator ceiling and original caller capability.
+System selects its managed profile only when an operator configures it; explicit
+deny-all remains deny-all. Updates may narrow the original capability.
+
+The broker runs outside the guest VM in a trusted namespace, once per launch.
+Bind every control operation to the tenant namespace UID, sandbox, launch nonce,
+absolute expiry, broker startup epoch and expected policy generation. Fresh
+admitted sandbox snapshots authorize a lease of at most thirty seconds. Cached
+supervisor messages, health checks and inspection never renew authority. Expiry
+and policy revocation close active streams before acknowledgment.
+
+The operator supplies a fresh infrastructure deny inventory, including public
+platform addresses, plus protected hostname suffixes. Reject mixed DNS answers
+and preserve the union of denied addresses for each broker's lifetime. An expired
+inventory closes authority. This is TCP destination enforcement; an allowed
+shared address does not establish TLS SNI or HTTP Host identity.
+
+Kubernetes NetworkPolicy does not cover all own-node traffic. Before VM startup,
+a trusted runtime wrapper must install and verify the external host packet
+fence. Qualify the actual node kernel, containerd ordering and CNI packet path;
+unsupported nodes fail before starting the official Kata shim. API manifests or
+a proof file alone cannot establish this boundary.
+
+Delivery ownership is split between the public adapter, the System consumer and
+the active migration chat. Freeze producer and consumer sources before building
+immutable hosted artifacts. The migration chat owns node configuration, policy
+admission, inventory production and deployment. Qualify a real registry pull and
+an internet-dependent Docker build, direct guest and nested-container denial,
+own-node/metadata/private/public-platform routes, sibling tenant isolation,
+revocation, expired authorization, broker failure and recovery on those exact
+artifacts. Preserve evidence before removing task-owned runtime resources.
+
 Before hosted dependency downloads or internet-dependent builds, deliver the
 broker as a separate capability: a trusted broker outside the Kata Pod, external
 per-generation network fences, an explicit narrowing native policy and operator

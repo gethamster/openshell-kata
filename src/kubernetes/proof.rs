@@ -1,6 +1,9 @@
 //! Revalidation of the actual VM, storage, and additive network boundaries.
 
-use super::{client::Client, lease, manifest, model::State, policy};
+use super::{
+    broker, broker_manifest, broker_policy, client::Client, fence, lease, manifest, model::State,
+    policy,
+};
 use anyhow::{Result, ensure};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -19,6 +22,24 @@ pub(super) async fn verify(
     storage_class: &str,
     network: &ipnet::IpNet,
 ) -> Result<(State, Value)> {
+    verify_with_nonce(
+        client,
+        state,
+        storage_class,
+        network,
+        &uuid::Uuid::new_v4().to_string(),
+    )
+    .await
+}
+
+pub(super) async fn verify_with_nonce(
+    client: &Client,
+    state: &State,
+    storage_class: &str,
+    network: &ipnet::IpNet,
+    nonce: &str,
+) -> Result<(State, Value)> {
+    super::broker_config::canonical_uuid(nonce)?;
     let namespace = client
         .required("namespace", Some(&state.namespace), None)
         .await?;
@@ -34,7 +55,7 @@ pub(super) async fn verify(
         .await?;
     let node = client.required("node", Some(node_name), None).await?;
     let runtime = client
-        .required("runtimeclass", Some(manifest::RUNTIME), None)
+        .required("runtimeclass", Some(manifest::runtime(state)), None)
         .await?;
     let policies = client
         .required("networkpolicies", None, Some(&state.namespace))
@@ -42,7 +63,7 @@ pub(super) async fn verify(
         .as_array()
         .cloned()
         .ok_or_else(|| anyhow::anyhow!("invalid network policy inventory"))?;
-    validate(
+    let (next, mut proof) = validate(
         state,
         storage_class,
         &Observations {
@@ -53,7 +74,53 @@ pub(super) async fn verify(
             policies,
         },
         network,
-    )
+    )?;
+    if let Some(binding) = &state.broker {
+        ensure!(
+            namespace["metadata"]["uid"] == binding.source_namespace_uid
+                && namespace["metadata"]["name"] == state.namespace
+                && namespace["metadata"]["deletionTimestamp"].is_null(),
+            "source namespace generation differs"
+        );
+        broker::validate_resources(client, binding).await?;
+        let response = broker::inspect(client, binding, nonce).await?;
+        let inventory = binding
+            .inventory
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("broker inventory missing"))?;
+        ensure!(
+            response.inventory_generation == inventory.generation
+                && response.inventory_sha256 == inventory.digest()?,
+            "broker inventory proof differs"
+        );
+        if binding
+            .response
+            .as_ref()
+            .is_some_and(|r| r.authorization_expires_at_unix > 0)
+        {
+            ensure!(
+                response.authorization_expires_at_unix > lease::now()?,
+                "broker authorization expired"
+            );
+        }
+        let pod = client
+            .required("pod", Some(&state.name), Some(&state.namespace))
+            .await?;
+        ensure!(
+            pod["metadata"]["uid"] == next.runtime_identity,
+            "guest replaced during proof"
+        );
+        let node_fence = fence::verify(client, &next, &pod, nonce).await?;
+        proof["version"] = json!(2);
+        proof["network"] = json!(super::broker_config::PROFILE);
+        proof["proof_nonce"] = json!(nonce);
+        proof["source_namespace_uid"] = json!(binding.source_namespace_uid);
+        proof["broker_pod_uid"] = json!(binding.uid);
+        proof["broker_ip"] = json!(binding.ip);
+        proof["broker"] = serde_json::to_value(response)?;
+        proof["fence"] = serde_json::to_value(node_fence)?;
+    }
+    Ok((next, proof))
 }
 
 pub(super) fn validate(
@@ -79,7 +146,7 @@ pub(super) fn validate(
     policy::require_owned(&observed.pod, &state.name)?;
     let spec = &observed.pod["spec"];
     ensure!(
-        spec["runtimeClassName"] == manifest::RUNTIME
+        spec["runtimeClassName"] == manifest::runtime(state)
             && spec["automountServiceAccountToken"] == false,
         "runtime or token boundary differs"
     );
@@ -89,7 +156,7 @@ pub(super) fn validate(
             .all(|name| spec.get(name).is_none_or(|v| v == false)),
         "host namespaces forbidden"
     );
-    let expected = manifest::pod(&state.name, &state.namespace, &state.image);
+    let expected = broker_manifest::guest_pod(state);
     let containers = spec["containers"]
         .as_array()
         .ok_or_else(|| anyhow::anyhow!("invalid guest inventory"))?;
@@ -103,7 +170,9 @@ pub(super) fn validate(
     );
     ensure!(
         containers[0]["command"] == expected["spec"]["containers"][0]["command"]
-            && containers[0]["volumeMounts"] == expected["spec"]["containers"][0]["volumeMounts"],
+            && containers[0]["volumeMounts"] == expected["spec"]["containers"][0]["volumeMounts"]
+            && (state.broker.is_none()
+                || containers[0]["env"] == expected["spec"]["containers"][0]["env"]),
         "guest boot or storage binding changed"
     );
     ensure!(
@@ -142,13 +211,37 @@ pub(super) fn validate(
             && observed.node["metadata"]["labels"]["katacontainers.io/kata-runtime"] == "true",
         "Kata worker is not qualified"
     );
+    if state.broker.is_some() {
+        ensure!(
+            observed.node["metadata"]["labels"][manifest::GUARDED_NODE_LABEL] == "true",
+            "guarded Kata worker is not qualified"
+        );
+    }
     ensure!(
-        observed.runtime["handler"] == manifest::RUNTIME
+        observed.runtime["handler"] == manifest::runtime(state)
             && observed.runtime["metadata"]["annotations"]["katacontainers.io/kata-version"]
                 == "4.3.1",
         "runtime class differs from pinned runtime"
     );
-    policy::validate_policies(&observed.policies, &observed.pod["metadata"]["labels"])?;
+    if let Some(binding) = &state.broker {
+        ensure!(
+            observed.pod["metadata"]["labels"]
+                == broker_manifest::guest_labels(&state.name, binding),
+            "brokered guest labels changed"
+        );
+        broker_policy::validate_guest(
+            &observed.policies,
+            &observed.pod["metadata"]["labels"],
+            binding,
+        )?;
+    } else {
+        ensure!(
+            observed.pod["metadata"]["labels"]["platform.tryhamster.dev/network-profile"]
+                == "isolated",
+            "guest profile changed"
+        );
+        policy::validate_policies(&observed.policies, &observed.pod["metadata"]["labels"])?;
+    }
     let identity = observed.pod["metadata"]["uid"]
         .as_str()
         .ok_or_else(|| anyhow::anyhow!("runtime UID missing"))?;
@@ -172,7 +265,7 @@ pub(super) fn validate(
         "guest address outside operator network"
     );
     let proof = json!({"version":1,"sandbox_id":state.sandbox_id,"workspace":state.workspace,
-        "namespace":state.namespace,"runtime_identity":identity,"runtime_class":manifest::RUNTIME,
+        "namespace":state.namespace,"runtime_identity":identity,"runtime_class":manifest::runtime(state),
         "image":state.image,"network":"deny-all-egress","cpu":"2","memory":"4Gi",
         "expires_at_unix":expires,"deadline_enforcement":"kubelet-active-deadline",
         "policy_sha256":format!("{:x}",Sha256::digest(serde_json::to_vec(&observed.policies)?))});

@@ -18,6 +18,8 @@ pub(super) struct State {
     pub(super) username: String,
     pub(super) runtime_identity: String,
     #[serde(default)]
+    pub(super) broker: Option<super::broker_config::Binding>,
+    #[serde(default)]
     pub(super) launch_nonce: Option<String>,
     #[serde(default)]
     pub(super) owns_volume_for_launch: bool,
@@ -40,6 +42,14 @@ impl State {
             "retained sandbox identity differs"
         );
         policy::validate_image(&self.image)?;
+        if let Some(broker) = &self.broker {
+            broker.validate()?;
+            ensure!(
+                Some(broker.launch_nonce.as_str()) == self.launch_nonce.as_deref()
+                    && broker.source_namespace == self.namespace,
+                "retained broker generation differs"
+            );
+        }
         if let Some(nonce) = &self.launch_nonce {
             uuid::Uuid::parse_str(nonce)?;
         }

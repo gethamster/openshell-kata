@@ -173,6 +173,16 @@ impl StateDirectory {
     /// # Errors
     /// Rejects invalid identifiers, unsafe socket directories, or paths too long for macOS.
     pub fn control_path(&self, id: &str) -> Result<PathBuf> {
+        let socket = self.control_path_for_cleanup(id)?;
+        if socket.as_os_str().as_bytes().len() > MAX_SOCKET_PATH_BYTES {
+            bail!("runtime state path is too long for an SSH control socket");
+        }
+        Ok(socket)
+    }
+
+    // An absent socket must not prevent cleanup of an earlier failed launch.
+    // Opening or commanding a present socket still requires control_path().
+    pub(crate) fn control_path_for_cleanup(&self, id: &str) -> Result<PathBuf> {
         let path = self.path(id)?;
         self.check_root()?;
         let mut builder = DirBuilder::new();
@@ -186,9 +196,6 @@ impl StateDirectory {
         check_private_directory(&socket_directory.dir_metadata()?, self.owner_uid)?;
         let hash = format!("{:x}", Sha256::digest(path.as_os_str().as_bytes()));
         let socket = self.root.join(".t").join(&hash[..20]);
-        if socket.as_os_str().as_bytes().len() > MAX_SOCKET_PATH_BYTES {
-            bail!("runtime state path is too long for an SSH control socket");
-        }
         Ok(socket)
     }
 

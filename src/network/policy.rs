@@ -1,5 +1,6 @@
 use anyhow::{Result, bail};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::{
     collections::BTreeSet,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
@@ -27,6 +28,29 @@ pub struct ValidatedNetworkPolicy {
     allowed: BTreeSet<Endpoint>,
 }
 impl NetworkPolicy {
+    /// Return the canonical exact endpoint set.
+    pub fn normalized(&self) -> Result<Self> {
+        Ok(self.validate()?.normalized())
+    }
+
+    /// Hash the canonical policy independently of runtime resource settings.
+    pub fn digest(&self) -> Result<String> {
+        Ok(format!(
+            "{:x}",
+            Sha256::digest(serde_json::to_vec(&self.normalized()?)?)
+        ))
+    }
+
+    /// Determine whether every permission is contained by the supplied ceiling.
+    pub fn is_subset_of(&self, ceiling: &Self) -> Result<bool> {
+        let normalized = self.normalized()?;
+        let ceiling = ceiling.validate()?;
+        Ok(normalized
+            .tcp_allow
+            .iter()
+            .all(|entry| ceiling.allows(&entry.host, entry.port)))
+    }
+
     pub fn validate(&self) -> Result<ValidatedNetworkPolicy> {
         if self.tcp_allow.len() > 256 {
             bail!("too many TCP destination selectors");

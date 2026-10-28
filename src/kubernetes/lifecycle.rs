@@ -1,6 +1,7 @@
 //! Nonce-bound Kubernetes VM creation, revalidation, and retained-volume recovery.
 
 use super::{
+    broker, broker_config, broker_manifest,
     client::{Client, command_output},
     lease, manifest,
     model::{Route, State},
@@ -31,10 +32,9 @@ pub(super) async fn create(
     policy::validate_image(launch.image)?;
     uuid::Uuid::parse_str(launch.nonce)?;
     let namespace = policy::namespace(launch.workspace)?;
-    policy::check_namespace(
-        &client.required("namespace", Some(&namespace), None).await?,
-        launch.workspace,
-    )?;
+    let source_namespace = client.required("namespace", Some(&namespace), None).await?;
+    policy::check_namespace(&source_namespace, launch.workspace)?;
+    let network_config = broker_config::configured()?;
     let name = policy::resource_id(launch.sandbox)?;
     let existing = store.read(launch.sandbox)?;
     let expires = lease::expires_at(
@@ -47,6 +47,13 @@ pub(super) async fn create(
             existing.workspace == launch.workspace && existing.image == launch.image,
             "existing runtime has different retained identity"
         );
+        ensure!(
+            existing.broker.is_some() == network_config.is_some(),
+            "retained network profile differs; explicit cleanup required"
+        );
+        if let Some(binding) = &existing.broker {
+            broker::config(binding)?;
+        }
     }
     if client
         .get("pod", Some(&name), Some(&namespace))
@@ -74,7 +81,10 @@ pub(super) async fn create(
     }
     // The intent is durable before keys or Kubernetes objects are changed. A
     // failed-launch abort can identify exactly this generation, including preboot.
-    let state = State {
+    if let Some(binding) = existing.as_ref().and_then(|s| s.broker.as_ref()) {
+        broker::delete(client, binding).await?;
+    }
+    let base = State {
         sandbox_id: launch.sandbox.into(),
         workspace: launch.workspace.into(),
         namespace: namespace.clone(),
@@ -84,19 +94,31 @@ pub(super) async fn create(
         port: 22,
         username: "sandbox".into(),
         runtime_identity: String::new(),
+        broker: None,
         launch_nonce: Some(launch.nonce.into()),
         owns_volume_for_launch: volume.is_none(),
         expires_at: Some(expires),
         private_key_path: folder.join("client_key"),
         known_hosts_path: folder.join("known_hosts"),
     };
+    let state = if let Some(config) = &network_config {
+        State {
+            broker: Some(broker::intent(&base, &source_namespace, config)?),
+            ..base
+        }
+    } else {
+        base
+    };
     store.save(&state)?;
     generate_keys(store, launch.sandbox, folder).await?;
     let host_key = store.key(launch.sandbox, "host_key.pub")?;
     store.known_hosts(launch.sandbox, "placeholder", &host_key)?;
-    client
-        .apply(&manifest::network_policy(&name, &namespace))
-        .await?;
+    let state = broker::create(client, store, &state).await?;
+    let network_policy = state.broker.as_ref().map_or_else(
+        || manifest::network_policy(&name, &namespace),
+        |binding| broker_manifest::guest_policy(&name, &namespace, binding),
+    );
+    client.apply(&network_policy).await?;
     if volume.is_none() {
         client
             .apply(&manifest::pvc(&name, &namespace, launch.storage_class))
@@ -108,14 +130,31 @@ pub(super) async fn create(
     let policies = client
         .required("networkpolicies", None, Some(&namespace))
         .await?;
-    policy::validate_policies(
-        policies["items"]
-            .as_array()
-            .context("invalid policy inventory")?,
-        &manifest::labels(&name),
-    )?;
-    let mut pod = manifest::pod(&name, &namespace, launch.image);
+    let items = policies["items"]
+        .as_array()
+        .context("invalid policy inventory")?;
+    if let Some(binding) = &state.broker {
+        super::broker_policy::validate_guest(
+            items,
+            &broker_manifest::guest_labels(&name, binding),
+            binding,
+        )?;
+    } else {
+        policy::validate_policies(items, &manifest::labels(&name))?;
+    }
+    let mut pod = broker_manifest::guest_pod(&state);
     pod["metadata"]["annotations"] = lease::annotations(launch.sandbox, launch.nonce, expires);
+    if let Some(binding) = &state.broker {
+        for (key, value) in [
+            ("source-namespace-uid", binding.source_namespace_uid.clone()),
+            ("broker-pod-uid", binding.uid.clone()),
+            ("broker-ip", binding.ip.clone()),
+            ("broker-port", "3128".into()),
+            ("broker-config-sha256", binding.config_sha256.clone()),
+        ] {
+            pod["metadata"]["annotations"][format!("openshell-kata.io/{key}")] = json!(value);
+        }
+    }
     pod["spec"]["activeDeadlineSeconds"] = json!(
         expires
             .checked_sub(lease::now()?)
@@ -183,6 +222,13 @@ pub(super) async fn stop(
         .required("namespace", Some(&state.namespace), None)
         .await?;
     policy::check_namespace(&namespace, &state.workspace)?;
+    if let Some(binding) = &state.broker {
+        ensure!(
+            namespace["metadata"]["uid"] == binding.source_namespace_uid,
+            "source namespace replaced"
+        );
+        broker::delete(client, binding).await?;
+    }
     if let Some(pod) = client
         .get("pod", Some(&state.name), Some(&state.namespace))
         .await?

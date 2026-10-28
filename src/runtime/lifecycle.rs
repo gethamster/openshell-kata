@@ -100,6 +100,8 @@ pub async fn execute(
         if exists {
             bail!("sandbox state already exists");
         }
+        // Validate the host transport before contacting or allocating the node.
+        state.control_path(id)?;
         let raw = node
             .raw_nerdctl(&args(&["inspect", "--mode=native", id]))
             .await?;
@@ -198,6 +200,7 @@ pub async fn execute(
                     "restart requires the same resource/filesystem policy with deny-all networking"
                 );
             }
+            state.control_path(id)?;
             let record = Record { policy, ..record };
             state.write(id, &record)?;
             start(&node, &state, settings, id, &record).await?

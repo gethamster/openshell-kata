@@ -1,18 +1,32 @@
 //! Cloud-independent Kubernetes launcher for operator-qualified Rust Kata guests.
 
+mod broker;
+mod broker_config;
+mod broker_manifest;
+mod broker_policy;
+mod broker_spec;
+#[cfg(test)]
+mod broker_tests;
 mod client;
 #[cfg(test)]
 mod expiry_tests;
+mod fence;
 mod lease;
 mod lifecycle;
 mod manifest;
 mod model;
+mod node_broker;
 mod policy;
 mod proof;
 mod reaper;
 mod store;
 #[cfg(test)]
 mod tests;
+
+pub use broker_config::HostedNetworkConfig;
+#[cfg(test)]
+pub(crate) use node_broker::node_broker_manifest;
+pub(crate) use node_broker::validate_node_broker_pod;
 
 use anyhow::{Context, Result, bail, ensure};
 use clap::{Parser, ValueEnum};
@@ -23,6 +37,7 @@ enum Action {
     Create,
     Start,
     Verify,
+    ApplyNetwork,
     Stop,
     Delete,
     Abort,
@@ -111,11 +126,41 @@ pub async fn run() -> Result<()> {
             )
             .await?
         }
-        Action::Verify => {
+        Action::Verify | Action::ApplyNetwork => {
             let state = state.context("missing retained runtime identity")?;
-            proof::verify(&client, &state, &storage_class()?, &network()?)
-                .await?
-                .1
+            let nonce = if state.broker.is_some() {
+                arguments
+                    .proof_nonce
+                    .context("verification requires fresh proof nonce")?
+            } else {
+                arguments.proof_nonce.unwrap_or_else(uuid::Uuid::new_v4)
+            }
+            .to_string();
+            if matches!(arguments.action, Action::ApplyNetwork) {
+                ensure!(
+                    state.broker.is_some(),
+                    "network authorization requires broker profile"
+                );
+                ensure!(
+                    env::var("OPENSHELL_KATA_RUNTIME_IDENTITY").ok().as_deref()
+                        == Some(state.runtime_identity.as_str()),
+                    "network authorization runtime identity differs"
+                );
+                proof::verify_with_nonce(&client, &state, &storage_class()?, &network()?, &nonce)
+                    .await?;
+                let path = env::var_os("OPENSHELL_KATA_NETWORK_POLICY_FILE")
+                    .context("network policy file required")?;
+                let policy = broker_config::read_json(std::path::Path::new(&path))?;
+                let next = broker::authorize(&client, &state, policy, &nonce).await?;
+                store.save(&next)?;
+                proof::verify_with_nonce(&client, &next, &storage_class()?, &network()?, &nonce)
+                    .await?
+                    .1
+            } else {
+                proof::verify_with_nonce(&client, &state, &storage_class()?, &network()?, &nonce)
+                    .await?
+                    .1
+            }
         }
         Action::Stop | Action::Delete => {
             if let Some(state) = state {

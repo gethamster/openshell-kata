@@ -26,18 +26,85 @@ block quota. The local block-backed profile separately supports one vCPU and
 
 ## Guarantees and limits
 
-The Kubernetes profile accepts version-1 policy with all fine-grained sections
-absent. It enforces deny-all guest egress and permits SSH only from the trusted
+The default `isolated` profile accepts version-1 policy with all fine-grained
+sections absent. It enforces deny-all guest egress and permits SSH only from the trusted
 control role. Before launch and during revalidation, it rejects additive
 selecting policies that broaden that boundary and verifies the actual Pod UID,
 nonce, runtime class, node qualification, image, storage and resource settings.
 It never falls back to an ordinary container runtime.
 
 Guest root and Docker do not imply selective native path, executable or process
-identity enforcement. Unsupported policy is rejected. The local host broker's
-public-destination allowlists are not yet a Kubernetes capability. Hosted
-internet-dependent builds require that additional implementation and testing;
-offline Docker tests do not prove internet access.
+identity enforcement. Unsupported policy is rejected. Public TCP brokering is
+an additional explicit profile described below. Hosted promotion requires real
+dependency downloads and builds; offline Docker tests do not prove internet access.
+
+## Explicit public TCP brokering
+
+Select `--hosted-network-config /absolute/operator.json` to request
+`brokered-public-tcp-v1`. The default remains deny-all. The operator file pins
+the trusted broker namespace UID, exact host/port ceiling, protected hostname
+suffixes, baseline denied CIDRs, trusted resolver namespace/Pod selectors,
+authorization lease and absolute path to a fresh infrastructure inventory.
+Use immutable `OPENSHELL_KATA_BROKER_IMAGE` and `OPENSHELL_KATA_GUARD_IMAGE`
+digests. Bind the actual source, broker, controller and guard namespace UIDs to
+operator configuration or launch state. No namespace UID mirror label is needed.
+Network policies select exact namespace names and immutable Pod labels carrying
+the source namespace UID, sandbox identity and launch nonce.
+
+This profile uses the local runtime's native TCP compiler. Rules must select
+all executables with `/**`, exact DNS names or global IP literals, explicit TCP
+ports and TLS skip. It provides TCP destination authorization. It does not
+inspect TLS SNI or establish HTTP Host identity at an allowed shared address.
+There is no wildcard, credential, L7, guest filesystem or process identity
+capability. Native policy may narrow both the operator ceiling and the immutable
+original caller capability. An empty caller policy never gains internet access.
+Global effective policies are unsupported for this profile.
+
+Each launch creates a tokenless trusted broker Pod outside the Kata namespace.
+It starts denied. Proxy settings are installed before the guest starts, including
+Docker daemon/client/build settings. External host fencing remains authoritative
+when guest root removes those settings. Combined namespace and Pod selectors
+limit guest-to-broker traffic; the observed Pod IP is routing information.
+
+Every authorization uses a fresh admitted gateway snapshot and a private broker
+control operation bound to the source namespace UID, sandbox, launch nonce,
+original expiry, broker process epoch and expected generation. A lease lasts at
+most thirty seconds and no longer than the infrastructure inventory or sandbox.
+Inspection and cached supervisor acceptance do not renew it. Expiry, cancellation
+after mutation and changed policy revoke existing streams. Revocation finishes
+before its control acknowledgment. The inventory expires within sixty seconds,
+and denied addresses accumulate for each broker's lifetime. Protect public
+platform VIPs as well as private ranges; mixed DNS answers are rejected entirely.
+
+Kubernetes NetworkPolicy permits own-node traffic in cases relevant to this
+guest. The hosted profile additionally requires a trusted preboot wrapper and
+read-back proof of host-owned TCX ingress/egress programs outside the VM.
+Brokered guests use the separate `kata-qemu-runtime-rs-guarded` runtime class
+and handler. Scheduling uses the static `pool: kata-workers` selector; readiness
+also checks the installed node's `openshell-kata.io/guarded-runtime: "true"` label.
+An absent guarded handler prevents VM startup while a new node is configured.
+
+`kata-node-intent` publishes root-owned generation intent from read-only API and
+the actual CNI namespace. `kata-runtime-guard` installs the fence before delegating
+to the pinned official Kata shim. Unsupported identities, absent intent or
+unqualified packet paths fail before VM startup.
+
+The inspected upstream containerd 2.2.7 `podsandbox` path completes CNI before
+[sandbox creation/start](https://github.com/containerd/containerd/blob/v2.2.7/internal/cri/server/sandbox_run.go#L241).
+It passes the configured
+[runtime path to NewTask](https://github.com/containerd/containerd/blob/v2.2.7/internal/cri/server/podsandbox/sandbox_run.go#L219);
+the task manager writes the OCI bundle and
+[starts the shim before TaskCreate](https://github.com/containerd/containerd/blob/v2.2.7/core/runtime/v2/task_manager.go#L141).
+The shim command runs in the
+[bundle directory](https://github.com/containerd/containerd/blob/v2.2.7/pkg/shim/util.go#L63).
+Qualify the deployed vendor build, sandbox controller, kernel and CNI against
+this ordering and the actual traffic tests. Source inspection alone is not live
+node qualification. Kata host OCI hooks cannot provide this barrier: the
+[4.3.1 call site runs after VM startup](https://github.com/kata-containers/kata-containers/blob/4.3.1/src/runtime-rs/crates/runtimes/virt_container/src/sandbox.rs#L1388).
+
+Never remove an expired host fence merely because an API Pod disappeared or a
+timer fired. A partitioned guest may still run. The fence must continue dropping
+traffic until exact sandbox termination and interface destruction are proven.
 
 `OPENSHELL_KATA_LIFETIME_SECS` defaults to 3600 and accepts 60–86400 seconds.
 The original expiry persists across stop/start. Pod `activeDeadlineSeconds` is

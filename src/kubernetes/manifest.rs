@@ -3,6 +3,15 @@
 use serde_json::{Value, json};
 
 pub(super) const RUNTIME: &str = "kata-qemu-runtime-rs";
+pub(super) const GUARDED_RUNTIME: &str = "kata-qemu-runtime-rs-guarded";
+pub(super) const GUARDED_NODE_LABEL: &str = "openshell-kata.io/guarded-runtime";
+pub(super) fn runtime(state: &super::model::State) -> &'static str {
+    if state.broker.is_some() {
+        GUARDED_RUNTIME
+    } else {
+        RUNTIME
+    }
+}
 pub(super) const OWNER: &str = "openshell-kata";
 
 pub(super) fn labels(name: &str) -> Value {

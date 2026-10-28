@@ -150,6 +150,23 @@ impl Driver {
         self.config.validate_request(sandbox)?;
         Ok(None)
     }
+    fn hosted_network_for(
+        &self,
+        sandbox: &c::DriverSandbox,
+    ) -> anyhow::Result<Option<crate::network::NetworkPolicy>> {
+        self.config
+            .hosted_network_config
+            .as_deref()
+            .map(|path| {
+                let operator = crate::kubernetes::HostedNetworkConfig::load(path)?;
+                crate::hosted::validate_brokered_request(
+                    sandbox,
+                    self.config.guest_image.as_deref().unwrap_or(""),
+                    &operator.operator_ceiling,
+                )
+            })
+            .transpose()
+    }
     /// Stop retained compute before exposing credential-free stopped records.
     pub async fn recover(&self) -> anyhow::Result<()> {
         let _guard = self.recovery_gate.write().await;

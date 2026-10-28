@@ -128,3 +128,62 @@ fn operator_network_is_private_and_cloud_independent() -> anyhow::Result<()> {
     }
     Ok(())
 }
+
+#[test]
+fn hosted_network_is_explicit_and_cannot_expand_initial_authority() -> anyhow::Result<()> {
+    use openshell_kata::network::{Endpoint, NetworkPolicy};
+    let mut input = request();
+    let image = input
+        .spec
+        .as_ref()
+        .expect("spec")
+        .template
+        .as_ref()
+        .expect("template")
+        .image
+        .clone();
+    let ceiling = NetworkPolicy {
+        tcp_allow: vec![Endpoint {
+            host: "registry.npmjs.org".into(),
+            port: 443,
+        }],
+    };
+    assert_eq!(
+        hosted::validate_brokered_request(&input, &image, &ceiling)?,
+        NetworkPolicy::default()
+    );
+    let native = input
+        .spec
+        .as_mut()
+        .expect("spec")
+        .policy
+        .as_mut()
+        .expect("policy");
+    native.network_policies.insert(
+        "npm".into(),
+        s::NetworkPolicyRule {
+            binaries: vec![s::NetworkBinary { path: "/**".into() }],
+            endpoints: vec![s::NetworkEndpoint {
+                host: "registry.npmjs.org".into(),
+                port: 443,
+                protocol: "tcp".into(),
+                tls: 1,
+                ..Default::default()
+            }],
+            ..Default::default()
+        },
+    );
+    assert!(
+        hosted::validate_request(&input, &image).is_err(),
+        "legacy isolated cannot gain networking"
+    );
+    assert_eq!(
+        hosted::validate_brokered_request(&input, &image, &ceiling)?,
+        ceiling
+    );
+    assert!(
+        hosted::validate_brokered_request(&input, &image, &NetworkPolicy::default()).is_err(),
+        "empty original capability cannot widen"
+    );
+    Ok(())
+}

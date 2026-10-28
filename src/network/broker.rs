@@ -20,14 +20,17 @@ use tokio::{
 };
 use tokio_util::sync::CancellationToken;
 
-trait Io: AsyncRead + AsyncWrite + Unpin + Send {}
+pub(super) trait Io: AsyncRead + AsyncWrite + Unpin + Send {}
 impl<T: AsyncRead + AsyncWrite + Unpin + Send> Io for T {}
-type Stream = Box<dyn Io>;
-trait Connector: Send + Sync {
+pub(super) type Stream = Box<dyn Io>;
+pub(super) trait Connector: Send + Sync {
     fn resolve<'a>(&'a self, host: &'a str, port: u16) -> BoxFuture<'a, Result<Vec<SocketAddr>>>;
     fn connect(&self, address: SocketAddr) -> BoxFuture<'_, Result<Stream>>;
+    fn cancellation(&self) -> CancellationToken {
+        CancellationToken::new()
+    }
 }
-struct SystemConnector;
+pub(super) struct SystemConnector;
 impl Connector for SystemConnector {
     fn resolve<'a>(&'a self, host: &'a str, port: u16) -> BoxFuture<'a, Result<Vec<SocketAddr>>> {
         Box::pin(async move {
@@ -126,12 +129,19 @@ impl BrokerHandle {
     }
     /// Revoke and close every old-generation connection before publishing a new policy.
     pub async fn replace_policy(&self, policy: NetworkPolicy) -> Result<u64> {
+        self.replace_policy_inner(policy, false).await
+    }
+    pub(super) async fn deny_and_drain(&self) -> Result<u64> {
+        self.replace_policy_inner(NetworkPolicy::default(), true)
+            .await
+    }
+    async fn replace_policy_inner(&self, policy: NetworkPolicy, force: bool) -> Result<u64> {
         let validated = policy.validate()?;
         let _guard = self.state.update.lock().await;
         if self.state.shutdown.is_cancelled() {
             bail!("broker has stopped");
         }
-        {
+        if !force {
             let current = self.state.current.read().await;
             if let GenerationState::Active(generation) = &*current
                 && generation.policy == validated
@@ -184,7 +194,7 @@ impl Drop for BrokerHandle {
 pub async fn bind_broker(address: SocketAddr, policy: NetworkPolicy) -> Result<BrokerHandle> {
     bind_with_connector(address, policy, Arc::new(SystemConnector)).await
 }
-async fn bind_with_connector(
+pub(super) async fn bind_with_connector(
     address: SocketAddr,
     policy: NetworkPolicy,
     connector: Arc<dyn Connector>,
@@ -232,9 +242,9 @@ async fn serve(listener: TcpListener, state: Arc<State>) {
                 let guard=state.current.read().await;
                 let GenerationState::Active(generation)=&*guard else{drop(socket);continue;};let generation=generation.clone();
                 generation.active.fetch_add(1,Ordering::AcqRel);let lease=Lease(generation.clone());drop(guard);
-                let connector=state.connector.clone();let shutdown=state.shutdown.clone();
+                let connector=state.connector.clone();let shutdown=state.shutdown.clone();let authorization=connector.cancellation();
                 tasks.spawn(async move{let _permit=permit;let _lease=lease;tokio::select!{
-                    ()=shutdown.cancelled()=>{},()=generation.cancel.cancelled()=>{},
+                    ()=shutdown.cancelled()=>{},()=generation.cancel.cancelled()=>{},()=authorization.cancelled()=>{},
                     result=connection(socket,&generation.policy,connector.as_ref())=>{if let Err(error)=result{tracing::debug!(%error,"broker connection ended");}}
                 }});
             }

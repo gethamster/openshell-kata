@@ -5,6 +5,7 @@ WORKDIR /src
 COPY Cargo.toml Cargo.lock build.rs ./
 COPY src ./src
 COPY proto ./proto
+COPY protocol ./protocol
 RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
     --mount=type=cache,target=/src/target,sharing=locked \
     cargo build --release --locked --bin kata-workspace \

@@ -20,7 +20,10 @@ jobs:
       - name: Install Rust toolchain
         run: rustup toolchain install 1.98.0 --profile minimal --component rustfmt --component clippy
       - name: Format
-        run: cargo +1.98.0 fmt --check
+        run: |
+          cargo +1.98.0 fmt --check
+          cargo +1.98.0 fmt --manifest-path fence-ebpf/Cargo.toml --check
+          rustfmt +1.98.0 --edition 2024 --check scripts/build_hosted_fence.rs
       - name: Lint
         run: cargo +1.98.0 clippy --locked --all-targets --all-features -- -D warnings
       - name: Test
@@ -29,3 +32,23 @@ jobs:
         run: cargo +1.98.0 doc --locked --no-deps
       - name: Vendored protocol checksums
         run: cargo +1.98.0 run --locked --bin kata-dev -- verify-upstream
+
+  hosted-fence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Rust toolchain
+        run: rustup toolchain install 1.98.0 --profile minimal
+      - name: Install object build prerequisites
+        run: sudo apt-get update && sudo apt-get install -y zstd
+      - name: Build pinned Rust packet fence
+        run: |
+          rustc +1.98.0 --edition=2024 scripts/build_hosted_fence.rs -o /tmp/build-hosted-fence
+          /tmp/build-hosted-fence --output-dir /tmp/fence-artifacts
+      - name: Preserve build identity
+        uses: actions/upload-artifact@v4
+        with:
+          name: hosted-fence-object
+          path: /tmp/fence-artifacts/

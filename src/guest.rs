@@ -93,6 +93,8 @@ impl Guest {
                 "-oUpdateHostKeys=no",
                 "-oForwardAgent=no",
                 "-oControlMaster=no",
+                "-oServerAliveInterval=30",
+                "-oServerAliveCountMax=3",
                 "-oLogLevel=ERROR",
             ])
             .arg(format!(
@@ -203,6 +205,19 @@ pub async fn lifecycle_for_policy(
     policy: Option<&crate::profile::VmPolicy>,
     nonce: Option<&str>,
 ) -> Result<Option<Guest>> {
+    lifecycle_for_network(config, action, id, workspace, policy, nonce, None).await
+}
+
+/// Launch with a separate hosted capability, without local VM resource assumptions.
+pub async fn lifecycle_for_network(
+    config: &Config,
+    action: &str,
+    id: &SandboxId,
+    workspace: Option<&str>,
+    policy: Option<&crate::profile::VmPolicy>,
+    nonce: Option<&str>,
+    initial_network: Option<&crate::network::NetworkPolicy>,
+) -> Result<Option<Guest>> {
     if policy.is_some() && nonce.is_none() {
         bail!("runtime enforcement requires a proof challenge");
     }
@@ -217,11 +232,18 @@ pub async fn lifecycle_for_policy(
             Ok(file)
         })
         .transpose()?;
+    let network_file = initial_network.map(private_json).transpose()?;
     let mut command = Command::new(&config.lifecycle);
     command
         .args(&config.lifecycle_arg)
         .arg(action)
         .arg(id.as_str());
+    hosted_environment(&mut command, config);
+    if let Some(file) = &network_file {
+        command.env("OPENSHELL_KATA_INITIAL_NETWORK_POLICY_FILE", file.path());
+    } else {
+        command.env_remove("OPENSHELL_KATA_INITIAL_NETWORK_POLICY_FILE");
+    }
     for (name, value) in [
         ("OPENSHELL_KATA_GUEST_IMAGE", &config.guest_image),
         (
@@ -304,6 +326,7 @@ pub async fn verify_runtime(
         return Ok(());
     }
     let mut command = Command::new(&config.lifecycle);
+    let nonce = uuid::Uuid::new_v4().to_string();
     command
         .args(&config.lifecycle_arg)
         .arg("verify")
@@ -314,15 +337,82 @@ pub async fn verify_runtime(
         )
         .stdin(Stdio::null())
         .kill_on_drop(true);
+    hosted_environment(&mut command, config);
+    if config.hosted_network_config.is_some() {
+        command.arg("--proof-nonce").arg(&nonce);
+    }
     let output = bounded_output(command, Duration::from_secs(15)).await?;
     if !output.status.success() {
         bail!("live Kubernetes runtime verification failed");
     }
     let proof: crate::hosted::RuntimeProof = serde_json::from_slice(&output.stdout)?;
-    proof.validate(
+    proof.validate_for_profile(
         sandbox,
         config.guest_image.as_deref().unwrap_or(""),
         identity,
+        config.hosted_network_config.as_deref(),
+        &nonce,
+        None,
+    )
+}
+
+fn private_json(value: &impl serde::Serialize) -> Result<tempfile::NamedTempFile> {
+    let mut file = tempfile::NamedTempFile::new()?;
+    serde_json::to_writer(&mut file, value)?;
+    file.as_file().sync_all()?;
+    Ok(file)
+}
+
+fn hosted_environment(command: &mut Command, config: &Config) {
+    for name in [
+        "OPENSHELL_KATA_NETWORK_POLICY_FILE",
+        "OPENSHELL_KATA_RUNTIME_IDENTITY",
+    ] {
+        command.env_remove(name);
+    }
+    if let Some(path) = &config.hosted_network_config {
+        command.env("OPENSHELL_KATA_HOSTED_NETWORK_CONFIG", path);
+    } else {
+        command.env_remove("OPENSHELL_KATA_HOSTED_NETWORK_CONFIG");
+    }
+}
+
+/// Renew authority only with a newly compiled fresh gateway snapshot.
+pub async fn enforce_hosted_network(
+    config: &Config,
+    sandbox: &crate::proto::openshell::compute::v1::DriverSandbox,
+    identity: &str,
+    policy: &crate::network::NetworkPolicy,
+) -> Result<()> {
+    let nonce = uuid::Uuid::new_v4().to_string();
+    let file = private_json(policy)?;
+    let mut command = Command::new(&config.lifecycle);
+    hosted_environment(&mut command, config);
+    command
+        .args(&config.lifecycle_arg)
+        .arg("apply-network")
+        .arg(&sandbox.id)
+        .arg("--proof-nonce")
+        .arg(&nonce)
+        .env("OPENSHELL_KATA_NETWORK_POLICY_FILE", file.path())
+        .env("OPENSHELL_KATA_RUNTIME_IDENTITY", identity)
+        .env(
+            "OPENSHELL_KATA_GUEST_NETWORK_CIDR",
+            config.guest_network_cidr.as_deref().unwrap_or(""),
+        )
+        .stdin(Stdio::null());
+    let output = bounded_output(command, Duration::from_secs(15)).await?;
+    if !output.status.success() {
+        bail!("hosted network authorization failed");
+    }
+    let proof: crate::hosted::RuntimeProof = serde_json::from_slice(&output.stdout)?;
+    proof.validate_for_profile(
+        sandbox,
+        config.guest_image.as_deref().unwrap_or(""),
+        identity,
+        config.hosted_network_config.as_deref(),
+        &nonce,
+        Some(policy),
     )
 }
 
