@@ -1,0 +1,422 @@
+{
+  "checks": {
+    "installer_python_tests_passed": 9,
+    "linux_rust_tests_passed": 267,
+    "local_clippy_fmt_rustdoc_passed": true,
+    "local_rust_tests_passed": 262,
+    "source_review_before_live_remaining_p1_p2": 0
+  },
+  "deferred": {
+    "compiler_stage": "Deferred by user coordination; not initial System/OpenShell activation gate",
+    "fixed_revision_build_backend": "Deferred by user coordination",
+    "shared_host_reboot": "Parent-owned later qualification"
+  },
+  "effects": {
+    "all_ephemeral_test_guests_deleted": true,
+    "canary_gateway_and_adapter_stopped": true,
+    "long_lived_key_rotation_or_deletion_performed": false,
+    "new_production_enrollment_performed": false,
+    "production_activation_performed": false
+  },
+  "initial_image": {
+    "archive_bytes": 694799872,
+    "archive_sha256": "48f180c36dbcd5f1c1743e45e558aff155e2df7841fdf32eb43d0ec5cf51eb03",
+    "image": "us-central1-docker.pkg.dev/oss-foundry/foundry-builders/system-builder@sha256:00fb337221e2940eb6f66048823ba6625b978f18167ec7da62daef44a4112716",
+    "manifest_digest": "sha256:00fb337221e2940eb6f66048823ba6625b978f18167ec7da62daef44a4112716",
+    "native_source_commit": "ea70f55c0da420b9de9bc778ee3554581021138d",
+    "platform": "linux/amd64"
+  },
+  "known_limits": [
+    "Ordinary SSH exec timeout does not guarantee remote process termination; the distinct typed workspace pidfd run/kill path was tested successfully.",
+    "Initial image00fb was qualified only for the basic command/file/workspace flow. Compiler PATH/environment qualification is explicitly deferred."
+  ],
+  "node_source": {
+    "binary_root": "/var/lib/system/kata/commissioning/bin-ea70f55",
+    "commit": "ea70f55c0da420b9de9bc778ee3554581021138d",
+    "tree": "9f83aa15cb7610a02df78595480708089cdc2e40"
+  },
+  "receipts": {
+    "adapter-recovery": {
+      "adapter_sigkill_recovered": true,
+      "execution_denied_until_fresh_start": true,
+      "private_files_retained": true
+    },
+    "basic-eligible-delete": {
+      "passed": true,
+      "sandbox_id": "56d14d88-0372-41f4-bd50-3a7d50fbdc61",
+      "task_snapshot_state_and_network_absent": true
+    },
+    "basic-eligible-smoke": {
+      "basic_system_openshell_eligible": true,
+      "compiler_stage_qualified": false,
+      "image": "us-central1-docker.pkg.dev/oss-foundry/foundry-builders/system-builder@sha256:00fb337221e2940eb6f66048823ba6625b978f18167ec7da62daef44a4112716",
+      "plain_command_pass": true,
+      "sandbox_id": "56d14d88-0372-41f4-bd50-3a7d50fbdc61",
+      "small_file_roundtrip_bytes": 35,
+      "small_file_sha256": "7ec916ad31ab53c30c7913c991238e12ed72a52c40fac94f4d599fea72c32cd6",
+      "source_commit": "ea70f55c0da420b9de9bc778ee3554581021138d",
+      "workspace_protocol": "openshell-kata-workspace/1",
+      "workspace_sha256": "827c94b851800e449a1298e3c2f684a82e9162ffa9c6584fa971dbaaf4168970"
+    },
+    "delete-cleanup": {
+      "namespace_and_veth_absent": true,
+      "passed": true,
+      "private_snapshot_absent": true,
+      "retained_intent_absent": true,
+      "runtime_state_absent": true,
+      "sandbox_id": "a8bb2929-cf83-4918-9f35-8e84f66334d8",
+      "task_absent": true
+    },
+    "file-roundtrip": {
+      "bytes": 16777216,
+      "passed": true,
+      "sha256": {
+        "binary.dat": "341aacac661ccb210720bedaa9ead5d668fe5ea41a73532fc147c71e34040df1",
+        "nested/text.txt": "6117dde500f11d7a01e188ca77456772af52cafe83168663c3ddd93c235984bd",
+        "probe.sh": "1155276063d00c1678b71da17cb72a1c7adef3c0c38175a192be72a18569cd02"
+      }
+    },
+    "final-image-import": {
+      "archive_bytes": 694799872,
+      "archive_sha256": "48f180c36dbcd5f1c1743e45e558aff155e2df7841fdf32eb43d0ec5cf51eb03",
+      "image": "us-central1-docker.pkg.dev/oss-foundry/foundry-builders/system-builder@sha256:00fb337221e2940eb6f66048823ba6625b978f18167ec7da62daef44a4112716",
+      "manifest_digest": "sha256:00fb337221e2940eb6f66048823ba6625b978f18167ec7da62daef44a4112716",
+      "native_source_commit": "ea70f55c0da420b9de9bc778ee3554581021138d",
+      "platform": "linux/amd64"
+    },
+    "guest-image-import": {
+      "archive_bytes": 694801408,
+      "archive_sha256": "fd03fd836e84a9ad26e08aeca9596a131586394dfb3f00397c81a3af7f128c6d",
+      "image": "us-central1-docker.pkg.dev/oss-foundry/foundry-builders/system-builder@sha256:20e68285288de0ac3e1b6ec39e20bd8ad2ee92019a8a4a4123e8a83d5cc25e5d",
+      "manifest_digest": "sha256:20e68285288de0ac3e1b6ec39e20bd8ad2ee92019a8a4a4123e8a83d5cc25e5d",
+      "native_source_commit": "11ae9d7b59a8b65b0cbca40fb66be323022b6ed6",
+      "platform": "linux/amd64"
+    },
+    "live-resources": {
+      "cpu_max": "3200000 100000",
+      "deadline": {
+        "expires_at_unix_secs": 1793233783,
+        "started_at_unix_secs": 1793230183
+      },
+      "disk_mib": 262144,
+      "memory_max": "137438953472",
+      "memory_mib": 131072,
+      "observed_vcpu_threads": 32,
+      "storage_id": "a8bb2929-cf83-4918-9f35-8e84f66334d8",
+      "vcpus": 32,
+      "watchdog_live": true
+    },
+    "network-guards": {
+      "metadata_guest_root_denied": true,
+      "metadata_host_positive": true,
+      "proxy_allowed_example_com": true,
+      "proxy_unlisted_example_net_denied": true
+    },
+    "node-binary-upgrade": {
+      "at": "2026-10-28T23:59:55.872154+00:00",
+      "backing_files_preserved": true,
+      "binaries_sha256": {
+        "kata-network": "e564546caded07a1c4a1cb4447b94ccc877966881a7ac68328aca59f397c607d",
+        "kata-operator": "fca5b3dbe35109a2a21eddb79f7103e7e43f2562d891253fd766e33398cfc238",
+        "kata-runtime": "9e4c2390329c0604b7e1374f9724858e6e74a190112e006f288d76fb58fb46c8",
+        "kata-workspace": "827c94b851800e449a1298e3c2f684a82e9162ffa9c6584fa971dbaaf4168970",
+        "openshell-kata": "699cc2443fdacec855a773431903f6657a14772e9d1e56d606154570edf80859"
+      },
+      "from_source": "11ae9d7b59a8b65b0cbca40fb66be323022b6ed6",
+      "quiesced_no_tasks": true,
+      "to_source": "ea70f55c0da420b9de9bc778ee3554581021138d"
+    },
+    "node-hop": {
+      "passed": true,
+      "test": "pinned_native_node_ssh_hop"
+    },
+    "node-repeat-setup": {
+      "architecture": "x86_64",
+      "archive_sha256": "1463a2b86845f4d3d8e87f2f764ec59856fc0fee3520967a79ade32762be2e97",
+      "backing_files": {
+        "data": {
+          "filesystem_uuid": "439cb264-f8b6-4950-a4aa-4233de63014c",
+          "inode": 96206867
+        },
+        "metadata": {
+          "filesystem_uuid": "439cb264-f8b6-4950-a4aa-4233de63014c",
+          "inode": 96206868
+        }
+      },
+      "binaries_sha256": {
+        "kata-network": "2243a80d8942aee755fd1307feb85d6f09e73724dc369c0ea41433dfc32f74bd",
+        "kata-operator": "d0f6e42c59f389e1b8174e4633bc8f867fc3e69b4df9de74b259aefe1a2d1904",
+        "kata-runtime": "30626baca95b8e891e5f032efe5142c74a6d03855fb3ca80efa398edf5bf7a8c",
+        "kata-workspace": "91652e17d6aade131cbd7e35d79c30581c93b7b930e0e2f1e73564901cc31f23",
+        "openshell-kata": "518609928879fc047600622efcf803ece57a3ee17e31ff43330ce927a399e4e9"
+      },
+      "kata_version": "4.3.1",
+      "node_verified": true,
+      "operator": "foundry",
+      "pool": {
+        "bytes": 1374389534720,
+        "path": "/var/lib/system/kata/pool",
+        "zeroing": true
+      },
+      "resource_profile": "foundry-build",
+      "resources": {
+        "disk_mib": 262144,
+        "memory_mib": 131072,
+        "vcpus": 32
+      },
+      "transport": "linux-local",
+      "version": 1
+    },
+    "node-upgraded-verification": {
+      "architecture": "x86_64",
+      "archive_sha256": "1463a2b86845f4d3d8e87f2f764ec59856fc0fee3520967a79ade32762be2e97",
+      "backing_files": {
+        "data": {
+          "filesystem_uuid": "439cb264-f8b6-4950-a4aa-4233de63014c",
+          "inode": 96206867
+        },
+        "metadata": {
+          "filesystem_uuid": "439cb264-f8b6-4950-a4aa-4233de63014c",
+          "inode": 96206868
+        }
+      },
+      "binaries_sha256": {
+        "kata-network": "e564546caded07a1c4a1cb4447b94ccc877966881a7ac68328aca59f397c607d",
+        "kata-operator": "fca5b3dbe35109a2a21eddb79f7103e7e43f2562d891253fd766e33398cfc238",
+        "kata-runtime": "9e4c2390329c0604b7e1374f9724858e6e74a190112e006f288d76fb58fb46c8",
+        "kata-workspace": "827c94b851800e449a1298e3c2f684a82e9162ffa9c6584fa971dbaaf4168970",
+        "openshell-kata": "699cc2443fdacec855a773431903f6657a14772e9d1e56d606154570edf80859"
+      },
+      "kata_version": "4.3.1",
+      "node_verified": true,
+      "operator": "foundry",
+      "pool": {
+        "bytes": 1374389534720,
+        "path": "/var/lib/system/kata/pool",
+        "zeroing": true
+      },
+      "resource_profile": "foundry-build",
+      "resources": {
+        "disk_mib": 262144,
+        "memory_mib": 131072,
+        "vcpus": 32
+      },
+      "transport": "linux-local",
+      "version": 1
+    },
+    "persistent-key-metadata-ledger": {
+      "entries": [
+        {
+          "bytes": 399,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:10:00.270822+00:00",
+          "owner": "foundry",
+          "path": "/etc/openshell-kata/node-client",
+          "purpose": "Native localhost-only SSH hop: per-host client/host identity, pinned trust or forwarding-only authorization"
+        },
+        {
+          "bytes": 94,
+          "group": "root",
+          "mode": "0o644",
+          "modified_at": "2026-10-28T23:10:00.272101+00:00",
+          "owner": "root",
+          "path": "/etc/openshell-kata/node-client.pub",
+          "purpose": "Native localhost-only SSH hop: per-host client/host identity, pinned trust or forwarding-only authorization"
+        },
+        {
+          "bytes": 399,
+          "group": "root",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:10:00.273822+00:00",
+          "owner": "root",
+          "path": "/etc/openshell-kata/node-host",
+          "purpose": "Native localhost-only SSH hop: per-host client/host identity, pinned trust or forwarding-only authorization"
+        },
+        {
+          "bytes": 94,
+          "group": "root",
+          "mode": "0o644",
+          "modified_at": "2026-10-28T23:10:00.275015+00:00",
+          "owner": "root",
+          "path": "/etc/openshell-kata/node-host.pub",
+          "purpose": "Native localhost-only SSH hop: per-host client/host identity, pinned trust or forwarding-only authorization"
+        },
+        {
+          "bytes": 144,
+          "group": "root",
+          "mode": "0o644",
+          "modified_at": "2026-10-28T23:10:00.275375+00:00",
+          "owner": "root",
+          "path": "/etc/openshell-kata/node-authorized",
+          "purpose": "Native localhost-only SSH hop: per-host client/host identity, pinned trust or forwarding-only authorization"
+        },
+        {
+          "bytes": 99,
+          "group": "root",
+          "mode": "0o644",
+          "modified_at": "2026-10-28T23:10:00.277986+00:00",
+          "owner": "root",
+          "path": "/etc/openshell-kata/node-known-hosts",
+          "purpose": "Native localhost-only SSH hop: per-host client/host identity, pinned trust or forwarding-only authorization"
+        },
+        {
+          "bytes": 335,
+          "group": "root",
+          "mode": "0o644",
+          "modified_at": "2026-10-28T23:10:00.280704+00:00",
+          "owner": "root",
+          "path": "/etc/openshell-kata/node-ssh.config",
+          "purpose": "Native localhost-only SSH hop: per-host client/host identity, pinned trust or forwarding-only authorization"
+        },
+        {
+          "bytes": 489,
+          "group": "root",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:10:00.283468+00:00",
+          "owner": "root",
+          "path": "/etc/openshell-kata/node-sshd.config",
+          "purpose": "Native localhost-only SSH hop: per-host client/host identity, pinned trust or forwarding-only authorization"
+        },
+        {
+          "bytes": 619,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:53.963819+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/tls/ca.crt",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 241,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:53.963819+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/tls/ca.key",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 591,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:53.963819+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/tls/client/tls.crt",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 241,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:53.963819+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/tls/client/tls.key",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 32,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:53.963819+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/tls/jwt/kid",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 113,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:53.963819+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/tls/jwt/public.pem",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 168,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:53.963819+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/tls/jwt/signing.pem",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 875,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:53.963819+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/tls/server/tls.crt",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 241,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:53.963819+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/tls/server/tls.key",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 619,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:54.001632+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/config/openshell/gateways/foundry-native-canary/mtls/ca.crt",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 591,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:54.002543+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/config/openshell/gateways/foundry-native-canary/mtls/tls.crt",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 241,
+          "group": "foundry",
+          "mode": "0o600",
+          "modified_at": "2026-10-28T23:11:54.003519+00:00",
+          "owner": "foundry",
+          "path": "/var/lib/system/kata/canary/config/openshell/gateways/foundry-native-canary/mtls/tls.key",
+          "purpose": "Existing isolated canary gateway mTLS/JWT PKI or CLI trust copy; not production enrollment"
+        },
+        {
+          "bytes": 46,
+          "group": "root",
+          "mode": "0o440",
+          "modified_at": "2026-10-28T23:10:00.290760+00:00",
+          "owner": "root",
+          "path": "/etc/sudoers.d/openshell-kata-operator",
+          "purpose": "Trusted foundry operator may run /usr/bin/timeout as root without password; runtime supplies90-second deadlines, sudoers itself does not constrain arguments"
+        }
+      ],
+      "key_material_read": false,
+      "metadata_only": true,
+      "metadata_unchanged_after_smoke": true,
+      "rotation_or_deletion_performed": false,
+      "schema_version": 1
+    },
+    "retention": {
+      "passed": true,
+      "test": "stock_cli_stop_start_retention"
+    },
+    "typed-cancellation": {
+      "no_running_target": true,
+      "remote_exit_code": 137,
+      "typed_pidfd_kill": true
+    }
+  },
+  "schema_version": 1,
+  "scope": {
+    "instance": "foundry",
+    "project": "oss-foundry",
+    "zone": "us-central1-b"
+  },
+  "status": "basic_system_openshell_eligible"
+}
