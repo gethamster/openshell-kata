@@ -61,7 +61,8 @@ service or expose a private endpoint.
 Use distinct state locations, namespaces, listeners, and test identities for an
 isolated installation. Inspect existing ownership before claiming any of them.
 For stateful changes, keep service data, schema versions, and credentials aligned;
-follow the owning repository’s migration and rollback procedure.
+use the owning forward migration path to reach the current canonical architecture.
+Do not build adapters for the old installation or retain parallel protocols.
 
 Keep compilation outputs separate from a running development service when a
 build can overwrite assets or binaries that the service is using. Prefer the
@@ -69,4 +70,5 @@ supported build/install/restart sequence to replacing live files in place.
 
 Stop task-owned services normally so pending cleanup can complete. Remove only
 disposable state created for the check. A restart must not become a data reset,
-and restoring an old executable alone may not roll back a schema change.
+and an old executable is not a repair for a current-schema failure. Fix forward
+and verify the real current user flow after migration.

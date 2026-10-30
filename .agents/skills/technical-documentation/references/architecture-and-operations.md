@@ -39,9 +39,10 @@ prerequisites, target environment, required authority, relevant state, expected
 result, verification, and recovery steps. Keep credentials and private environment
 values out of committed examples.
 
-Separate installation, migration, restart, rollback, and destructive reset. A
+Separate installation, forward migration, restart, and destructive reset. A
 procedure that replaces state is not an ordinary restart. Describe relevant
-preservation requirements and use the owning tool’s existing recovery mechanism.
+preservation requirements and fix forward through the owning lifecycle tools.
+Do not plan or maintain rollback procedures.
 Do not assume a native service, sandbox, container, or cloud deployment unless
 the documented profile actually uses it.
 

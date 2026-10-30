@@ -3,6 +3,7 @@ name: verified-delivery
 description: >-
   Always apply to contributor changes. Solve the requested problem, run the
   relevant staging smoke checks and evals, decide pass or fail, and ship the fix.
+  Always fast-forward on the current canonical architecture and fix forward.
   Avoid speculative engineering, unnecessary permanent tests, and repeated
   analysis or review after the evidence is sufficient.
 metadata:
@@ -12,16 +13,35 @@ metadata:
 
 # Verified Delivery
 
+Always fast-forward. Work against the current canonical architecture and fix forward. Do
+not plan for, implement, or maintain rollbacks, legacy adapters, dual protocols,
+backports that preserve obsolete architectures, or speculative compatibility layers. Do
+not create technical debt to accommodate old instances. Update affected consumers
+coherently, remove superseded implementation paths within the authorized scope, and
+verify the real current user flow.
+
 Solve the problem and ship the fix. Overthinking, speculative redesign, duplicate
 checks, and repeated reviews consume time and money without improving delivery.
 Use judgment to finish the requested work, not to invent more work.
 
+Make the smallest complete increment work locally with relevant checks, then
+push and release through the authorized path; repeat toward production. Honor
+explicitly narrower requests. A local result or progress update is not task
+completion when production is requested, and creates no checkpoint or approval gate.
+
 1. **Find the concrete problem.** Read enough source and evidence to understand
    the reported failure or requested behavior. Use an existing reproduction when
    available. Do not turn a bounded bug into a repository-wide investigation.
-2. **Make the smallest complete fix.** Preserve the requested behavior and use
-   the existing implementation and delivery path. Do not add an architecture,
-   framework, abstraction, or unrelated refactor to make a local repair elegant.
+2. **Make the smallest complete fix.** Establish the current canonical source
+   revision and architecture before changing an older checkout or instance.
+   Preserve the requested behavior using that architecture and its delivery path.
+   Do not add an architecture, framework, abstraction, or unrelated refactor to
+   make a local repair elegant.
+   For pull-and-iterate work, preserve upstream structure and replay only the
+   required delta. Do not migrate providers, schemas, identifiers, or installation
+   machinery unless the requested behavior or a demonstrated incompatibility
+   requires it. Preserve data and authorization boundaries while updating
+   affected consumers together; do not preserve superseded architectures.
 3. **Prove the fix efficiently.** A test is a tool, not an automatic deliverable.
    Use a temporary reproduction or focused test when it helps, then remove it
    if it adds no continuing value. Keep a regression only when it protects a
@@ -41,7 +61,10 @@ Use judgment to finish the requested work, not to invent more work.
    and deployment path. Reuse the tested artifact where supported and confirm
    the intended version reached the requested destination. Do not add another
    review round, approval request, build, or test stage merely for reassurance.
-   Retain mandatory human approvals and repository protections.
+   Retain mandatory human approvals and repository protections. Continue toward
+   the requested release; report real blockers while independent work proceeds.
+   Use clear successful tool results as evidence; investigate ambiguous outcomes
+   instead of adding redundant readbacks solely to reconfirm success.
 
 Use [Checks and eval decisions](references/verification.md) when choosing proof,
 retaining a test, or deciding whether another check is warranted. If a normal
@@ -52,7 +75,13 @@ investigation procedure for every bug.
 Continue within existing authorization. A missing required staging environment,
 failed mandatory gate, or missing permission is a specific blocker to report,
 not permission to fake a pass or bypass a protection. Complete independent work
-while it is resolved. Do not re-ask for authority already granted.
+while it is resolved. Do not re-ask for authority already granted. Before declaring an action blocked,
+identify the actual user instruction, repository rule, tool denial, or enforced
+policy that requires it. A configured preference alone does not establish a
+mandatory gate. Use a supported task-scoped option when permitted; changing
+persistent/global configuration still needs applicable authority. Report the
+source and impact accurately. After a denial, follow the host's retry rules;
+never change execution routes to evade it.
 
 Report the fix, the smoke/eval result, and the shipped revision or exact blocker.
 Keep it short. Follow [workspace-cleanup](../workspace-cleanup/SKILL.md) for task

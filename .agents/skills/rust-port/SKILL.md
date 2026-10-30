@@ -102,7 +102,8 @@ Match it on the inputs it actually receives, and use Rust's standard library for
   `strip`, `int()`, or `repr()`, or of C's locale-dependent `isspace` and `strtol`. Where
   Rust's behavior differs only on exotic input, such as Unicode digits, non-ASCII
   whitespace, or unbounded integers, list the difference in the porting notes instead of
-  coding around it. Write a compatibility shim only when the user says those inputs occur.
+  coding around it. For real inputs required by the port, implement their behavior
+  in the canonical Rust path rather than adding a legacy compatibility shim.
 - **Don't grow the API.** Port the original public surface. Add standard trait impls
   when their semantics support actual Rust callers, not as a checklist. Skip builders,
   extra accessors, and custom iterators unless callers need them.

@@ -111,7 +111,7 @@ just traits; Option::map is already strategy.
 ### Behavioural
 
 **Command.** Store actions as values: `Box<dyn Trait>` for command structs with several
-methods (`execute` / `rollback`), `fn()` pointers for simple actions, `Fn` closures for
+methods (`execute` / `status`), `fn()` pointers for simple actions, `Fn` closures for
 captured state. Function pointers and closures avoid dynamic dispatch.
 
 **Interpreter.** When a recurring problem is a small language, define a grammar and an

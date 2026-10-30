@@ -30,6 +30,19 @@ must be explicitly selected and reviewed for that audience.
 
 ## Delivery
 
+Always fast-forward. Work against the current canonical architecture and fix forward. Do
+not plan for, implement, or maintain rollbacks, legacy adapters, dual protocols,
+backports that preserve obsolete architectures, or speculative compatibility layers. Do
+not create technical debt to accommodate old instances. Update affected consumers
+coherently, remove superseded implementation paths within the authorized scope, and
+verify the real current user flow.
+
+Drive changes through the shortest authorized loop: make the smallest complete
+increment work locally with relevant checks, push, release; repeat. Production is
+the goal unless the user specifies a narrower endpoint. Preserve upstream as the
+foundation. Status updates and local usability are progress, not extra gates or
+stopping points. Report real blockers promptly and keep independent work moving.
+
 Always apply [verified-delivery](../skills/verified-delivery/SKILL.md): solve
 the requested problem, run relevant staging smoke/evals and required checks,
 decide pass or fail, and ship. Do not turn a bounded fix into speculative
@@ -66,7 +79,7 @@ journeys they support.
 
 Use [domain-language](../skills/domain-language/SKILL.md) when naming or
 editing domain terms in prose or identifiers. Preserve established meanings and
-treat published identifier changes as compatibility work.
+update published identifiers and affected consumers coherently on the current architecture.
 
 Use [technical-documentation](../skills/technical-documentation/SKILL.md)
 when documenting or changing service contracts, architecture, or operational

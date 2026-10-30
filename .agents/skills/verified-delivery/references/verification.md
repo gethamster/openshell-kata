@@ -46,6 +46,18 @@ Do not delete useful existing tests, weaken assertions, or skip required gates
 merely to make a run green. Test creation and retention are judgment calls, not
 mandatory ceremony for every patch.
 
+## Keep verification bounded
+
+Map each chosen check to a requested behavior, concrete regression risk, or
+required gate. Use existing evidence for unchanged inputs. Before another build,
+review, or test run, identify the changed input, failed behavior, or actual rule
+that makes it necessary. If none exists, deliver. New defects justify focused
+repair and affected rechecks, not restarting qualification of the whole product.
+
+When deployment is blocked, retain valid local proof and continue independent
+release work. Report the actual blocker; local success does not complete a
+production request or create another review checkpoint.
+
 ## Stop when the decision is made
 
 After relevant smoke/evals and required gates pass, ship through the existing
