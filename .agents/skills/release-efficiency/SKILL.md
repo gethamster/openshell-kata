@@ -64,5 +64,3 @@ Report the bottleneck, change, measured stage and total times, workload conditio
 and remaining uncertainty. Retain verification of the artifact or operation at
 the requested endpoint. An accepted pipeline edit or queued build does not prove
 a speed improvement.
-
-The [adaptation record](references/source.md) identifies the original guidance.

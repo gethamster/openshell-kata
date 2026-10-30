@@ -2,7 +2,7 @@
 
 Read and apply the [shared contributor guide](.agents/oss-delivery/AGENTS.md)
 from [oss-delivery](https://github.com/gethamster/oss-delivery), pinned at
-`1fa9eb4630de5885ae521d6af3b080245a3e9965` in [.agents/oss-delivery/lock.json](.agents/oss-delivery/lock.json).
+`4b515bf38dc40b1d4228226b4eac6b0ebfe21e5e` in [.agents/oss-delivery/lock.json](.agents/oss-delivery/lock.json).
 The complete pack is available locally in `.agents/skills/`; `.claude/skills/`
 contains regular-file entrypoints to the same instructions.
 
@@ -42,3 +42,6 @@ checks. Use focused local checks for the affected code and reuse valid CI result
 A changed enforcement boundary needs a smoke/eval of that boundary in the target
 profile; it does not require requalifying every platform for an unrelated fix.
 Guidance-only changes need content/link checks, not a new VM or binary release.
+
+Contributor-only changes are excluded from application CI. Code and mixed changes
+keep the existing checks.

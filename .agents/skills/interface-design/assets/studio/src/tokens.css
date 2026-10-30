@@ -1,4 +1,4 @@
-/* Extracted Studio token blocks; see source-manifest.json for provenance. */
+/* Shared Studio design tokens. */
 
 @theme inline {
   --font-heading: var(--font-sans);

@@ -35,9 +35,8 @@ spacing, icons, dimensions, states, and accessibility. A shared button inside
 several bespoke toolbars does not provide a shared interaction. Add a necessary
 variant to the existing component instead of creating another version.
 
-The bundled Studio controls are source references with recorded provenance.
-Inspect the live target’s corresponding components and dependencies before
-adapting them; a copied reference is not proof of a working integration. Preserve
+Use the bundled Studio controls as examples. Inspect the target’s corresponding
+components and dependencies before adapting them; a copied reference is not proof of a working integration. Preserve
 the original license notice when reusing upstream-derived component code.
 
 ## Keep the surface focused
@@ -69,6 +68,3 @@ Run the target’s required checks and verify the affected user operation. Repor
 which views and states were actually observed; static resources alone do not
 establish accessibility or runtime behavior. Follow
 [verified-delivery](../verified-delivery/SKILL.md) for scope and delivery evidence.
-
-The [source record](references/source.md) identifies the adapted guidance and
-Studio snapshot; it does not authorize changes to the source application.

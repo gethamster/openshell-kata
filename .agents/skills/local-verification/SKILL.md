@@ -70,5 +70,3 @@ Record the tested environment, relevant service and artifact identities, journey
 performed, observed result, and limits. A synthetic sign-in does not qualify real
 sign-in; a successful local run does not establish production readiness. Identify
 remote dependencies exercised and any effects that remain uncertain.
-
-The [adaptation record](references/source.md) identifies the original guidance.

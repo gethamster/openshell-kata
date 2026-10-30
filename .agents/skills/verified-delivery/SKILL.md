@@ -57,5 +57,3 @@ while it is resolved. Do not re-ask for authority already granted.
 Report the fix, the smoke/eval result, and the shipped revision or exact blocker.
 Keep it short. Follow [workspace-cleanup](../workspace-cleanup/SKILL.md) for task
 resources; cleanup is not a new engineering project.
-
-[Source and adaptation history](references/source.md).

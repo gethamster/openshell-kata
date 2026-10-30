@@ -1,9 +1,7 @@
 # Studio design baseline
 
-The bundled resources come from `oss-system/apps/studio/web`, not the older
-standalone Studio repository. The [source manifest](../assets/studio/source-manifest.json)
-records the exact revision and file hashes. Use the target application’s current
-components when available; these resources make the selected baseline portable.
+Use the target application's current components when available. The bundled
+resources provide the shared Studio tokens and control examples.
 
 ## Tokens and themes
 
