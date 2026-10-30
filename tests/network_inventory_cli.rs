@@ -40,6 +40,7 @@ async fn inventory_cli_once_publishes_short_lived_private_file_and_preserves_it_
         resolver_port: 53,
         baseline_denied_cidrs: vec!["10.1.0.0/16".into()],
         include_external_names: true,
+        trusted_external_name_services: vec![],
         refresh_secs: 5,
         freshness_secs: 60,
         query_timeout_secs: 1,

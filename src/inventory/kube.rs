@@ -9,6 +9,7 @@ pub(super) struct Footprint {
     pub cidrs: BTreeSet<String>,
     pub names: BTreeSet<String>,
     count: usize,
+    external_services: BTreeSet<String>,
 }
 fn strings(value: Option<&Value>) -> Result<Vec<&str>> {
     match value {
@@ -50,7 +51,7 @@ fn name(value: &str, output: &mut Footprint) -> Result<()> {
 pub(super) fn observe_page(
     value: &Value,
     kind: &str,
-    external: bool,
+    external_services: &[String],
     output: &mut Footprint,
 ) -> Result<()> {
     ensure!(
@@ -114,8 +115,20 @@ pub(super) fn observe_page(
                     ip(v, output)?;
                 }
             }
-            if external && let Some(v) = spec.get("externalName") {
-                name(v.as_str().context("invalid ExternalName")?, output)?;
+            if let (Some(namespace), Some(service)) = (
+                item.pointer("/metadata/namespace").and_then(Value::as_str),
+                item.pointer("/metadata/name").and_then(Value::as_str),
+            ) && external_services
+                .iter()
+                .any(|trusted| trusted.split_once('/') == Some((namespace, service)))
+            {
+                let value = spec
+                    .get("externalName")
+                    .context("trusted service lacks ExternalName")?;
+                name(value.as_str().context("invalid ExternalName")?, output)?;
+                output
+                    .external_services
+                    .insert(format!("{namespace}/{service}"));
             }
             if let Some(ingress) = item.pointer("/status/loadBalancer/ingress") {
                 let entries = ingress
@@ -225,7 +238,12 @@ pub(super) async fn observe(config: &InventoryConfig) -> Result<Footprint> {
             } else {
                 revision = Some(current.to_string());
             }
-            observe_page(&value, kind, config.include_external_names, &mut output)?;
+            let external_services = if config.include_external_names {
+                config.trusted_external_name_services.as_slice()
+            } else {
+                &[]
+            };
+            observe_page(&value, kind, external_services, &mut output)?;
             next = match value["metadata"].get("continue") {
                 None => String::new(),
                 Some(v) => v.as_str().context("invalid pagination token")?.to_string(),
@@ -239,5 +257,13 @@ pub(super) async fn observe(config: &InventoryConfig) -> Result<Footprint> {
             );
         }
     }
+    ensure!(
+        !config.include_external_names
+            || config
+                .trusted_external_name_services
+                .iter()
+                .all(|service| output.external_services.contains(service)),
+        "trusted ExternalName service missing from inventory"
+    );
     Ok(output)
 }

@@ -32,6 +32,7 @@ pub(super) fn fixture_config(root: &Path) -> Result<InventoryConfig> {
         resolver_port: 53,
         baseline_denied_cidrs: vec!["10.0.0.0/8".into()],
         include_external_names: true,
+        trusted_external_name_services: vec![],
         refresh_secs: 5,
         freshness_secs: 60,
         query_timeout_secs: 1,
@@ -43,10 +44,15 @@ pub(super) fn fixture_config(root: &Path) -> Result<InventoryConfig> {
 #[test]
 fn kube_footprint_includes_nodes_services_and_load_balancers() -> Result<()> {
     let nodes = json!({"kind":"NodeList","metadata":{},"items":[{"status":{"addresses":[{"type":"InternalIP","address":"10.0.0.1"},{"type":"Hostname","address":"node.example.com"}]}}]});
-    let services = json!({"kind":"ServiceList","metadata":{},"items":[{"spec":{"clusterIP":"10.1.0.1","clusterIPs":["10.1.0.1","fd00::1"],"externalIPs":["8.8.4.4"],"externalName":"external.example.com"},"status":{"loadBalancer":{"ingress":[{"ip":"1.1.1.1"},{"hostname":"lb.example.com"}]}}}]});
+    let services = json!({"kind":"ServiceList","metadata":{},"items":[{"metadata":{"namespace":"infrastructure","name":"protected"},"spec":{"clusterIP":"10.1.0.1","clusterIPs":["10.1.0.1","fd00::1"],"externalIPs":["8.8.4.4"],"externalName":"external.example.com"},"status":{"loadBalancer":{"ingress":[{"ip":"1.1.1.1"},{"hostname":"lb.example.com"}]}}}]});
     let mut result = kube::Footprint::default();
-    kube::observe_page(&nodes, "NodeList", true, &mut result)?;
-    kube::observe_page(&services, "ServiceList", true, &mut result)?;
+    kube::observe_page(&nodes, "NodeList", &[], &mut result)?;
+    kube::observe_page(
+        &services,
+        "ServiceList",
+        &["infrastructure/protected".into()],
+        &mut result,
+    )?;
     assert!(result.cidrs.contains("10.0.0.1/32"));
     assert!(result.cidrs.contains("fd00::1/128"));
     assert!(result.cidrs.contains("8.8.4.4/32"));
@@ -65,7 +71,7 @@ fn partial_or_malformed_kube_observation_is_rejected() {
         json!({"kind":"NodeList","items":[{}]}),
     ] {
         assert!(
-            kube::observe_page(&value, "NodeList", true, &mut kube::Footprint::default()).is_err()
+            kube::observe_page(&value, "NodeList", &[], &mut kube::Footprint::default()).is_err()
         );
     }
 }
@@ -243,5 +249,142 @@ fn inventory_authentication_rejects_ambient_helpers_credentials_and_insecure_tls
     std::fs::rename(&token, &rotated)?;
     std::os::unix::fs::symlink(&rotated, &token)?;
     config.validate()?;
+    Ok(())
+}
+
+#[test]
+fn external_names_require_exact_operator_trusted_service_identity() -> Result<()> {
+    let trusted = ["infrastructure/database".into()];
+    for (metadata, expected) in [
+        (
+            json!({"namespace":"infrastructure","name":"database"}),
+            true,
+        ),
+        (json!({"namespace":"tenant","name":"database"}), false),
+        (
+            json!({"namespace":"infrastructure","name":"database-copy"}),
+            false,
+        ),
+        (
+            json!({"namespace":"infrastructure","name":"DATABASE"}),
+            false,
+        ),
+        (json!({}), false),
+    ] {
+        let page = json!({"kind":"ServiceList","items":[{"metadata":metadata,"spec":{"externalName":"protected.example.com"}}]});
+        let mut footprint = kube::Footprint::default();
+        kube::observe_page(&page, "ServiceList", &trusted, &mut footprint)?;
+        assert_eq!(footprint.names.contains("protected.example.com"), expected);
+    }
+    // Old configuration has no trust grants, even when ExternalName collection is enabled.
+    let root = tempfile::tempdir()?;
+    let mut value = serde_json::to_value(fixture_config(root.path())?)?;
+    value
+        .as_object_mut()
+        .context("configuration")?
+        .remove("trusted_external_name_services");
+    let config: InventoryConfig = serde_json::from_value(value)?;
+    assert!(config.include_external_names && config.trusted_external_name_services.is_empty());
+    for invalid in [
+        vec!["database"],
+        vec!["*/database"],
+        vec!["a/b/c"],
+        vec!["a/-b"],
+        vec!["a/b", "a/b"],
+    ] {
+        let mut config = fixture_config(root.path())?;
+        config.trusted_external_name_services = invalid.into_iter().map(String::from).collect();
+        assert!(config.validate().is_err());
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn untrusted_nxdomain_cannot_block_refresh_but_protected_dns_still_fails_closed() -> Result<()>
+{
+    use hickory_proto::{
+        op::{Message, MessageType, ResponseCode},
+        rr::{
+            RData, Record, RecordType,
+            rdata::{A, AAAA},
+        },
+    };
+    let root = tempfile::tempdir()?;
+    let mut config = fixture_config(root.path())?;
+    let script = r#"#!/bin/sh
+case "$*" in
+*'/api/v1/nodes?'*) printf '%s' '{"kind":"NodeList","metadata":{"resourceVersion":"1"},"items":[{"status":{"addresses":[{"type":"InternalIP","address":"10.0.0.1"}]}}]}';;
+*'/api/v1/services?'*) printf '%s' '{"kind":"ServiceList","metadata":{"resourceVersion":"1"},"items":[{"metadata":{"namespace":"infrastructure","name":"database"},"spec":{"externalName":"healthy.example.com"}},{"metadata":{"namespace":"tenant","name":"database"},"spec":{"externalName":"unresolved.example.com"}}]}';;
+*) exit 1;;
+esac
+"#;
+    std::fs::write(&config.kubectl_path, script)?;
+    config.kubectl_sha256 = format!("{:x}", Sha256::digest(script.as_bytes()));
+    config.trusted_external_name_services = vec!["infrastructure/database".into()];
+    let socket = tokio::net::UdpSocket::bind("127.0.0.1:0").await?;
+    config.resolver_port = socket.local_addr()?.port();
+    let requests = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
+    let observed = requests.clone();
+    let (stop, mut stopped) = tokio::sync::oneshot::channel();
+    let dns = tokio::spawn(async move {
+        loop {
+            let mut buffer = [0; 4096];
+            let (size, peer) = tokio::select! {
+                result = socket.recv_from(&mut buffer) => result?,
+                _ = &mut stopped => break,
+            };
+            let query = Message::from_vec(&buffer[..size])?;
+            let asked = query.queries.first().context("DNS query")?;
+            observed
+                .lock()
+                .expect("request list")
+                .push(asked.name().to_ascii());
+            let mut reply = Message::query();
+            reply.metadata.id = query.metadata.id;
+            reply.metadata.message_type = MessageType::Response;
+            reply.metadata.recursion_available = true;
+            reply.add_query(asked.clone());
+            if asked.name().to_ascii() == "healthy.example.com." {
+                let data = if asked.query_type() == RecordType::A {
+                    RData::A(A("203.0.113.10".parse()?))
+                } else {
+                    RData::AAAA(AAAA("2001:db8::10".parse()?))
+                };
+                reply.add_answer(Record::from_rdata(asked.name().clone(), 30, data));
+            } else {
+                reply.metadata.response_code = ResponseCode::NXDomain;
+            }
+            socket.send_to(&reply.to_vec()?, peer).await?;
+        }
+        Ok::<_, anyhow::Error>(())
+    });
+    let first = refresh(&config).await?;
+    let second = refresh(&config).await?;
+    assert!(second.generation > first.generation);
+    assert!(second.denied_cidrs.contains(&"203.0.113.10/32".into()));
+    assert!(
+        requests
+            .lock()
+            .expect("request list")
+            .iter()
+            .all(|name| name == "healthy.example.com.")
+    );
+    let before = std::fs::read(&config.output_path)?;
+    // Explicitly trusting the Service makes its failure mandatory, as before.
+    config
+        .trusted_external_name_services
+        .push("tenant/database".into());
+    assert!(refresh(&config).await.is_err());
+    assert_eq!(before, std::fs::read(&config.output_path)?);
+    // An explicit protected hostname cannot be bypassed by removing Service trust.
+    config.trusted_external_name_services = vec!["infrastructure/missing".into()];
+    assert!(refresh(&config).await.is_err());
+    assert_eq!(before, std::fs::read(&config.output_path)?);
+    config.trusted_external_name_services.clear();
+    config.protected_hostnames = vec!["unresolved.example.com".into()];
+    assert!(refresh(&config).await.is_err());
+    assert_eq!(before, std::fs::read(&config.output_path)?);
+    let _ = stop.send(());
+    dns.await??;
     Ok(())
 }

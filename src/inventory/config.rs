@@ -1,4 +1,4 @@
-use anyhow::{Result, ensure};
+use anyhow::{Context, Result, ensure};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
@@ -22,6 +22,8 @@ pub struct InventoryConfig {
     pub baseline_denied_cidrs: Vec<String>,
     #[serde(default = "yes")]
     pub include_external_names: bool,
+    #[serde(default)]
+    pub trusted_external_name_services: Vec<String>,
     pub refresh_secs: u64,
     pub freshness_secs: u64,
     pub query_timeout_secs: u64,
@@ -75,6 +77,32 @@ impl InventoryConfig {
             self.protected_hostnames.len() <= 256 && self.baseline_denied_cidrs.len() <= 4096,
             "excessive inventory inputs"
         );
+        ensure!(
+            self.trusted_external_name_services.len() <= 256,
+            "excessive trusted ExternalName services"
+        );
+        let mut services = std::collections::BTreeSet::new();
+        for service in &self.trusted_external_name_services {
+            let (namespace, name) = service
+                .split_once('/')
+                .context("trusted ExternalName service must be namespace/name")?;
+            ensure!(
+                [namespace, name].into_iter().all(|part| {
+                    !part.is_empty()
+                        && part.len() <= 63
+                        && part
+                            .bytes()
+                            .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-')
+                        && part.as_bytes()[0].is_ascii_alphanumeric()
+                        && part.as_bytes()[part.len() - 1].is_ascii_alphanumeric()
+                }),
+                "trusted ExternalName service must use exact Kubernetes namespace/name labels"
+            );
+            ensure!(
+                services.insert(service),
+                "duplicate trusted ExternalName service"
+            );
+        }
         let mut names = std::collections::BTreeSet::new();
         for hostname in &self.protected_hostnames {
             let host = crate::network::normalize_host(hostname)?;

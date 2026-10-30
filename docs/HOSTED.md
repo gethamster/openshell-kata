@@ -76,6 +76,25 @@ before its control acknowledgment. The inventory expires within sixty seconds,
 and denied addresses accumulate for each broker's lifetime. Protect public
 platform VIPs as well as private ranges; mixed DNS answers are rejected entirely.
 
+The inventory collector includes a Service's `spec.externalName` only when
+`include_external_names` is true and its exact `namespace/name` appears in
+`trusted_external_name_services`, for example `["infrastructure/database"]`.
+The trust list defaults to empty, including for existing configuration files.
+Only grant this trust to Service identities whose creation, updates and DNS are
+operator-controlled; tenants must not be able to replace or edit them. Other
+Services still contribute their observed IP addresses, but their ExternalName
+DNS cannot block shared inventory renewal. Configure known protected DNS names
+in `protected_hostnames`; these and trusted Service names remain mandatory DNS
+observations, so an absent trusted Service or unresolved protected infrastructure
+still prevents publication.
+
+When upgrading an existing inventory configuration, explicitly add every
+infrastructure hostname that previously depended on automatic ExternalName
+collection to `protected_hostnames`, or list its operator-owned Service in
+`trusted_external_name_services`. Keeping only `include_external_names: true`
+does not retain the old automatic discovery. No production configuration is
+migrated by the adapter.
+
 Kubernetes NetworkPolicy permits own-node traffic in cases relevant to this
 guest. The hosted profile additionally requires a trusted preboot wrapper and
 read-back proof of host-owned TCX ingress/egress programs outside the VM.

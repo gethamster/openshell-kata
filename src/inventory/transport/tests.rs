@@ -330,3 +330,23 @@ fn transport_config_auth_identity_and_timing_are_closed() -> Result<()> {
     assert!(serde_json::from_value::<PublisherConfig>(json!({"version":1,"inventory_config_file":"/file","namespace":"n","name":"c","uid":UID,"run_uuid":RUN_ID,"extra":true})).is_err());
     Ok(())
 }
+
+#[tokio::test]
+async fn untrusted_external_name_does_not_interrupt_publisher_or_courier() -> Result<()> {
+    let mut fixture = Fixture::new()?;
+    let script = std::fs::read_to_string(&fixture.source.kubectl_path)?.replace(
+        "\"items\":[]",
+        "\"items\":[{\"metadata\":{\"namespace\":\"tenant\",\"name\":\"database\"},\"spec\":{\"externalName\":\"unresolved.invalid\"}}]",
+    );
+    std::fs::write(&fixture.source.kubectl_path, &script)?;
+    fixture.source.kubectl_sha256 = format!("{:x}", Sha256::digest(script.as_bytes()));
+    fixture.courier.kubectl_sha256 = fixture.source.kubectl_sha256.clone();
+    run::publish_once(&fixture.publisher(), &fixture.source).await?;
+    let mut cursor = None;
+    run::courier_once(&fixture.courier, &mut cursor).await?;
+    let saved: InfrastructureInventory =
+        serde_json::from_slice(&std::fs::read(&fixture.courier.output_path)?)?;
+    assert!(saved.denied_cidrs.contains(&"10.4.5.6/32".into()));
+    saved.validate_at(unix_now()?)?;
+    Ok(())
+}
