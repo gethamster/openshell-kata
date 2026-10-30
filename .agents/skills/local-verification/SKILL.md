@@ -64,6 +64,13 @@ content. Investigate failures that depend on prior activity without silently
 substituting a new environment. Clean up only owned temporary processes and data
 through the established lifecycle mechanism.
 
+## Continue to release
+
+Once the affected local journey and required checks pass, push and release
+through the authorized path. Local verification is a step toward production,
+not a handover gate or stopping point. Use the existing environment and fixtures;
+add providers or packaging qualification only for a demonstrated requirement.
+
 ## Report the result
 
 Record the tested environment, relevant service and artifact identities, journey

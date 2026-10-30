@@ -4,7 +4,7 @@ description: >-
   Use when naming or editing domain terms in documentation, UI copy, comments,
   routes, types, fields, events, metrics, or configuration. Reuse established
   meanings, define genuinely new concepts, and treat published identifier
-  changes as compatibility work rather than prose cleanup.
+  changes as coordinated forward migrations rather than prose cleanup.
 metadata:
   audience: "contributors"
 ---
@@ -45,7 +45,7 @@ implementation. Do not force unrelated repositories or documents into a global
 rename. A name shared with another concept needs disambiguation, not an assumption
 that the two concepts are interchangeable.
 
-## Separate prose edits from compatibility changes
+## Separate prose edits from contract changes
 
 Improve unclear wording within the requested document or code scope. Preserve
 external proper names, quotations, and source attribution where those names are
@@ -54,15 +54,15 @@ an unrequested rewrite of the repository.
 
 A route, serialized field, schema column, published event, public type, metric,
 or configuration key may have consumers outside the edited file. Follow
-[Compatibility-sensitive renames](references/compatibility-renames.md) before
+[Contract-sensitive renames](references/compatibility-renames.md) before
 changing one. Use existing authorization for an approved rename; request a
-scope decision only when the compatibility work exceeds that authorization.
+scope decision only when the forward migration exceeds that authorization.
 Do not ask again merely because the already-authorized change has a migration.
 
 ## Verify the meaning remains clear
 
 Check references and examples affected by the change. Verify that old and new
 terms do not falsely imply different objects or collapse different states.
-For identifier changes, verify the relevant consumers and compatibility behavior
+For identifier changes, verify affected consumers on the current contract
 through the repository’s required process. Report unresolved ambiguity or
 migration limits rather than claiming a prose edit completed the migration.

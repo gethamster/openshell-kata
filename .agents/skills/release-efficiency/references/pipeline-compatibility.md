@@ -1,4 +1,4 @@
-# Pipeline compatibility
+# Pipeline updates
 
 Inspect the running pipeline’s owners and input contracts before changing its
 configuration. Preserve the repository’s protections and established publishing
@@ -7,13 +7,14 @@ mechanism rather than adding a parallel path to obtain a faster result.
 ## Deploy consumers before new inputs
 
 A manifest in the checkout may be read by a dispatcher or controller running an
-older image. Establish which version is deployed and which input formats it
-accepts. Add and verify compatible reader support before publishing manifests
-that require it. Do not infer runtime support from a merged source change.
+older image. Establish the current canonical contract and the deployed version.
+Update and verify the real reader on that contract before publishing dependent
+manifests. Do not infer runtime support from a merged source change.
 
 Keep rollout ordering explicit when tooling and configuration live in different
-repositories. Use existing versioning, defaults, and migration mechanisms. Keep
-rollback usable; do not assume an older controller can consume a newer manifest.
+repositories. Use the existing forward migration and versioning mechanisms.
+Remove superseded readers and formats within the authorized scope; do not
+retain rollback support or add dual protocols to accommodate old controllers.
 If the required owner or deployed version cannot be established, identify that
 specific missing evidence before changing the dependent input.
 
@@ -55,4 +56,5 @@ and unavailable checks distinct.
 For documentation not consumed by a runtime, use applicable content, reference,
 and generated-output checks rather than an unrelated application build. For
 configuration or executable tooling, verify the affected behavior and rollout
-compatibility. Faster completion must still mean the requested outcome works.
+ordering and current user flow. Faster completion must still mean the requested
+outcome works.

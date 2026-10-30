@@ -3,7 +3,7 @@ name: release-efficiency
 description: >-
   Use when changing a build or release pipeline, diagnosing slow CI or publication,
   or reducing delivery time. Measure the actual bottleneck, improve scheduling and
-  artifact reuse, and preserve required verification, approvals, and compatibility.
+  artifact reuse, and preserve required verification and approvals while fixing forward.
 metadata:
   audience: "contributors"
 ---

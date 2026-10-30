@@ -25,7 +25,7 @@ handoff. This applies even when the current task originally started it.
 Identify the exact output paths from the task’s build commands or repository
 configuration. Check active compilers, tests, package operations, and planned
 validation before removing them. Keep the tested artifact and evidence needed
-for integration, release, rollback, or handoff in their established durable home.
+for integration, release, forward repair, or handoff in their established durable home.
 
 An output directory may contain runtime state, signed artifacts, or valuable
 ignored files. Inspect its role and contents before treating it as reproducible.

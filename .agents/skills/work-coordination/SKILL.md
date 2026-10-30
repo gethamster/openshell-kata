@@ -63,6 +63,11 @@ constraint through the existing owner and permitted capacity.
 
 ## Hand off and finish
 
+The integration owner drives small complete increments through local checks,
+push and release toward production. Integrate ready pieces promptly; keep status
+updates brief and continue working without treating them as gates. Report real
+blockers with the action, target, reason and status; keep independent work moving.
+
 Make completed work, unresolved findings, current handles, and the next action
 available to the receiving owner. Transfer responsibility for shared services
 before the current owner exits if consumers still need them. A handoff must not

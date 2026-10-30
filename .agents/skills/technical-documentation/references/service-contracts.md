@@ -35,12 +35,13 @@ Use placeholders or safe synthetic values, never live secrets or private payload
 Do not copy internal-only endpoints or configuration into public documentation
 merely because they appear in the source tree.
 
-## Preserve compatibility
+## Update contracts coherently
 
 A documentation cleanup does not authorize renaming a wire field, route, schema
-column, event, or public type. Treat an authorized contract change as compatibility
-work: inspect callers, update the owning definitions and relevant examples, and
-follow the repository’s versioning or migration process.
+column, event, or public type. For an authorized contract change, update owning
+definitions, affected consumers, and examples coherently through the existing
+forward migration and versioning process. Document the current contract; do not
+introduce legacy adapters, dual protocols, or speculative compatibility layers.
 
 If implementation and intended contract disagree, identify the difference and
 its evidence. Do not quietly redefine the contract to hide a bug, or alter the

@@ -3,7 +3,7 @@ name: release-efficiency
 description: >-
   Use when changing a build or release pipeline, diagnosing slow CI or publication,
   or reducing delivery time. Measure the actual bottleneck, improve scheduling and
-  artifact reuse, and preserve required verification, approvals, and compatibility.
+  artifact reuse, and preserve required verification and approvals while fixing forward.
 metadata:
   audience: "contributors"
 ---
@@ -46,12 +46,12 @@ unrelated failures scoped to their affected operations unless they block a
 required dependency or gate. Do not classify an unfinished or skipped required
 check as an optimization.
 
-## Keep the pipeline compatible
+## Move the pipeline forward coherently
 
-Use [Pipeline compatibility](references/pipeline-compatibility.md) when changing
-manifests, dispatchers, artifact handling, or staging coordination. Deploy support
-for a new input format before depending on it. Preserve rollback and existing
-qualified artifacts during the transition.
+Use [Pipeline updates](references/pipeline-compatibility.md) when changing
+manifests, dispatchers, artifact handling, or staging coordination. Update
+the actual consumers and inputs to the current contract in dependency order.
+Fix forward without rollback support, dual formats, or legacy readers.
 
 ## Verify the improvement
 
