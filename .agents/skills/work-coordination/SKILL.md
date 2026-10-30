@@ -72,5 +72,3 @@ After integration or handoff, apply
 [workspace-cleanup](../workspace-cleanup/SKILL.md) to the resources no longer
 needed. Supply its owner and remaining-use information; let that skill govern
 preservation, eligibility, removal, and verification.
-
-The [adaptation record](references/source.md) identifies the original guidance.

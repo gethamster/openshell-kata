@@ -18,7 +18,8 @@ must be explicitly selected and reviewed for that audience.
   and required license notices.
 - `resources/` contains reference material and recorded upstream imports.
   Preserve the pinned `resources/beautiful-rust/` snapshot unchanged; make
-  reviewed skill adaptations in `../skills/` and record their provenance.
+  skill changes in `../skills/`. Keep skill text focused on actionable
+  instructions; do not add adaptation histories or original-file records.
 - Write shared instructions for roles such as the user, operator, or maintainer
   rather than named individuals. Keep them applicable across repositories.
   Build commands, infrastructure identifiers, service boundaries, and deployment

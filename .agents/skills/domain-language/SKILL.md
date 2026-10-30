@@ -66,5 +66,3 @@ terms do not falsely imply different objects or collapse different states.
 For identifier changes, verify the relevant consumers and compatibility behavior
 through the repository’s required process. Report unresolved ambiguity or
 migration limits rather than claiming a prose edit completed the migration.
-
-The [adaptation record](references/source.md) identifies the original guidance.

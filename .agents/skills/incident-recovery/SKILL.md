@@ -34,5 +34,3 @@ Once the cause or operation state is established, return to
 [verified-delivery](../verified-delivery/SKILL.md) to smoke-test, decide, and ship.
 Additional observation is warranted only by the incident’s concrete risk or an
 existing requirement. Stop when that question is answered.
-
-The [source record](references/source.md) records this split.

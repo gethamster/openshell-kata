@@ -68,5 +68,3 @@ unrelated application builds or new approval gates to documentation work.
 Report the documents and generated outputs changed, checks actually performed,
 and any important difference between described, configured, tested, and deployed
 behavior. A saved local document is not automatically published documentation.
-
-The [adaptation record](references/source.md) identifies the original guidance.
